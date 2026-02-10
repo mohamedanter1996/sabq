@@ -1,0 +1,49 @@
+
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sabq.Domain", "src\Sabq.Domain\Sabq.Domain.csproj", "{B1A2C3D4-E5F6-4789-A1B2-C3D4E5F67890}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sabq.Shared", "src\Sabq.Shared\Sabq.Shared.csproj", "{B2A3C4D5-E6F7-4890-A2B3-C4D5E6F78901}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sabq.Infrastructure", "src\Sabq.Infrastructure\Sabq.Infrastructure.csproj", "{B3A4C5D6-E7F8-4901-A3B4-C5D6E7F89012}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sabq.Application", "src\Sabq.Application\Sabq.Application.csproj", "{B4A5C6D7-E8F9-4012-A4B5-C6D7E8F90123}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sabq.Api", "src\Sabq.Api\Sabq.Api.csproj", "{B5A6C7D8-E9F0-4123-A5B6-C7D8E9F01234}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sabq.Mobile", "src\Sabq.Mobile\Sabq.Mobile.csproj", "{B6A7C8D9-E0F1-4234-A6B7-C8D9E0F12345}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B1A2C3D4-E5F6-4789-A1B2-C3D4E5F67890}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B1A2C3D4-E5F6-4789-A1B2-C3D4E5F67890}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B1A2C3D4-E5F6-4789-A1B2-C3D4E5F67890}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B1A2C3D4-E5F6-4789-A1B2-C3D4E5F67890}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B2A3C4D5-E6F7-4890-A2B3-C4D5E6F78901}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B2A3C4D5-E6F7-4890-A2B3-C4D5E6F78901}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B2A3C4D5-E6F7-4890-A2B3-C4D5E6F78901}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B2A3C4D5-E6F7-4890-A2B3-C4D5E6F78901}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B3A4C5D6-E7F8-4901-A3B4-C5D6E7F89012}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B3A4C5D6-E7F8-4901-A3B4-C5D6E7F89012}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B3A4C5D6-E7F8-4901-A3B4-C5D6E7F89012}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B3A4C5D6-E7F8-4901-A3B4-C5D6E7F89012}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B4A5C6D7-E8F9-4012-A4B5-C6D7E8F90123}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B4A5C6D7-E8F9-4012-A4B5-C6D7E8F90123}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B4A5C6D7-E8F9-4012-A4B5-C6D7E8F90123}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B4A5C6D7-E8F9-4012-A4B5-C6D7E8F90123}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B5A6C7D8-E9F0-4123-A5B6-C7D8E9F01234}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B5A6C7D8-E9F0-4123-A5B6-C7D8E9F01234}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B5A6C7D8-E9F0-4123-A5B6-C7D8E9F01234}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B5A6C7D8-E9F0-4123-A5B6-C7D8E9F01234}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B6A7C8D9-E0F1-4234-A6B7-C8D9E0F12345}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B6A7C8D9-E0F1-4234-A6B7-C8D9E0F12345}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B6A7C8D9-E0F1-4234-A6B7-C8D9E0F12345}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B6A7C8D9-E0F1-4234-A6B7-C8D9E0F12345}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+  <!-- Background -->
+  <rect width="48" height="48" rx="8" fill="#1E3A8A"/>
+  
+  <!-- Lightning Icon -->
+  <path d="M 26 12 L 20 24 L 24 24 L 22 36 L 30 22 L 26 22 Z" fill="#F59E0B"/>
+</svg>

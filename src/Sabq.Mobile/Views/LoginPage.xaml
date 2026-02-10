@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:Sabq.Mobile.ViewModels"
+             x:Class="Sabq.Mobile.Views.LoginPage"
+             x:DataType="vm:LoginViewModel"
+             FlowDirection="RightToLeft"
+             BackgroundColor="{StaticResource Background}"
+             NavigationPage.HasNavigationBar="False">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="30" Spacing="20" VerticalOptions="Center">
+            
+            <Label Text="سبق" FontSize="60" FontAttributes="Bold" TextColor="{StaticResource Primary}" HorizontalOptions="Center"/>
+            <Label Text="جاوب الأول… واكسب" FontSize="18" TextColor="{StaticResource Secondary}" HorizontalOptions="Center" Margin="0,0,0,40"/>
+            
+            <Label Text="مرحباً بك!" FontSize="24" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}"/>
+            <Label Text="أدخل اسم العرض للبدء" FontSize="16" TextColor="{StaticResource TextSecondary}"/>
+            
+            <Entry Placeholder="اسم العرض" Text="{Binding DisplayName}" FontSize="18" Margin="0,20,0,0"/>
+            
+            <Label Text="{Binding ErrorMessage}" TextColor="{StaticResource Error}" IsVisible="{Binding ErrorMessage, Converter={StaticResource IsNotNullOrEmptyConverter}}"/>
+            
+            <Button Text="دخول" Command="{Binding LoginCommand}" IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}" 
+                    BackgroundColor="{StaticResource Primary}" TextColor="White" FontSize="18" Padding="15" Margin="0,20,0,0"/>
+            
+            <ActivityIndicator IsRunning="{Binding IsBusy}" Color="{StaticResource Primary}"/>
+            
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

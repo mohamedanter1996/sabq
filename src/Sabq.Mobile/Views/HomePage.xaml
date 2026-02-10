@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:Sabq.Mobile.ViewModels"
+             x:Class="Sabq.Mobile.Views.HomePage"
+             x:DataType="vm:HomeViewModel"
+             FlowDirection="RightToLeft"
+             Title="سبق"
+             BackgroundColor="{StaticResource Background}">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="30" Spacing="25">
+            
+            <Label Text="{Binding DisplayName, StringFormat='مرحباً، {0}!'}" FontSize="28" FontAttributes="Bold" TextColor="{StaticResource Primary}"/>
+            
+            <Frame BackgroundColor="{StaticResource Surface}" Padding="25" CornerRadius="15" Margin="0,20,0,0">
+                <VerticalStackLayout Spacing="15">
+                    <Label Text="إنشاء غرفة جديدة" FontSize="20" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}"/>
+                    <Label Text="كن المضيف وابدأ لعبة جديدة" FontSize="14" TextColor="{StaticResource TextSecondary}"/>
+                    <Button Text="إنشاء غرفة" Command="{Binding CreateRoomCommand}" BackgroundColor="{StaticResource Primary}" TextColor="White" FontSize="16" Margin="0,10,0,0"/>
+                </VerticalStackLayout>
+            </Frame>
+            
+            <Frame BackgroundColor="{StaticResource Surface}" Padding="25" CornerRadius="15">
+                <VerticalStackLayout Spacing="15">
+                    <Label Text="الانضمام إلى غرفة" FontSize="20" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}"/>
+                    <Label Text="أدخل رمز الغرفة للانضمام" FontSize="14" TextColor="{StaticResource TextSecondary}"/>
+                    <Entry Placeholder="رمز الغرفة" Text="{Binding RoomCode}" FontSize="16" MaxLength="10"/>
+                    <Label Text="{Binding ErrorMessage}" TextColor="{StaticResource Error}" IsVisible="{Binding ErrorMessage, Converter={StaticResource IsNotNullOrEmptyConverter}}"/>
+                    <Button Text="انضمام" Command="{Binding JoinRoomCommand}" BackgroundColor="{StaticResource Accent}" TextColor="White" FontSize="16"/>
+                    <ActivityIndicator IsRunning="{Binding IsBusy}" Color="{StaticResource Primary}"/>
+                </VerticalStackLayout>
+            </Frame>
+            
+            <Button Text="تسجيل خروج" Command="{Binding LogoutCommand}" BackgroundColor="Transparent" TextColor="{StaticResource Error}" Margin="0,20,0,0"/>
+            
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

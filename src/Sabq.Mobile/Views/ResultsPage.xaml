@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:Sabq.Mobile.ViewModels"
+             x:Class="Sabq.Mobile.Views.ResultsPage"
+             x:DataType="vm:ResultsViewModel"
+             FlowDirection="RightToLeft"
+             Title="النتائج"
+             BackgroundColor="{StaticResource Background}">
+
+    <Grid RowDefinitions="Auto,*,Auto" Padding="30">
+        
+        <VerticalStackLayout Grid.Row="0" Spacing="10" Margin="0,20,0,30">
+            <Label Text="🏆" FontSize="60" HorizontalOptions="Center"/>
+            <Label Text="انتهت اللعبة!" FontSize="28" FontAttributes="Bold" TextColor="{StaticResource Primary}" HorizontalOptions="Center"/>
+            <Label Text="نتائج اللاعبين" FontSize="18" TextColor="{StaticResource TextSecondary}" HorizontalOptions="Center"/>
+        </VerticalStackLayout>
+        
+        <ScrollView Grid.Row="1">
+            <CollectionView ItemsSource="{Binding FinalLeaderboard}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Frame BackgroundColor="{StaticResource Surface}" Padding="20" Margin="0,8" CornerRadius="12">
+                            <Grid ColumnDefinitions="Auto,*,Auto">
+                                <Label Grid.Column="0" Text="🏅" FontSize="24" VerticalOptions="Center"/>
+                                <Label Grid.Column="1" Text="{Binding DisplayName}" FontSize="20" FontAttributes="Bold" VerticalOptions="Center" Margin="15,0,0,0"/>
+                                <Label Grid.Column="2" Text="{Binding Score, StringFormat='{0} نقطة'}" FontSize="20" FontAttributes="Bold" TextColor="{StaticResource Accent}" VerticalOptions="Center"/>
+                            </Grid>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </ScrollView>
+        
+        <Button Grid.Row="2" Text="العودة للرئيسية" Command="{Binding BackToHomeCommand}" 
+                BackgroundColor="{StaticResource Primary}" TextColor="White" FontSize="18" Padding="15"/>
+        
+    </Grid>
+
+</ContentPage>

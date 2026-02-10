@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:Sabq.Mobile.ViewModels"
+             x:Class="Sabq.Mobile.Views.CreateRoomPage"
+             x:DataType="vm:CreateRoomViewModel"
+             FlowDirection="RightToLeft"
+             Title="إنشاء غرفة"
+             BackgroundColor="{StaticResource Background}">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="30" Spacing="20">
+            
+            <Label Text="إعدادات الغرفة" FontSize="24" FontAttributes="Bold" TextColor="{StaticResource Primary}"/>
+            
+            <Label Text="عدد الأسئلة" FontSize="16" FontAttributes="Bold"/>
+            <Stepper Value="{Binding QuestionCount}" Minimum="5" Maximum="30" Increment="5"/>
+            <Label Text="{Binding QuestionCount, StringFormat='{0} سؤال'}" FontSize="14" TextColor="{StaticResource TextSecondary}"/>
+            
+            <Label Text="مستوى الصعوبة" FontSize="16" FontAttributes="Bold" Margin="0,20,0,0"/>
+            <HorizontalStackLayout Spacing="15">
+                <CheckBox IsChecked="{Binding EasySelected}"/>
+                <Label Text="سهل" FontSize="16" VerticalOptions="Center"/>
+            </HorizontalStackLayout>
+            <HorizontalStackLayout Spacing="15">
+                <CheckBox IsChecked="{Binding MediumSelected}"/>
+                <Label Text="متوسط" FontSize="16" VerticalOptions="Center"/>
+            </HorizontalStackLayout>
+            <HorizontalStackLayout Spacing="15">
+                <CheckBox IsChecked="{Binding HardSelected}"/>
+                <Label Text="صعب" FontSize="16" VerticalOptions="Center"/>
+            </HorizontalStackLayout>
+            
+            <Label Text="{Binding ErrorMessage}" TextColor="{StaticResource Error}" IsVisible="{Binding ErrorMessage, Converter={StaticResource IsNotNullOrEmptyConverter}}" Margin="0,10,0,0"/>
+            
+            <Button Text="إنشاء الغرفة" Command="{Binding CreateCommand}" BackgroundColor="{StaticResource Primary}" TextColor="White" FontSize="18" Padding="15" Margin="0,30,0,0"/>
+            
+            <ActivityIndicator IsRunning="{Binding IsBusy}" Color="{StaticResource Primary}"/>
+            
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

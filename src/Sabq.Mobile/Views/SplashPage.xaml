@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:Sabq.Mobile.ViewModels"
+             x:Class="Sabq.Mobile.Views.SplashPage"
+             x:DataType="vm:SplashViewModel"
+             BackgroundColor="{StaticResource Primary}"
+             NavigationPage.HasNavigationBar="False">
+
+    <Grid>
+        <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center" Spacing="20">
+            <Label Text="سبق" FontSize="72" FontAttributes="Bold" TextColor="White" HorizontalOptions="Center"/>
+            <Label Text="جاوب الأول… واكسب" FontSize="20" TextColor="#F59E0B" HorizontalOptions="Center"/>
+            <ActivityIndicator IsRunning="True" Color="White" Margin="0,40,0,0"/>
+        </VerticalStackLayout>
+    </Grid>
+
+</ContentPage>

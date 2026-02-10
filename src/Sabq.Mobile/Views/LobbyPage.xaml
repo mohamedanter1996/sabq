@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:Sabq.Mobile.ViewModels"
+             x:Class="Sabq.Mobile.Views.LobbyPage"
+             x:DataType="vm:LobbyViewModel"
+             FlowDirection="RightToLeft"
+             Title="غرفة الانتظار"
+             BackgroundColor="{StaticResource Background}">
+
+    <Grid RowDefinitions="*,Auto" Padding="20">
+        
+        <ScrollView Grid.Row="0">
+            <VerticalStackLayout Spacing="20">
+                
+                <Frame BackgroundColor="{StaticResource Primary}" Padding="25" CornerRadius="15">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="رمز الغرفة" FontSize="14" TextColor="White" Opacity="0.9"/>
+                        <Label Text="{Binding DisplayRoomCode}" FontSize="36" FontAttributes="Bold" TextColor="White" HorizontalOptions="Center"/>
+                        <Button Text="نسخ الرمز" Command="{Binding CopyRoomCodeCommand}" BackgroundColor="{StaticResource Secondary}" TextColor="White" FontSize="14" Padding="10"/>
+                    </VerticalStackLayout>
+                </Frame>
+                
+                <Label Text="اللاعبون" FontSize="20" FontAttributes="Bold" TextColor="{StaticResource Primary}"/>
+                
+                <CollectionView ItemsSource="{Binding Players}">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Frame BackgroundColor="{StaticResource Surface}" Padding="15" Margin="0,5" CornerRadius="10">
+                                <HorizontalStackLayout Spacing="10">
+                                    <Label Text="👤" FontSize="24"/>
+                                    <Label Text="{Binding DisplayName}" FontSize="18" VerticalOptions="Center"/>
+                                </HorizontalStackLayout>
+                            </Frame>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+                
+            </VerticalStackLayout>
+        </ScrollView>
+        
+        <Button Grid.Row="1" Text="ابدأ اللعبة" Command="{Binding StartGameCommand}" IsVisible="{Binding IsHost}" 
+                BackgroundColor="{StaticResource Accent}" TextColor="White" FontSize="18" Padding="15" Margin="0,10"/>
+        
+    </Grid>
+
+</ContentPage>
