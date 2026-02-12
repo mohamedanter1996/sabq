@@ -12,9 +12,9 @@ export interface AuthState {
 })
 export class AuthService {
   private authState = new BehaviorSubject<AuthState>({
-    playerId: localStorage.getItem('playerId'),
-    displayName: localStorage.getItem('displayName'),
-    token: localStorage.getItem('token')
+    playerId: sessionStorage.getItem('playerId'),
+    displayName: sessionStorage.getItem('displayName'),
+    token: sessionStorage.getItem('token')
   });
 
   authState$ = this.authState.asObservable();
@@ -32,18 +32,22 @@ export class AuthService {
     return this.authState.value.playerId;
   }
 
+  get displayName(): string | null {
+    return this.authState.value.displayName;
+  }
+
   setAuth(playerId: string, displayName: string, token: string): void {
-    localStorage.setItem('playerId', playerId);
-    localStorage.setItem('displayName', displayName);
-    localStorage.setItem('token', token);
+    sessionStorage.setItem('playerId', playerId);
+    sessionStorage.setItem('displayName', displayName);
+    sessionStorage.setItem('token', token);
     
     this.authState.next({ playerId, displayName, token });
   }
 
   clearAuth(): void {
-    localStorage.removeItem('playerId');
-    localStorage.removeItem('displayName');
-    localStorage.removeItem('token');
+    sessionStorage.removeItem('playerId');
+    sessionStorage.removeItem('displayName');
+    sessionStorage.removeItem('token');
     
     this.authState.next({ playerId: null, displayName: null, token: null });
   }

@@ -18,6 +18,7 @@ interface PlayerLeaderboard { id: string; displayName: string; score: number; }
 interface ScoresUpdatedEvent { leaderboard: PlayerLeaderboard[]; }
 interface QuestionEndedEvent { correctOptionId: string; leaderboard: PlayerLeaderboard[]; }
 interface GameEndedEvent { finalLeaderboard: PlayerLeaderboard[]; winnerIds: string[]; }
+interface QuestionLockedEvent { playerId: string; playerName: string; }
 
 @Injectable({
   providedIn: 'root'
@@ -31,6 +32,7 @@ export class RealtimeService {
   newQuestion$ = new ReplaySubject<NewQuestionEvent>(1);
   answerResult$ = new Subject<AnswerResultEvent>();
   scoresUpdated$ = new ReplaySubject<ScoresUpdatedEvent>(1);
+  questionLocked$ = new Subject<QuestionLockedEvent>();
   questionEnded$ = new ReplaySubject<QuestionEndedEvent>(1);
   gameEnded$ = new ReplaySubject<GameEndedEvent>(1);
   error$ = new Subject<string>();
@@ -65,6 +67,10 @@ export class RealtimeService {
     });
     this.hubConnection.on('AnswerResult', (data: AnswerResultEvent) => this.answerResult$.next(data));
     this.hubConnection.on('ScoresUpdated', (data: ScoresUpdatedEvent) => this.scoresUpdated$.next(data));
+    this.hubConnection.on('QuestionLocked', (data: QuestionLockedEvent) => {
+      console.log('QuestionLocked received:', data);
+      this.questionLocked$.next(data);
+    });
     this.hubConnection.on('QuestionEnded', (data: QuestionEndedEvent) => {
       console.log('QuestionEnded received:', data);
       this.questionEnded$.next(data);

@@ -112,6 +112,7 @@ public class GameService
         var questionId = snapshot.QuestionIds[snapshot.CurrentQuestionIndex];
         snapshot.CurrentQuestionId = questionId;
         snapshot.PlayersAnsweredCurrentQuestion.Clear();
+        snapshot.PlayerSelectedOptions.Clear();
         snapshot.QuestionStartedAt = DateTime.UtcNow;
 
         await _roomStore.SaveRoomAsync(snapshot);
@@ -177,8 +178,9 @@ public class GameService
             if (snapshot.PlayersAnsweredCurrentQuestion.Contains(playerId))
                 throw new InvalidOperationException("Player already answered");
 
-            // Mark player as answered
+            // Mark player as answered and store selected option
             snapshot.PlayersAnsweredCurrentQuestion.Add(playerId);
+            snapshot.PlayerSelectedOptions[playerId] = optionId;
 
             // Check if answer is correct
             var option = await _context.Options.FindAsync(optionId);

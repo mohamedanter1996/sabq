@@ -14,5 +14,6 @@ public class RoomStateSnapshot
     public int CurrentQuestionIndex { get; set; } = -1;
     public Guid? CurrentQuestionId { get; set; }
     public HashSet<Guid> PlayersAnsweredCurrentQuestion { get; set; } = new();
+    public Dictionary<Guid, Guid> PlayerSelectedOptions { get; set; } = new(); // PlayerId -> OptionId
     public DateTime? QuestionStartedAt { get; set; }
 }

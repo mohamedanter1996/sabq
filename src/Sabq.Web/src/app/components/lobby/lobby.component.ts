@@ -28,12 +28,12 @@ interface PlayerJoinedEvent { player: PlayerDto; }
           <span style="font-size: 18px;">{{ player.displayName }}</span>
         </div>
         
-        <div style="margin-top: 20px; padding: 10px; background: #FEE; border: 1px solid red;">
+        <!-- <div style="margin-top: 20px; padding: 10px; background: #FEE; border: 1px solid red;">
           <strong>Debug Info:</strong><br>
           isHost: {{ isHost }}<br>
           My ID: {{ authService.playerId }}<br>
         </div>
-      </div>
+      </div> -->
 
       <button 
         *ngIf="isHost" 

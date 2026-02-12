@@ -49,8 +49,40 @@ public class SabqHub : Hub
             var question = await _gameService.GetCurrentQuestionAsync(snapshot.CurrentQuestionId.Value);
             if (question != null)
             {
+                // Calculate remaining time based on when question started
+                var remainingSeconds = question.TimeLimitSec;
+                if (snapshot.QuestionStartedAt.HasValue)
+                {
+                    var elapsedSeconds = (int)(DateTime.UtcNow - snapshot.QuestionStartedAt.Value).TotalSeconds;
+                    remainingSeconds = Math.Max(1, question.TimeLimitSec - elapsedSeconds);
+                }
+                
+                // Check if player already answered this question
+                var hasAlreadyAnswered = snapshot.PlayersAnsweredCurrentQuestion.Contains(playerId.Value);
+                
+                // Get selected option if player already answered
+                Guid? selectedOptionId = null;
+                if (hasAlreadyAnswered && snapshot.PlayerSelectedOptions.TryGetValue(playerId.Value, out var optId))
+                {
+                    selectedOptionId = optId;
+                }
+                
+                // Create a modified question with remaining time
+                var questionWithRemainingTime = new Sabq.Shared.DTOs.QuestionDto
+                {
+                    Id = question.Id,
+                    TextAr = question.TextAr,
+                    Difficulty = question.Difficulty,
+                    TimeLimitSec = remainingSeconds,
+                    Options = question.Options
+                };
+                
                 await Clients.Caller.SendAsync("NewQuestion",
-                    new NewQuestionEvent(question, snapshot.CurrentQuestionIndex + 1, snapshot.QuestionIds.Count));
+                    new NewQuestionEvent(questionWithRemainingTime, snapshot.CurrentQuestionIndex + 1, snapshot.QuestionIds.Count, hasAlreadyAnswered, selectedOptionId));
+                
+                // Send current leaderboard
+                var leaderboard = await _gameService.GetLeaderboardAsync(roomCode);
+                await Clients.Caller.SendAsync("ScoresUpdated", new ScoresUpdatedEvent(leaderboard));
             }
         }
 
@@ -113,10 +145,19 @@ public class SabqHub : Hub
             var leaderboard = await _gameService.GetLeaderboardAsync(roomCode);
             await Clients.Group(roomCode).SendAsync("ScoresUpdated", new ScoresUpdatedEvent(leaderboard));
 
-            // If first correct answer OR all players answered wrong, end question immediately
-            if (isFirstCorrect || allPlayersAnsweredWrong)
+            // If first correct answer, immediately lock the question for all players
+            if (isFirstCorrect)
             {
-                await Task.Delay(1000); // Brief delay to show feedback
+                var snapshot = await _roomService.GetRoomStateAsync(roomCode);
+                var playerName = snapshot?.Players[playerId.Value].DisplayName ?? "لاعب";
+                await Clients.Group(roomCode).SendAsync("QuestionLocked", 
+                    new QuestionLockedEvent(playerId.Value, playerName));
+                await Task.Delay(2000); // Show who answered correctly
+                await EndCurrentQuestion(roomCode, questionId);
+            }
+            else if (allPlayersAnsweredWrong)
+            {
+                await Task.Delay(1000);
                 await EndCurrentQuestion(roomCode, questionId);
             }
         }
