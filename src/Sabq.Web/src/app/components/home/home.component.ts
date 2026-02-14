@@ -17,7 +17,7 @@ interface JoinRoomResponse { roomId: string; roomCode: string; categoryName: str
   template: `
     <div class="container" style="max-width: 800px; margin-top: 50px;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px;">
-        <h1 style="color: var(--primary);">سبق</h1>
+        <h1 style="color: var(--primary);">سابق</h1>
         <button class="btn" style="background: transparent; color: var(--error);" (click)="logout()">تسجيل خروج</button>
       </div>
 

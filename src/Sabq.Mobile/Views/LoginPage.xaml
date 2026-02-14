@@ -11,7 +11,7 @@
     <ScrollView>
         <VerticalStackLayout Padding="30" Spacing="20" VerticalOptions="Center">
             
-            <Label Text="سبق" FontSize="60" FontAttributes="Bold" TextColor="{StaticResource Primary}" HorizontalOptions="Center"/>
+            <Label Text="سابق" FontSize="60" FontAttributes="Bold" TextColor="{StaticResource Primary}" HorizontalOptions="Center"/>
             <Label Text="جاوب الأول… واكسب" FontSize="18" TextColor="{StaticResource Secondary}" HorizontalOptions="Center" Margin="0,0,0,40"/>
             
             <Label Text="مرحباً بك!" FontSize="24" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}"/>

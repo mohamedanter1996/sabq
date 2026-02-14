@@ -14,7 +14,7 @@ interface GuestLoginResponse { token: string; playerId: string; displayName: str
   template: `
     <div class="container" style="max-width: 500px; margin-top: 100px;">
       <div class="card">
-        <h1 style="text-align: center; color: var(--primary); font-size: 48px; margin-bottom: 10px;">سبق</h1>
+        <h1 style="text-align: center; color: var(--primary); font-size: 48px; margin-bottom: 10px;">سابق</h1>
         <p style="text-align: center; color: var(--secondary); font-size: 20px; margin-bottom: 40px;">جاوب الأول… واكسب</p>
         
         <h2 style="margin-bottom: 20px;">مرحباً بك!</h2>

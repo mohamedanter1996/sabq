@@ -35,7 +35,7 @@
 - ✅ **RxJS State Management** - BehaviorSubject pattern
 
 ### **4. Branding & Assets**
-- ✅ **Logo SVG** - Lightning icon + "سبق" text
+- ✅ **Logo SVG** - Lightning icon + "سابق" text
 - ✅ **Favicon SVG** - Compact icon version
 - ✅ **Color Palette** - Dark Blue #1E3A8A + Gold #F59E0B
 - ✅ **Typography Guide** - Cairo font (Google Fonts)

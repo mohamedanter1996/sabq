@@ -1,13 +1,13 @@
-# Sabq (سبق) - Branding Guidelines
+# Sabiq (سابق) - Branding Guidelines
 
 ## App Name
-**Arabic:** سبق  
+**Arabic:** سابق  
 **Tagline:** جاوب الأول… واكسب  
 **English Translation:** "Be First... and Win"
 
 ## Logo Concept
-The Sabq logo combines:
-- **Arabic Text:** Bold "سبق" text representing the app name
+The Sabiq logo combines:
+- **Arabic Text:** Bold "سابق" text representing the app name
 - **Lightning/Speed Icon:** Symbolizes speed, quick thinking, and being first
 - **Colors:** Dark Blue (#1E3A8A) and Gold (#F59E0B) for premium feel
 
@@ -29,7 +29,19 @@ The Sabq logo combines:
 
 ## Typography
 
-### Arabic Font
+### Logo Font (Ruq'ah Calligraphy)
+**Aref Ruqaa** (Google Fonts)
+- Traditional Arabic Ruq'ah calligraphy style
+- Used for logo text "سابق"
+- Bold weight for maximum impact
+- Authentic handwritten calligraphic feel
+
+### Usage
+```css
+font-family: 'Aref Ruqaa', serif;
+```
+
+### Body Font
 **Cairo** (Google Fonts)
 - Regular weight for body text
 - Bold weight for headings and emphasis
@@ -52,7 +64,7 @@ font-family: 'Cairo', sans-serif;
 
 ### iOS App Icon
 1. **Size:** 1024x1024px
-2. **Design:** Lightning icon centered on blue background with "سبق" text below
+2. **Design:** Lightning icon centered on blue background with "سابق" text below
 3. **Corner Radius:** iOS applies automatically
 
 ### Generation Steps
@@ -64,7 +76,7 @@ font-family: 'Cairo', sans-serif;
 
 ### Design
 - **Background:** Dark Blue (#1E3A8A)
-- **Logo:** Lightning icon + "سبق" text in white
+- **Logo:** Lightning icon + "سابق" text in white
 - **Tagline:** "جاوب الأول… واكسب" in Gold (#F59E0B)
 - **Loading Indicator:** White spinner below tagline
 

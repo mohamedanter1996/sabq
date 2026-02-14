@@ -5,7 +5,7 @@
              x:Class="Sabq.Mobile.Views.HomePage"
              x:DataType="vm:HomeViewModel"
              FlowDirection="RightToLeft"
-             Title="سبق"
+             Title="سابق"
              BackgroundColor="{StaticResource Background}">
 
     <ScrollView>

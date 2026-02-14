@@ -10,7 +10,7 @@
     <Nullable>enable</Nullable>
 
     <!-- Display name -->
-    <ApplicationTitle>سبق</ApplicationTitle>
+    <ApplicationTitle>سابق</ApplicationTitle>
 
     <!-- App Identifier -->
     <ApplicationId>com.sabq.app</ApplicationId>

@@ -1,4 +1,4 @@
-# سبق (Sabq) - Real-Time Arabic Quiz Platform
+# سابق (Sabiq) - Real-Time Arabic Quiz Platform
 
 **جاوب الأول… واكسب** (Be First... and Win)
 

@@ -2,7 +2,7 @@
 # Run this script to set up and start the development environment
 
 Write-Host "========================================" -ForegroundColor Cyan
-Write-Host "   سبق (Sabq) - Quick Start Setup   " -ForegroundColor Cyan
+Write-Host "   سابق (Sabiq) - Quick Start Setup   " -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
 

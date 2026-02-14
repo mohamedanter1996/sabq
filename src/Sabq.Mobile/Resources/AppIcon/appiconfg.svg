@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 456 456">
+  <!-- Lightning Icon (Foreground) -->
+  <path d="M 260 50 L 170 220 L 230 220 L 195 350 L 310 180 L 250 180 Z" fill="#F59E0B"/>
+  
+  <!-- Arabic "سابق" in Ruq'ah calligraphy style -->
+  <text x="228" y="430" font-family="'Aref Ruqaa', 'Amiri', 'Traditional Arabic', serif" font-size="100" font-weight="bold" fill="#FFFFFF" text-anchor="middle" letter-spacing="-3">سابق</text>
+</svg>
