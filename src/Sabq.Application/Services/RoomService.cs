@@ -43,19 +43,22 @@ public class RoomService
 
         _context.GameRooms.Add(room);
 
-        // Add host as first player
+        // Add host as player only if they want to participate
         var hostPlayer = await _context.Players.FindAsync(hostPlayerId);
         if (hostPlayer == null)
             throw new InvalidOperationException("Host player not found");
 
-        var roomPlayer = new GameRoomPlayer
+        if (request.HostParticipates)
         {
-            RoomId = room.Id,
-            PlayerId = hostPlayerId,
-            Score = 0,
-            JoinedAt = DateTime.UtcNow
-        };
-        _context.GameRoomPlayers.Add(roomPlayer);
+            var roomPlayer = new GameRoomPlayer
+            {
+                RoomId = room.Id,
+                PlayerId = hostPlayerId,
+                Score = 0,
+                JoinedAt = DateTime.UtcNow
+            };
+            _context.GameRoomPlayers.Add(roomPlayer);
+        }
 
         await _context.SaveChangesAsync();
 
@@ -65,16 +68,19 @@ public class RoomService
             RoomCode = roomCode,
             RoomId = room.Id,
             HostPlayerId = hostPlayerId,
+            HostParticipates = request.HostParticipates,
             Status = RoomStatus.Lobby,
-            Players = new Dictionary<Guid, PlayerDto>
-            {
-                [hostPlayerId] = new PlayerDto
+            Players = request.HostParticipates 
+                ? new Dictionary<Guid, PlayerDto>
                 {
-                    Id = hostPlayerId,
-                    DisplayName = hostPlayer.DisplayName,
-                    Score = 0
+                    [hostPlayerId] = new PlayerDto
+                    {
+                        Id = hostPlayerId,
+                        DisplayName = hostPlayer.DisplayName,
+                        Score = 0
+                    }
                 }
-            }
+                : new Dictionary<Guid, PlayerDto>()
         };
 
         await _roomStore.SaveRoomAsync(snapshot);

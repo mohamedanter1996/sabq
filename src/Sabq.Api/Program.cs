@@ -105,6 +105,18 @@ builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<RoomService>();
 builder.Services.AddScoped<GameService>();
 builder.Services.AddScoped<CategoryService>();
+builder.Services.AddScoped<ArchiveService>();
+builder.Services.AddScoped<GameHistoryService>();
+
+// Authorization policies
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("Admin", policy =>
+        policy.RequireClaim("role", "admin"));
+});
+
+// Background services
+builder.Services.AddHostedService<Sabq.Api.BackgroundServices.ArchiveJobScheduler>();
 
 // SignalR
 builder.Services.AddSignalR();

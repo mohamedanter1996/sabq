@@ -15,6 +15,12 @@ public class SabqDbContext : DbContext
     public DbSet<GameRoomPlayer> GameRoomPlayers => Set<GameRoomPlayer>();
     public DbSet<GameRoomQuestion> GameRoomQuestions => Set<GameRoomQuestion>();
     public DbSet<GameAnswer> GameAnswers => Set<GameAnswer>();
+    
+    // Archive and summary tables
+    public DbSet<GameAnswerArchive> GameAnswerArchives => Set<GameAnswerArchive>();
+    public DbSet<GameRoomSummary> GameRoomSummaries => Set<GameRoomSummary>();
+    public DbSet<GameRoomPlayerSummary> GameRoomPlayerSummaries => Set<GameRoomPlayerSummary>();
+    public DbSet<ArchiveJobLog> ArchiveJobLogs => Set<ArchiveJobLog>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -117,6 +123,50 @@ public class SabqDbContext : DbContext
                 .WithMany()
                 .HasForeignKey(e => e.OptionId)
                 .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        // =====================================================================
+        // Archive and Summary Tables Configuration
+        // =====================================================================
+
+        // GameAnswerArchive (standalone, no FK constraints for performance)
+        modelBuilder.Entity<GameAnswerArchive>(entity =>
+        {
+            entity.ToTable("GameAnswersArchive");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.ArchivedAtUtc).HasDefaultValueSql("SYSUTCDATETIME()");
+            entity.HasIndex(e => e.AnsweredAtUtc).HasDatabaseName("IX_GameAnswersArchive_AnsweredAtUtc");
+            entity.HasIndex(e => e.RoomId).HasDatabaseName("IX_GameAnswersArchive_RoomId");
+            entity.HasIndex(e => e.PlayerId).HasDatabaseName("IX_GameAnswersArchive_PlayerId");
+        });
+
+        // GameRoomSummary
+        modelBuilder.Entity<GameRoomSummary>(entity =>
+        {
+            entity.ToTable("GameRoomSummary");
+            entity.HasKey(e => e.RoomId);
+            entity.Property(e => e.IsArchived).HasDefaultValue(false);
+            entity.HasIndex(e => e.IsArchived).HasDatabaseName("IX_GameRoomSummary_IsArchived");
+        });
+
+        // GameRoomPlayerSummary (composite key)
+        modelBuilder.Entity<GameRoomPlayerSummary>(entity =>
+        {
+            entity.ToTable("GameRoomPlayerSummary");
+            entity.HasKey(e => new { e.RoomId, e.PlayerId });
+            entity.HasIndex(e => e.PlayerId).HasDatabaseName("IX_GameRoomPlayerSummary_PlayerId");
+        });
+
+        // ArchiveJobLog
+        modelBuilder.Entity<ArchiveJobLog>(entity =>
+        {
+            entity.ToTable("ArchiveJobLogs");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id).UseIdentityColumn();
+            entity.Property(e => e.RunAtUtc).HasDefaultValueSql("SYSUTCDATETIME()");
+            entity.Property(e => e.Status).HasMaxLength(20).IsRequired();
+            entity.Property(e => e.ErrorMessage).HasMaxLength(4000);
+            entity.HasIndex(e => e.RunAtUtc).HasDatabaseName("IX_ArchiveJobLogs_RunAtUtc").IsDescending();
         });
     }
 }

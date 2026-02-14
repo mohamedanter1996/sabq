@@ -11,10 +11,11 @@ interface OptionDto { id: string; textAr: string; }
 interface QuestionDto { id: string; textAr: string; options: OptionDto[]; timeLimitSec: number; }
 interface NewQuestionEvent { question: QuestionDto; questionNumber: number; totalQuestions: number; hasAlreadyAnswered?: boolean; selectedOptionId?: string; }
 interface AnswerResultEvent { playerId: string; updatedScore: number; }
-interface PlayerLeaderboard { id: string; displayName: string; score: number; }
+interface PlayerLeaderboard { id: string; displayName: string; score: number; rank: number; }
 interface ScoresUpdatedEvent { leaderboard: PlayerLeaderboard[]; }
 interface QuestionLockedEvent { playerId: string; playerName: string; }
 interface QuestionEndedEvent { correctOptionId: string; leaderboard: PlayerLeaderboard[]; }
+interface EmotionEvent { fromPlayerId: string; fromPlayerName: string; toPlayerId: string; emotion: string; }
 
 @Component({
   selector: 'app-game',
@@ -81,17 +82,38 @@ interface QuestionEndedEvent { correctOptionId: string; leaderboard: PlayerLeade
         <h3 style="margin-bottom: 15px;">لوحة المتصدرين</h3>
         <div *ngFor="let player of leaderboard; let i = index" 
              [class.leaderboard-me]="player.id === authService.playerId"
-             [class.leaderboard-first]="i === 0 && !allSameScore"
+             [class.leaderboard-first]="player.rank === 1 && !allSameScore"
              [class.leaderboard-last]="i === leaderboard.length - 1 && leaderboard.length > 1 && !allSameScore"
-             style="display: flex; justify-content: space-between; padding: 12px; border-radius: 8px; margin-bottom: 8px; transition: all 0.3s;"
-             [style.background]="player.id === authService.playerId ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : (!allSameScore && i === 0 ? '#FEF3C7' : '#F9FAFB')"
-             [style.color]="player.id === authService.playerId ? 'white' : 'inherit'">
+             [class.clickable]="player.id !== authService.playerId"
+             style="display: flex; justify-content: space-between; padding: 12px; border-radius: 8px; margin-bottom: 8px; transition: all 0.3s; position: relative;"
+             [style.background]="player.id === authService.playerId ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : (!allSameScore && player.rank === 1 ? '#FEF3C7' : '#F9FAFB')"
+             [style.color]="player.id === authService.playerId ? 'white' : 'inherit'"
+             (click)="player.id !== authService.playerId && openEmotionPicker(player)">
           <span>
-            <span *ngIf="!allSameScore" style="font-size: 18px; margin-left: 8px;">{{ getRankEmoji(i + 1) }}</span>
-            <span *ngIf="!allSameScore">{{ i + 1 }}. </span>{{ player.displayName }}
+            <span *ngIf="!allSameScore" style="font-size: 18px; margin-left: 8px;">{{ getRankEmoji(player.rank) }}</span>
+            <span *ngIf="!allSameScore">{{ player.rank }}. </span>{{ player.displayName }}
             <span *ngIf="player.id === authService.playerId" style="font-size: 12px; opacity: 0.8;">(أنت)</span>
           </span>
           <span style="font-weight: bold;" [style.color]="player.id === authService.playerId ? 'white' : 'var(--accent)'">{{ player.score }}</span>
+          
+          <!-- Floating emotion display for this player -->
+          <div *ngIf="playerEmotions[player.id]" class="floating-emotion">
+            {{ playerEmotions[player.id] }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Emotion Picker Modal -->
+      <div *ngIf="showEmotionPicker" class="emotion-picker-overlay" (click)="closeEmotionPicker()">
+        <div class="emotion-picker" (click)="$event.stopPropagation()">
+          <p style="margin-bottom: 15px; text-align: center;">أرسل تفاعل لـ {{ selectedPlayer?.displayName }}</p>
+          <div class="emotion-grid">
+            <button *ngFor="let emoji of availableEmotions" 
+                    class="emotion-btn" 
+                    (click)="sendEmotion(emoji)">
+              {{ emoji }}
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -223,6 +245,65 @@ interface QuestionEndedEvent { correctOptionId: string; leaderboard: PlayerLeade
       20%, 60% { transform: translateX(-5px); }
       40%, 80% { transform: translateX(5px); }
     }
+    .clickable {
+      cursor: pointer;
+    }
+    .clickable:hover {
+      transform: scale(1.02);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .floating-emotion {
+      position: absolute;
+      top: -30px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 32px;
+      animation: floatUp 2s ease-out forwards;
+      pointer-events: none;
+      z-index: 100;
+    }
+    @keyframes floatUp {
+      0% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+      50% { opacity: 1; transform: translateX(-50%) translateY(-20px) scale(1.2); }
+      100% { opacity: 0; transform: translateX(-50%) translateY(-40px) scale(0.8); }
+    }
+    .emotion-picker-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    .emotion-picker {
+      background: white;
+      border-radius: 16px;
+      padding: 20px;
+      min-width: 280px;
+      animation: bounceIn 0.3s ease-out;
+    }
+    .emotion-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+    .emotion-btn {
+      font-size: 28px;
+      padding: 12px;
+      background: #F3F4F6;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .emotion-btn:hover {
+      background: #E5E7EB;
+      transform: scale(1.15);
+    }
   `]
 })
 export class GameComponent implements OnInit, OnDestroy {
@@ -249,6 +330,12 @@ export class GameComponent implements OnInit, OnDestroy {
   rankChangeIndicator: 'up' | 'down' | null = null;
   questionAnimating = false;
   private lastTimerWarning = -1;
+
+  // Emotion feature properties
+  showEmotionPicker = false;
+  selectedPlayer: PlayerLeaderboard | null = null;
+  playerEmotions: { [playerId: string]: string } = {};
+  availableEmotions = ['😄', '😂', '🔥', '👏', '😮', '😢', '💪', '🎉', '👎', '❤️', '😡', '🤔'];
   
   private subscriptions: Subscription[] = [];
   private timerInterval: any;
@@ -313,11 +400,10 @@ export class GameComponent implements OnInit, OnDestroy {
     this.subscriptions.push(
       this.realtimeService.scoresUpdated$.subscribe((event: ScoresUpdatedEvent) => {
         this.leaderboard = event.leaderboard;
-        const meIndex = event.leaderboard.findIndex((p: PlayerLeaderboard) => p.id === this.authService.playerId);
-        if (meIndex >= 0) {
-          const me = event.leaderboard[meIndex];
+        const me = event.leaderboard.find((p: PlayerLeaderboard) => p.id === this.authService.playerId);
+        if (me) {
           this.myScore = me.score;
-          const newRank = meIndex + 1;
+          const newRank = me.rank;
           
           // Track rank changes (only if scores differ)
           if (this.myRank > 0 && newRank !== this.myRank && !this.allSameScore) {
@@ -355,10 +441,10 @@ export class GameComponent implements OnInit, OnDestroy {
         this.showCorrectAnswer = true;
         this.leaderboard = event.leaderboard;
         
-        // Update my rank
-        const meIndex = event.leaderboard.findIndex((p: PlayerLeaderboard) => p.id === this.authService.playerId);
-        if (meIndex >= 0) {
-          this.myRank = meIndex + 1;
+        // Update my rank using backend-calculated rank
+        const me = event.leaderboard.find((p: PlayerLeaderboard) => p.id === this.authService.playerId);
+        if (me) {
+          this.myRank = me.rank;
         }
         
         // Play sound and show toast based on answer
@@ -391,6 +477,24 @@ export class GameComponent implements OnInit, OnDestroy {
             this.soundService.playLastPlaceSound();
           }
         }
+      })
+    );
+
+    // Subscribe to emotions from other players
+    this.subscriptions.push(
+      this.realtimeService.emotionReceived$.subscribe((event: EmotionEvent) => {
+        // Show the emotion above the target player
+        this.playerEmotions[event.toPlayerId] = event.emotion;
+        
+        // If the emotion is sent to me, show a toast
+        if (event.toPlayerId === this.authService.playerId) {
+          this.toastr.info(`${event.emotion}`, `${event.fromPlayerName} أرسل لك`);
+        }
+        
+        // Clear the emotion after animation
+        setTimeout(() => {
+          delete this.playerEmotions[event.toPlayerId];
+        }, 2000);
       })
     );
 
@@ -488,5 +592,22 @@ export class GameComponent implements OnInit, OnDestroy {
     setTimeout(() => {
       this.rankChangeIndicator = null;
     }, 2000);
+  }
+
+  openEmotionPicker(player: PlayerLeaderboard): void {
+    this.selectedPlayer = player;
+    this.showEmotionPicker = true;
+  }
+
+  closeEmotionPicker(): void {
+    this.showEmotionPicker = false;
+    this.selectedPlayer = null;
+  }
+
+  async sendEmotion(emotion: string): Promise<void> {
+    if (this.selectedPlayer) {
+      await this.realtimeService.sendEmotion(this.roomCode, this.selectedPlayer.id, emotion);
+      this.closeEmotionPicker();
+    }
   }
 }

@@ -39,15 +39,49 @@ public class GameService
         if (settings == null)
             throw new InvalidOperationException("Invalid room settings");
 
-        // Select random questions
-        var questions = await _context.Questions
+        // Select random questions with type limits per game
+        // Fetch more questions than needed to apply type filtering
+        var allQuestions = await _context.Questions
             .Include(q => q.Options)
             .Where(q => q.IsActive &&
                         settings.CategoryIds.Contains(q.CategoryId) &&
                         settings.Difficulties.Contains(q.Difficulty))
             .OrderBy(_ => Guid.NewGuid())
-            .Take(settings.QuestionCount)
+            .Take(settings.QuestionCount * 5) // Fetch 5x to have variety for filtering
             .ToListAsync();
+
+        // Apply type limits per game (max 3 of each type)
+        const int maxPerType = 3;
+        var surahOrderCount = 0;
+        var surahAyatCount = 0;
+        var surahComparisonCount = 0;
+        
+        var questions = new List<Question>();
+        foreach (var q in allQuestions)
+        {
+            if (questions.Count >= settings.QuestionCount) break;
+            
+            var text = q.TextAr ?? "";
+            
+            // Check type and apply limits
+            if (text.Contains("السورة رقم") && text.Contains("في القرآن"))
+            {
+                if (surahOrderCount >= maxPerType) continue;
+                surahOrderCount++;
+            }
+            else if (text.Contains("عدد آيات سورة"))
+            {
+                if (surahAyatCount >= maxPerType) continue;
+                surahAyatCount++;
+            }
+            else if (text.Contains("أيهما أطول"))
+            {
+                if (surahComparisonCount >= maxPerType) continue;
+                surahComparisonCount++;
+            }
+            
+            questions.Add(q);
+        }
 
         if (questions.Count == 0)
             throw new InvalidOperationException("No questions available for selected criteria");
@@ -263,10 +297,23 @@ public class GameService
         if (snapshot == null)
             return new List<PlayerDto>();
 
-        return snapshot.Players.Values
+        var sortedPlayers = snapshot.Players.Values
             .OrderByDescending(p => p.Score)
             .ThenBy(p => p.DisplayName)
             .ToList();
+
+        // Calculate tied ranks using dense ranking (no gaps)
+        int currentRank = 1;
+        for (int i = 0; i < sortedPlayers.Count; i++)
+        {
+            if (i > 0 && sortedPlayers[i].Score < sortedPlayers[i - 1].Score)
+            {
+                currentRank++;
+            }
+            sortedPlayers[i].Rank = currentRank;
+        }
+
+        return sortedPlayers;
     }
 
     public async Task<Guid> GetCorrectOptionIdAsync(Guid questionId)

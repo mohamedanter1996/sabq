@@ -8,6 +8,7 @@ public class RoomStateSnapshot
     public string RoomCode { get; set; } = string.Empty;
     public Guid RoomId { get; set; }
     public Guid HostPlayerId { get; set; }
+    public bool HostParticipates { get; set; } = true;
     public RoomStatus Status { get; set; }
     public Dictionary<Guid, PlayerDto> Players { get; set; } = new();
     public List<Guid> QuestionIds { get; set; } = new();

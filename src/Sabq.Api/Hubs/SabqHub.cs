@@ -38,6 +38,7 @@ public class SabqHub : Hub
             RoomCode = snapshot.RoomCode,
             Status = snapshot.Status,
             HostPlayerId = snapshot.HostPlayerId,
+            HostParticipates = snapshot.HostParticipates,
             Players = snapshot.Players.Values.ToList(),
             TotalQuestions = snapshot.QuestionIds.Count,
             CurrentQuestionIndex = snapshot.CurrentQuestionIndex
@@ -226,6 +227,25 @@ public class SabqHub : Hub
                 await EndCurrentQuestion(roomCode, question.Id);
             }
         });
+    }
+
+    public async Task SendEmotion(string roomCode, Guid toPlayerId, string emotion)
+    {
+        var playerId = GetPlayerId();
+        if (playerId == null)
+            return;
+
+        roomCode = roomCode.ToUpper();
+
+        var snapshot = await _roomService.GetRoomStateAsync(roomCode);
+        if (snapshot == null || !snapshot.Players.ContainsKey(playerId.Value))
+            return;
+
+        var fromPlayer = snapshot.Players[playerId.Value];
+        
+        // Send emotion to all players in the room
+        await Clients.Group(roomCode).SendAsync("EmotionReceived", 
+            new EmotionSentEvent(playerId.Value, fromPlayer.DisplayName, toPlayerId, emotion));
     }
 
     private Guid? GetPlayerId()

@@ -14,11 +14,12 @@ interface OptionDto { id: string; textAr: string; }
 interface QuestionDto { id: string; textAr: string; options: OptionDto[]; timeLimitSec: number; }
 interface NewQuestionEvent { question: QuestionDto; questionNumber: number; totalQuestions: number; }
 interface AnswerResultEvent { playerId: string; updatedScore: number; }
-interface PlayerLeaderboard { id: string; displayName: string; score: number; }
+interface PlayerLeaderboard { id: string; displayName: string; score: number; rank: number; }
 interface ScoresUpdatedEvent { leaderboard: PlayerLeaderboard[]; }
 interface QuestionEndedEvent { correctOptionId: string; leaderboard: PlayerLeaderboard[]; }
 interface GameEndedEvent { finalLeaderboard: PlayerLeaderboard[]; winnerIds: string[]; }
 interface QuestionLockedEvent { playerId: string; playerName: string; }
+interface EmotionEvent { fromPlayerId: string; fromPlayerName: string; toPlayerId: string; emotion: string; }
 
 @Injectable({
   providedIn: 'root'
@@ -35,9 +36,23 @@ export class RealtimeService {
   questionLocked$ = new Subject<QuestionLockedEvent>();
   questionEnded$ = new ReplaySubject<QuestionEndedEvent>(1);
   gameEnded$ = new ReplaySubject<GameEndedEvent>(1);
+  emotionReceived$ = new Subject<EmotionEvent>();
   error$ = new Subject<string>();
 
   constructor(private authService: AuthService) {}
+
+  /**
+   * Resets all ReplaySubjects to clear cached state from previous games.
+   * Must be called when starting a new game session.
+   */
+  resetState(): void {
+    this.roomSnapshot$ = new ReplaySubject<RoomSnapshot>(1);
+    this.gameStarted$ = new ReplaySubject<GameStartedEvent>(1);
+    this.newQuestion$ = new ReplaySubject<NewQuestionEvent>(1);
+    this.scoresUpdated$ = new ReplaySubject<ScoresUpdatedEvent>(1);
+    this.questionEnded$ = new ReplaySubject<QuestionEndedEvent>(1);
+    this.gameEnded$ = new ReplaySubject<GameEndedEvent>(1);
+  }
 
   async connect(): Promise<void> {
     if (this.hubConnection?.state === signalR.HubConnectionState.Connected) {
@@ -76,6 +91,7 @@ export class RealtimeService {
       this.questionEnded$.next(data);
     });
     this.hubConnection.on('GameEnded', (data: GameEndedEvent) => this.gameEnded$.next(data));
+    this.hubConnection.on('EmotionReceived', (data: EmotionEvent) => this.emotionReceived$.next(data));
     this.hubConnection.on('Error', (message: string) => this.error$.next(message));
 
     await this.hubConnection.start();
@@ -119,6 +135,12 @@ export class RealtimeService {
   async endQuestion(roomCode: string, questionId: string): Promise<void> {
     if (this.hubConnection?.state === signalR.HubConnectionState.Connected) {
       await this.hubConnection.invoke('EndQuestion', roomCode, questionId);
+    }
+  }
+
+  async sendEmotion(roomCode: string, toPlayerId: string, emotion: string): Promise<void> {
+    if (this.hubConnection?.state === signalR.HubConnectionState.Connected) {
+      await this.hubConnection.invoke('SendEmotion', roomCode, toPlayerId, emotion);
     }
   }
 }

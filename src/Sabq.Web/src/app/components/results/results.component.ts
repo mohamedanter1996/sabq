@@ -6,7 +6,7 @@ import { AuthService } from '../../services/auth.service';
 import { SoundService } from '../../services/sound.service';
 import { Subscription } from 'rxjs';
 
-interface PlayerLeaderboard { id: string; displayName: string; score: number; }
+interface PlayerLeaderboard { id: string; displayName: string; score: number; rank: number; }
 interface GameEndedEvent { finalLeaderboard: PlayerLeaderboard[]; winnerIds: string[]; }
 
 @Component({
@@ -34,17 +34,17 @@ interface GameEndedEvent { finalLeaderboard: PlayerLeaderboard[]; winnerIds: str
         <div *ngFor="let player of leaderboard; let i = index" 
              class="player-row"
              [class.is-me]="player.id === authService.playerId"
-             [class.is-winner]="i === 0 && !allSameScore"
+             [class.is-winner]="player.rank === 1 && !allSameScore"
              [style.animation-delay]="(i * 0.15) + 's'"
              style="display: flex; justify-content: space-between; align-items: center; padding: 20px; border-radius: 12px; margin-bottom: 15px;">
           <div style="display: flex; align-items: center; gap: 15px;">
-            <span *ngIf="!allSameScore" style="font-size: 32px;">{{ getMedal(i) }}</span>
+            <span *ngIf="!allSameScore" style="font-size: 32px;">{{ getMedal(player.rank) }}</span>
             <div>
               <span style="font-size: 22px; font-weight: bold;">{{ player.displayName }}</span>
               <span *ngIf="player.id === authService.playerId" style="font-size: 14px; opacity: 0.7; margin-right: 8px;">(أنت)</span>
             </div>
           </div>
-          <span style="font-size: 24px; font-weight: bold;" [style.color]="i === 0 && !allSameScore ? '#f59e0b' : 'var(--accent)'">{{ player.score }} نقطة</span>
+          <span style="font-size: 24px; font-weight: bold;" [style.color]="player.rank === 1 && !allSameScore ? '#f59e0b' : 'var(--accent)'">{{ player.score }} نقطة</span>
         </div>
       </div>
 
@@ -169,9 +169,9 @@ export class ResultsComponent implements OnInit, OnDestroy {
         const myId = this.authService.playerId || '';
         this.isWinner = myId ? event.winnerIds.includes(myId) : false;
         
-        // Find my rank
-        const myIndex = event.finalLeaderboard.findIndex(p => p.id === myId);
-        this.myRank = myIndex >= 0 ? myIndex + 1 : 0;
+        // Find my rank from the backend-calculated rank property
+        const myPlayer = event.finalLeaderboard.find(p => p.id === myId);
+        this.myRank = myPlayer?.rank ?? 0;
         
         // Play appropriate sound
         const allSame = this.allSameScore;
@@ -192,9 +192,9 @@ export class ResultsComponent implements OnInit, OnDestroy {
     await this.realtimeService.disconnect();
   }
 
-  getMedal(index: number): string {
-    const medals = ['🥇', '🥈', '🥉'];
-    return medals[index] || '🏅';
+  getMedal(rank: number): string {
+    const medals: { [key: number]: string } = { 1: '🥇', 2: '🥈', 3: '🥉' };
+    return medals[rank] || '🏅';
   }
 
   get allSameScore(): boolean {
