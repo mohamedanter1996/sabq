@@ -1,0 +1,7 @@
+/
+/login
+/about
+/contact
+/privacy-policy
+/terms-and-conditions
+/questions

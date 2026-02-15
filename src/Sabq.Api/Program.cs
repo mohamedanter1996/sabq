@@ -1,12 +1,17 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using FluentValidation;
 using Sabq.Api.Hubs;
 using Sabq.Application.Interfaces;
 using Sabq.Application.Services;
+using Sabq.Application.Validators;
 using Sabq.Infrastructure.Data;
 using Sabq.Infrastructure.RoomState;
+using Sabq.Shared.DTOs;
+using System.IO.Compression;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -107,6 +112,47 @@ builder.Services.AddScoped<GameService>();
 builder.Services.AddScoped<CategoryService>();
 builder.Services.AddScoped<ArchiveService>();
 builder.Services.AddScoped<GameHistoryService>();
+builder.Services.AddScoped<ContactService>();
+builder.Services.AddScoped<QuestionSeoService>();
+builder.Services.AddScoped<SitemapService>(sp =>
+{
+    var context = sp.GetRequiredService<SabqDbContext>();
+    var config = sp.GetRequiredService<IConfiguration>();
+    var baseUrl = config["App:BaseUrl"] ?? "https://sabq.com";
+    return new SitemapService(context, baseUrl);
+});
+
+// FluentValidation
+builder.Services.AddScoped<IValidator<ContactMessageRequest>, ContactMessageRequestValidator>();
+builder.Services.AddScoped<IValidator<QuestionListRequest>, QuestionListRequestValidator>();
+
+// Response Compression
+builder.Services.AddResponseCompression(options =>
+{
+    options.EnableForHttps = true;
+    options.Providers.Add<BrotliCompressionProvider>();
+    options.Providers.Add<GzipCompressionProvider>();
+    options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(new[]
+    {
+        "application/json",
+        "application/xml",
+        "text/xml",
+        "text/plain"
+    });
+});
+
+builder.Services.Configure<BrotliCompressionProviderOptions>(options =>
+{
+    options.Level = CompressionLevel.Fastest;
+});
+
+builder.Services.Configure<GzipCompressionProviderOptions>(options =>
+{
+    options.Level = CompressionLevel.SmallestSize;
+});
+
+// Response Caching
+builder.Services.AddResponseCaching();
 
 // Authorization policies
 builder.Services.AddAuthorization(options =>
@@ -154,7 +200,27 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+// Response compression (before other middleware)
+app.UseResponseCompression();
+
 app.UseCors("AllowWebClient");
+
+// Response caching
+app.UseResponseCaching();
+
+// Add Cache-Control headers for SEO
+app.Use(async (context, next) =>
+{
+    var path = context.Request.Path.Value?.ToLower() ?? "";
+    
+    // Set cache headers for static/SEO content
+    if (path.EndsWith(".xml") || path.EndsWith(".txt"))
+    {
+        context.Response.Headers.CacheControl = "public, max-age=3600";
+    }
+    
+    await next();
+});
 
 app.UseAuthentication();
 app.UseAuthorization();

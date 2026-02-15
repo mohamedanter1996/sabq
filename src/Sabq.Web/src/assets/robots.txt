@@ -1,0 +1,22 @@
+# Robots.txt for Sabq - سابق
+# https://sabq.com
+
+User-agent: *
+Allow: /
+Allow: /questions/
+Allow: /about
+Allow: /contact
+Allow: /privacy-policy
+Allow: /terms-and-conditions
+
+# Disallow admin and API routes
+Disallow: /api/
+Disallow: /admin/
+Disallow: /login
+Disallow: /hubs/
+
+# Sitemap
+Sitemap: https://sabq.com/sitemap.xml
+
+# Crawl-delay (optional, respected by some crawlers)
+Crawl-delay: 1

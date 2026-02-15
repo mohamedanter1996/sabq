@@ -21,6 +21,9 @@ public class SabqDbContext : DbContext
     public DbSet<GameRoomSummary> GameRoomSummaries => Set<GameRoomSummary>();
     public DbSet<GameRoomPlayerSummary> GameRoomPlayerSummaries => Set<GameRoomPlayerSummary>();
     public DbSet<ArchiveJobLog> ArchiveJobLogs => Set<ArchiveJobLog>();
+    
+    // Contact and SEO
+    public DbSet<ContactMessage> ContactMessages => Set<ContactMessage>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -31,7 +34,11 @@ public class SabqDbContext : DbContext
         {
             entity.HasKey(e => e.Id);
             entity.Property(e => e.NameAr).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.NameEn).HasMaxLength(200);
+            entity.Property(e => e.Slug).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.Description).HasMaxLength(500);
             entity.HasIndex(e => e.IsActive);
+            entity.HasIndex(e => e.Slug).IsUnique();
         });
 
         // Question
@@ -39,7 +46,11 @@ public class SabqDbContext : DbContext
         {
             entity.HasKey(e => e.Id);
             entity.Property(e => e.TextAr).IsRequired().HasMaxLength(1000);
+            entity.Property(e => e.TextEn).HasMaxLength(1000);
+            entity.Property(e => e.Slug).IsRequired().HasMaxLength(200);
             entity.HasIndex(e => new { e.CategoryId, e.IsActive });
+            entity.HasIndex(e => e.Slug).IsUnique();
+            entity.HasIndex(e => new { e.CategoryId, e.Id }).HasDatabaseName("IX_Questions_Category_Id");
             entity.HasOne(e => e.Category)
                 .WithMany(c => c.Questions)
                 .HasForeignKey(e => e.CategoryId)
@@ -51,6 +62,7 @@ public class SabqDbContext : DbContext
         {
             entity.HasKey(e => e.Id);
             entity.Property(e => e.TextAr).IsRequired().HasMaxLength(500);
+            entity.Property(e => e.TextEn).HasMaxLength(500);
             entity.HasOne(e => e.Question)
                 .WithMany(q => q.Options)
                 .HasForeignKey(e => e.QuestionId)
@@ -167,6 +179,22 @@ public class SabqDbContext : DbContext
             entity.Property(e => e.Status).HasMaxLength(20).IsRequired();
             entity.Property(e => e.ErrorMessage).HasMaxLength(4000);
             entity.HasIndex(e => e.RunAtUtc).HasDatabaseName("IX_ArchiveJobLogs_RunAtUtc").IsDescending();
+        });
+
+        // ContactMessage
+        modelBuilder.Entity<ContactMessage>(entity =>
+        {
+            entity.ToTable("ContactMessages");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.Email).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.Message).IsRequired().HasMaxLength(2000);
+            entity.Property(e => e.ReplyText).HasMaxLength(2000);
+            entity.Property(e => e.IpAddress).HasMaxLength(50);
+            entity.Property(e => e.UserAgent).HasMaxLength(500);
+            entity.Property(e => e.CreatedAtUtc).HasDefaultValueSql("SYSUTCDATETIME()");
+            entity.HasIndex(e => e.CreatedAtUtc).HasDatabaseName("IX_ContactMessages_CreatedAtUtc").IsDescending();
+            entity.HasIndex(e => e.IsRead).HasDatabaseName("IX_ContactMessages_IsRead");
         });
     }
 }

@@ -3,7 +3,7 @@ import * as signalR from '@microsoft/signalr';
 import { Subject, ReplaySubject } from 'rxjs';
 import { AuthService } from './auth.service';
 
-const HUB_URL = 'http://localhost:5000/hubs/sabq';
+const HUB_URL = 'http://localhost:5213/hubs/sabq';
 
 // SignalR event types
 interface PlayerDto { id: string; displayName: string; score: number; }
