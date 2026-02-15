@@ -7,8 +7,8 @@ A production-ready, real-time multiplayer Arabic quiz platform built with .NET 9
 ## 📱 Platforms
 
 - **Mobile:** .NET MAUI (Android + Windows)
-- **Web:** Angular 19 SPA
-- **Backend:** ASP.NET Core Web API + SignalR
+- **Web:** Angular 19 SPA with SSR support
+- **Backend:** ASP.NET Core 9 Web API + SignalR
 
 ## 🎯 Core Features
 
@@ -21,6 +21,22 @@ A production-ready, real-time multiplayer Arabic quiz platform built with .NET 9
 - **Religious Category:** 30 Islamic questions (Easy/Medium/Hard)
 - **Persistent History:** SQL Server for questions and game results
 - **Flexible State:** In-Memory or Redis for room state
+
+### 🌐 SEO & AdSense Ready
+- **Legal Pages:** Privacy Policy, Terms & Conditions, About Us
+- **Contact Form:** Backend-stored messages with validation
+- **Questions Library:** SEO-optimized browseable questions with pagination
+- **Dynamic Meta Tags:** OpenGraph, Twitter Cards for social sharing
+- **JSON-LD Structured Data:** Rich snippets for search engines
+- **Sitemap.xml:** Auto-generated sitemap for crawlers
+- **robots.txt:** Search engine crawling directives
+- **SSR Support:** Angular Server-Side Rendering ready
+
+### 🎨 Modern UI
+- **Polished Header:** Gradient design with animated logo, responsive mobile menu
+- **Rich Footer:** Social media links, quick navigation, legal links
+- **Social Media:** Twitter/X, Facebook, Instagram, YouTube icons
+- **Game Mode:** Clean fullscreen experience (header/footer hidden during gameplay)
 
 ---
 
@@ -86,9 +102,9 @@ dotnet run
 ```
 
 API will be available at:
-- **HTTP:** http://localhost:5000
-- **Swagger UI:** http://localhost:5000/swagger
-- **SignalR Hub:** http://localhost:5000/hubs/sabq
+- **HTTP:** http://localhost:5213
+- **Swagger UI:** http://localhost:5213/swagger
+- **SignalR Hub:** http://localhost:5213/hubs/sabq
 
 The database will be automatically seeded with:
 - 1 Category: "ديني - إسلامي"
@@ -108,7 +124,7 @@ Or in Visual Studio:
 2. Select Android Emulator or device
 3. Press F5
 
-**Note:** Android emulator uses `http://10.0.2.2:5000` to access localhost
+**Note:** Android emulator uses `http://10.0.2.2:5213` to access localhost
 
 #### Windows
 ```powershell
@@ -135,6 +151,12 @@ npm start
 
 Web app will be available at: http://localhost:4200
 
+#### SSR Build (Production)
+```powershell
+npm run build
+# Output in dist/sabq-web/browser (client) and dist/sabq-web/server (SSR)
+```
+
 ---
 
 ## 🏗️ Solution Structure
@@ -146,10 +168,12 @@ Sabq/
 │   ├── Sabq.Shared/              # DTOs, SignalR events
 │   ├── Sabq.Infrastructure/      # EF Core, DbContext, RoomStore
 │   ├── Sabq.Application/         # Services, Business Logic
-│   ├── Sabq.Api/                 # Web API, SignalR Hub
+│   ├── Sabq.Api/                 # Web API, SignalR Hub, Controllers
 │   ├── Sabq.Mobile/              # MAUI (Android + Windows)
-│   └── Sabq.Web/                 # Angular SPA
+│   ├── Sabq.Web/                 # Angular 19 SPA with SSR
+│   └── Sabq.Tests/               # Unit Tests (xUnit)
 ├── assets/                       # Branding assets
+├── scripts/                      # SQL scripts
 ├── Sabq.sln
 ├── README.md
 └── BRANDING.md
@@ -255,9 +279,21 @@ If you want distributed room state:
 
 ## 🧪 Testing the System
 
+### Unit Tests
+```powershell
+cd src\Sabq.Tests
+dotnet test
+```
+
+Tests cover:
+- Archive service
+- Game history service  
+- Contact service validation
+- DTO validation
+
 ### Manual Test Scenario
-1. **Start API:** `dotnet run` in Sabq.Api
-2. **Start Web Client:** `npm start` in Sabq.Web
+1. **Start API:** `dotnet run` in Sabq.Api (runs on port 5213)
+2. **Start Web Client:** `npm start` in Sabq.Web (runs on port 4200)
 3. **Open browser tab 1:** Login as "Player1", create room
 4. **Open browser tab 2:** Login as "Player2", join with room code
 5. **Player1:** Start game
@@ -307,7 +343,29 @@ See [BRANDING.md](./BRANDING.md) for:
 - **Secondary Color:** #F59E0B (Gold)
 - **Success:** #10B981 (Green)
 - **Error:** #EF4444 (Red)
-- **Font:** Cairo (Google Fonts)
+- **Fonts:** Cairo (sans-serif), Aref Ruqaa (Arabic calligraphy)
+
+---
+
+## 🔌 API Endpoints
+
+### Authentication
+- `POST /api/auth/guest` - Guest login with display name
+
+### Game
+- `GET /api/rooms` - List available rooms
+- `POST /api/rooms` - Create new room
+- `GET /api/game-history` - Get player's game history
+
+### SEO & Content
+- `GET /api/questions/seo` - Paginated questions for SEO pages
+- `GET /api/questions/seo/{categorySlug}` - Questions by category
+- `GET /api/questions/seo/{categorySlug}/{questionSlug}` - Single question detail
+- `GET /api/seo/sitemap.xml` - Auto-generated sitemap
+- `GET /api/seo/robots.txt` - Robots directives
+
+### Contact
+- `POST /api/contact` - Submit contact form message
 
 ---
 
@@ -316,7 +374,7 @@ See [BRANDING.md](./BRANDING.md) for:
 ### "Database cannot be created" error
 **Solution:** Update connection string in appsettings.json to point to your SQL Server instance.
 
-### "Unable to connect to localhost:5000" from Android emulator
+### "Unable to connect to localhost:5213" from Android emulator
 **Solution:** Emulator uses `10.0.2.2` instead of `localhost`. Already configured in ApiService.
 
 ### SignalR connection fails
@@ -473,5 +531,25 @@ For issues or questions:
 
 **Built with ❤️ for the Arabic-speaking community**
 
-**Current Version:** 1.0.0  
+**Current Version:** 1.1.0  
 **Last Updated:** February 2026
+
+---
+
+## 🗺️ Web Routes
+
+### Main Application
+- `/login` - Guest login page
+- `/home` - Home/dashboard after login
+- `/lobby/:code` - Game lobby (waiting room)
+- `/game/:code` - Active game (header/footer hidden)
+- `/results/:code` - Game results
+
+### SEO & Legal Pages
+- `/questions` - Questions library (paginated)
+- `/questions/:category` - Questions by category
+- `/questions/:category/:slug` - Single question detail
+- `/privacy-policy` - Privacy policy page
+- `/terms-and-conditions` - Terms of service
+- `/about` - About us page
+- `/contact` - Contact form
