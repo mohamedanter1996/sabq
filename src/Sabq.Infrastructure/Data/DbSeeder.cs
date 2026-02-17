@@ -19,6 +19,8 @@ public static class DbSeeder
         {
             Id = Guid.NewGuid(),
             NameAr = "ديني - إسلامي",
+            NameEn = "Islamic",
+            Slug = "islamic",
             IsActive = true
         };
         context.Categories.Add(islamicCategory);
@@ -28,6 +30,8 @@ public static class DbSeeder
         {
             Id = Guid.NewGuid(),
             NameAr = "رياضة",
+            NameEn = "Sports",
+            Slug = "sports",
             IsActive = true
         };
         context.Categories.Add(sportsCategory);
@@ -1283,6 +1287,7 @@ public static class DbSeeder
             CategoryId = categoryId,
             Difficulty = difficulty,
             TextAr = questionText,
+            Slug = Guid.NewGuid().ToString(),
             TimeLimitSec = timeLimit,
             IsActive = true
         };

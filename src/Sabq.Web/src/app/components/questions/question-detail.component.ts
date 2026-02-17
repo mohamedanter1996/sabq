@@ -5,6 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import { Subject, takeUntil } from 'rxjs';
 import { SeoService } from '../../services/seo.service';
 import { JsonLdService, Question, Option } from '../../services/json-ld.service';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-question-detail',
@@ -442,7 +443,7 @@ import { JsonLdService, Question, Option } from '../../services/json-ld.service'
   `]
 })
 export class QuestionDetailComponent implements OnInit, OnDestroy {
-  private readonly apiUrl = 'http://localhost:5213/api';
+  private readonly apiUrl = environment.apiUrl;
   private destroy$ = new Subject<void>();
 
   question: Question | null = null;

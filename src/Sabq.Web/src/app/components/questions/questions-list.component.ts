@@ -6,6 +6,7 @@ import { HttpClient } from '@angular/common/http';
 import { Subject, takeUntil, debounceTime, distinctUntilChanged } from 'rxjs';
 import { SeoService } from '../../services/seo.service';
 import { JsonLdService, Question } from '../../services/json-ld.service';
+import { environment } from '../../../environments/environment';
 
 interface PaginatedResponse<T> {
   items: T[];
@@ -433,7 +434,7 @@ interface Category {
   `]
 })
 export class QuestionsListComponent implements OnInit, OnDestroy {
-  private readonly apiUrl = 'http://localhost:5213/api';
+  private readonly apiUrl = environment.apiUrl;
   private destroy$ = new Subject<void>();
   private searchSubject = new Subject<string>();
   

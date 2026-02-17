@@ -2,8 +2,9 @@ import { Injectable } from '@angular/core';
 import * as signalR from '@microsoft/signalr';
 import { Subject, ReplaySubject } from 'rxjs';
 import { AuthService } from './auth.service';
+import { environment } from '../../environments/environment';
 
-const HUB_URL = 'http://localhost:5213/hubs/sabq';
+const HUB_URL = environment.hubUrl;
 
 // SignalR event types
 interface PlayerDto { id: string; displayName: string; score: number; }

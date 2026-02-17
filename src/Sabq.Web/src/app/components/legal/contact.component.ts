@@ -5,6 +5,7 @@ import { RouterLink } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { SeoService } from '../../services/seo.service';
 import { JsonLdService } from '../../services/json-ld.service';
+import { environment } from '../../../environments/environment';
 
 interface ContactResponse {
   success: boolean;
@@ -433,7 +434,7 @@ interface ContactResponse {
   `]
 })
 export class ContactComponent implements OnInit {
-  private readonly apiUrl = 'http://localhost:5213/api';
+  private readonly apiUrl = environment.apiUrl;
 
   formData = {
     name: '',
