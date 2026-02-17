@@ -102,14 +102,19 @@ dotnet run
 ```
 
 API will be available at:
-- **HTTP:** http://localhost:5213
-- **Swagger UI:** http://localhost:5213/swagger
-- **SignalR Hub:** http://localhost:5213/hubs/sabq
+- **HTTP:** http://localhost:5000
+- **Swagger UI:** http://localhost:5000/swagger
+- **SignalR Hub:** http://localhost:5000/hubs/sabq
 
 The database will be automatically seeded with:
-- 1 Category: "ديني - إسلامي"
-- 30 Questions (10 Easy, 10 Medium, 10 Hard)
+- 2 Categories: "ديني - إسلامي" (Islamic) and "رياضة" (Sports)
+- 100,000 Questions total (50,000 Islamic + 50,000 Sports)
+  - Difficulty distribution: Easy, Medium, Hard
+  - SEO-friendly slugs for all questions and categories
 - 4 Options per question
+- Contact messages table for form submissions
+
+**Note:** Initial seeding may take 3-5 minutes for 100k questions.
 
 ### 4️⃣ Run MAUI Mobile App
 
@@ -124,7 +129,7 @@ Or in Visual Studio:
 2. Select Android Emulator or device
 3. Press F5
 
-**Note:** Android emulator uses `http://10.0.2.2:5213` to access localhost
+**Note:** Android emulator uses `http://10.0.2.2:5000` to access localhost
 
 #### Windows
 ```powershell
@@ -150,6 +155,39 @@ npm start
 ```
 
 Web app will be available at: http://localhost:4200
+
+#### Environment Configuration
+The Angular app uses environment-based configuration:
+
+**Development** (`src/environments/environment.ts`):
+```typescript
+{
+  production: false,
+  apiUrl: 'http://localhost:5000/api',
+  hubUrl: 'http://localhost:5000/hubs/sabq'
+}
+```
+
+**Production** (`src/environments/environment.prod.ts`):
+```typescript
+{
+  production: true,
+  apiUrl: 'https://api.sabq.app/api',
+  hubUrl: 'https://api.sabq.app/hubs/sabq'
+}
+```
+
+To switch environments:
+```powershell
+# Development (default)
+npm start
+
+# Production mode locally
+ng serve --configuration production
+
+# Production build
+npm run build  # or: ng build --configuration production
+```
 
 #### SSR Build (Production)
 ```powershell
@@ -292,15 +330,17 @@ Tests cover:
 - DTO validation
 
 ### Manual Test Scenario
-1. **Start API:** `dotnet run` in Sabq.Api (runs on port 5213)
+1. **Start API:** `dotnet run` in Sabq.Api (runs on port 5000)
 2. **Start Web Client:** `npm start` in Sabq.Web (runs on port 4200)
-3. **Open browser tab 1:** Login as "Player1", create room
-4. **Open browser tab 2:** Login as "Player2", join with room code
-5. **Player1:** Start game
-6. **Both players:** Answer questions
-7. **Verify:** First correct answer gets point, wrong answer loses point
-8. **Check:** Live leaderboard updates
-9. **Finish:** View results screen
+3. **Test SEO pages:** Visit http://localhost:4200/questions
+4. **Test contact form:** Visit http://localhost:4200/contact
+5. **Open browser tab 1:** Login as "Player1", create room
+6. **Open browser tab 2:** Login as "Player2", join with room code
+7. **Player1:** Start game
+8. **Both players:** Answer questions
+9. **Verify:** First correct answer gets point, wrong answer loses point
+10. **Check:** Live leaderboard updates
+11. **Finish:** View results screen
 
 ### Test with Mobile
 1. Run Android emulator
@@ -313,19 +353,30 @@ Tests cover:
 ## 📊 Database Schema
 
 ### Main Tables
-- **Categories:** Question categories
-- **Questions:** Question text, difficulty, time limit
+- **Categories:** Question categories with SEO-friendly slugs
+  - `Id`, `NameAr`, `NameEn`, `Slug` (unique), `IsActive`, `DisplayOrder`
+- **Questions:** Question text, difficulty, time limit, SEO slugs
+  - `Id`, `CategoryId`, `TextAr`, `TextEn`, `Slug` (unique), `Difficulty`, `TimeLimitSec`, `IsActive`, `CreatedAtUtc`
 - **Options:** Answer options (one marked as correct)
+  - `Id`, `QuestionId`, `TextAr`, `TextEn`, `IsCorrect`, `DisplayOrder`
 - **Players:** Guest player accounts
 - **GameRooms:** Room metadata and settings
 - **GameRoomPlayers:** Player scores in rooms
 - **GameRoomQuestions:** Questions assigned to rooms
 - **GameAnswers:** Answer history with timestamps
+- **GameAnswersArchive:** Archived game answers (auto-archived after 30 days)
+- **ContactMessages:** Contact form submissions
+  - `Id`, `Name`, `Email`, `Message`, `CreatedAtUtc`, `IsRead`, `IsReplied`
+- **ArchiveJobLogs:** Archive job execution history
 
 ### Indexes
 - `GameRooms.Code` (UNIQUE)
-- `Questions.CategoryId, IsActive`
+- `Questions.CategoryId, Id`
+- `Questions.Slug` (UNIQUE)
+- `Categories.Slug` (UNIQUE)
 - `GameAnswers.RoomId, QuestionId, PlayerId`
+- `ContactMessages.CreatedAtUtc` (DESC)
+- `ContactMessages.IsRead`
 
 ---
 
@@ -358,14 +409,16 @@ See [BRANDING.md](./BRANDING.md) for:
 - `GET /api/game-history` - Get player's game history
 
 ### SEO & Content
-- `GET /api/questions/seo` - Paginated questions for SEO pages
-- `GET /api/questions/seo/{categorySlug}` - Questions by category
-- `GET /api/questions/seo/{categorySlug}/{questionSlug}` - Single question detail
+- `GET /api/questions/categories` - List all categories
+- `GET /api/questions` - Paginated questions list with filtering
+  - Query params: `pageNumber`, `pageSize`, `categorySlug`, `difficulty`, `search`
+- `GET /api/questions/{categorySlug}/{questionSlug}` - Single question detail
+- `POST /api/contact` - Submit contact form message
 - `GET /api/seo/sitemap.xml` - Auto-generated sitemap
 - `GET /api/seo/robots.txt` - Robots directives
 
-### Contact
-- `POST /api/contact` - Submit contact form message
+### Admin & Maintenance
+- `POST /api/admin/archive` - Trigger manual archive job (admin only)
 
 ---
 
@@ -374,8 +427,11 @@ See [BRANDING.md](./BRANDING.md) for:
 ### "Database cannot be created" error
 **Solution:** Update connection string in appsettings.json to point to your SQL Server instance.
 
-### "Unable to connect to localhost:5213" from Android emulator
-**Solution:** Emulator uses `10.0.2.2` instead of `localhost`. Already configured in ApiService.
+### "Unable to connect to localhost:5000" from Android emulator
+**Solution:** Emulator uses `10.0.2.2` instead of `localhost`. Update environment configuration in ApiService.
+
+### Port conflicts
+**Solution:** API runs on port 5000 by default. If port is in use, update in `Program.cs` or use environment variable `ASPNETCORE_URLS`.
 
 ### SignalR connection fails
 **Solution:** 
@@ -421,18 +477,29 @@ See [BRANDING.md](./BRANDING.md) for:
    - IIS
 
 ### Web Client Deployment
-```powershell
-cd src/Sabq.Web
-npm run build
-```
+1. **Update production environment:**
+   Edit `src/Sabq.Web/src/environments/environment.prod.ts`:
+   ```typescript
+   {
+     production: true,
+     apiUrl: 'https://your-api-domain.com/api',
+     hubUrl: 'https://your-api-domain.com/hubs/sabq'
+   }
+   ```
 
-Deploy `dist/sabq-web` to:
-- Azure Static Web Apps
-- Netlify
-- Vercel
-- Any static hosting
+2. **Build:**
+   ```powershell
+   cd src/Sabq.Web
+   npm run build
+   ```
 
-**Update API URL** in `api.service.ts` and `realtime.service.ts` to production endpoint.
+3. **Deploy `dist/sabq-web` to:**
+   - Azure Static Web Apps
+   - Netlify
+   - Vercel
+   - Any static hosting
+
+**Note:** Environment files are automatically swapped during build thanks to `fileReplacements` in angular.json.
 
 ### Mobile App Deployment
 
@@ -531,8 +598,38 @@ For issues or questions:
 
 **Built with ❤️ for the Arabic-speaking community**
 
-**Current Version:** 1.1.0  
-**Last Updated:** February 2026
+**Current Version:** 1.2.0  
+**Last Updated:** February 17, 2026
+
+---
+
+## 📝 Recent Changes (v1.2.0)
+
+### Database & Questions
+- ✅ **100,000 Questions:** Expanded from 30 to 100k questions (50k Islamic + 50k Sports)
+- ✅ **SEO Slugs:** Added unique slugs for all questions and categories
+- ✅ **Auto-Archive:** Game answers older than 30 days automatically archived
+- ✅ **Contact Messages:** Backend storage for contact form submissions
+
+### Frontend (Angular)
+- ✅ **Environment Config:** Replaced hardcoded URLs with environment files
+  - `environment.ts` for development (localhost:5000)
+  - `environment.prod.ts` for production (configurable)
+- ✅ **Questions Library:** Browseable questions with pagination, filtering, search
+- ✅ **SEO Pages:** Privacy Policy, Terms, About, Contact
+- ✅ **Structured Data:** JSON-LD for rich snippets
+- ✅ **Sitemap & Robots:** Auto-generated sitemap.xml and robots.txt
+
+### Backend (API)
+- ✅ **Port Change:** Default port changed from 5213 to 5000
+- ✅ **Archive Service:** Background job for archiving old game data
+- ✅ **Contact Endpoint:** POST /api/contact with validation
+- ✅ **Enhanced Seeding:** Comprehensive question generation with proper slugs
+- ✅ **Admin Endpoints:** Manual archive trigger for maintenance
+
+### Configuration
+- ✅ **Angular.json:** Added fileReplacements for environment swapping
+- ✅ **CORS Updated:** Ready for production domains
 
 ---
 
