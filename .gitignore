@@ -40,6 +40,10 @@ package-lock.json
 dist/
 .angular/
 
+## Local MonsterASP / Visual Studio publish settings
+src/Sabq.Api/Properties/launchSettings.json
+src/Sabq.Api/Properties/PublishProfiles/
+
 ## OS
 .DS_Store
 Thumbs.db

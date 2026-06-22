@@ -1,0 +1,105 @@
+name: Deploy Frontend to MonsterASP
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - codex/local-test-db
+    paths:
+      - "src/Sabq.Web/**"
+      - ".github/workflows/deploy-frontend.yml"
+
+jobs:
+  deploy:
+    name: Build and deploy Angular app
+    runs-on: windows-latest
+
+    env:
+      FRONTEND_DIST: ${{ github.workspace }}\src\Sabq.Web\dist\sabq-web\browser
+      FRONTEND_PUBLISH_URL: ${{ secrets.MONSTERASP_FRONTEND_PUBLISH_URL }}
+      FRONTEND_SITE_NAME: ${{ secrets.MONSTERASP_FRONTEND_SITE_NAME }}
+      FRONTEND_USERNAME: ${{ secrets.MONSTERASP_FRONTEND_USERNAME }}
+      FRONTEND_PASSWORD: ${{ secrets.MONSTERASP_FRONTEND_PASSWORD }}
+
+    defaults:
+      run:
+        working-directory: src/Sabq.Web
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+
+      - name: Validate deployment secrets
+        shell: pwsh
+        working-directory: .
+        run: |
+          $missing = @()
+          foreach ($name in @("FRONTEND_PUBLISH_URL", "FRONTEND_SITE_NAME", "FRONTEND_USERNAME", "FRONTEND_PASSWORD")) {
+            if ([string]::IsNullOrWhiteSpace([Environment]::GetEnvironmentVariable($name))) {
+              $missing += $name.Replace("FRONTEND_", "MONSTERASP_FRONTEND_")
+            }
+          }
+
+          if ($missing.Count -gt 0) {
+            throw "Missing required GitHub secrets: $($missing -join ', ')"
+          }
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build
+        run: npm run build
+
+      - name: Verify build output
+        shell: pwsh
+        working-directory: .
+        run: |
+          if (-not (Test-Path $env:FRONTEND_DIST)) {
+            throw "Frontend build output was not found: $env:FRONTEND_DIST"
+          }
+
+          if (-not (Test-Path "$env:FRONTEND_DIST\web.config")) {
+            throw "web.config was not copied to the frontend build output."
+          }
+
+      - name: Locate Web Deploy
+        shell: pwsh
+        working-directory: .
+        run: |
+          $candidates = @(
+            "${env:ProgramFiles}\IIS\Microsoft Web Deploy V3\msdeploy.exe",
+            "${env:ProgramFiles(x86)}\IIS\Microsoft Web Deploy V3\msdeploy.exe"
+          )
+
+          $msdeploy = $candidates | Where-Object { Test-Path $_ } | Select-Object -First 1
+          if (-not $msdeploy) {
+            choco install webdeploy -y --no-progress
+            $msdeploy = $candidates | Where-Object { Test-Path $_ } | Select-Object -First 1
+          }
+
+          if (-not $msdeploy) {
+            throw "msdeploy.exe was not found after installing Web Deploy."
+          }
+
+          "MSDEPLOY_EXE=$msdeploy" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+      - name: Deploy frontend to MonsterASP
+        shell: pwsh
+        working-directory: .
+        run: |
+          $arguments = @(
+            "-verb:sync",
+            "-source:contentPath=$env:FRONTEND_DIST",
+            "-dest:contentPath=$env:FRONTEND_SITE_NAME,computerName=$env:FRONTEND_PUBLISH_URL,userName=$env:FRONTEND_USERNAME,password=$env:FRONTEND_PASSWORD,authType=Basic",
+            "-allowUntrusted",
+            "-retryAttempts:3",
+            "-retryInterval:10000"
+          )
+
+          & $env:MSDEPLOY_EXE @arguments

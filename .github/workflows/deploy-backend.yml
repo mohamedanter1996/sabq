@@ -1,0 +1,115 @@
+name: Deploy Backend to MonsterASP
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - codex/local-test-db
+    paths:
+      - "Sabq.sln"
+      - "src/Sabq.Api/**"
+      - "src/Sabq.Application/**"
+      - "src/Sabq.Domain/**"
+      - "src/Sabq.Infrastructure/**"
+      - "src/Sabq.Shared/**"
+      - "src/Sabq.Tests/**"
+      - ".github/workflows/deploy-backend.yml"
+
+jobs:
+  deploy:
+    name: Build, test, publish, deploy API
+    runs-on: windows-latest
+
+    env:
+      PUBLISH_DIR: ${{ github.workspace }}\publish\api
+      BACKEND_PUBLISH_URL: ${{ secrets.MONSTERASP_BACKEND_PUBLISH_URL }}
+      BACKEND_SITE_NAME: ${{ secrets.MONSTERASP_BACKEND_SITE_NAME }}
+      BACKEND_USERNAME: ${{ secrets.MONSTERASP_BACKEND_USERNAME }}
+      BACKEND_PASSWORD: ${{ secrets.MONSTERASP_BACKEND_PASSWORD }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Validate deployment secrets
+        shell: pwsh
+        run: |
+          $missing = @()
+          foreach ($name in @("BACKEND_PUBLISH_URL", "BACKEND_SITE_NAME", "BACKEND_USERNAME", "BACKEND_PASSWORD")) {
+            if ([string]::IsNullOrWhiteSpace([Environment]::GetEnvironmentVariable($name))) {
+              $missing += $name.Replace("BACKEND_", "MONSTERASP_BACKEND_")
+            }
+          }
+
+          if ($missing.Count -gt 0) {
+            throw "Missing required GitHub secrets: $($missing -join ', ')"
+          }
+
+      - name: Write production appsettings from secret
+        shell: pwsh
+        env:
+          APPSETTINGS_PRODUCTION_JSON: ${{ secrets.SABQ_API_APPSETTINGS_PRODUCTION_JSON }}
+        run: |
+          if ([string]::IsNullOrWhiteSpace($env:APPSETTINGS_PRODUCTION_JSON)) {
+            Write-Warning "SABQ_API_APPSETTINGS_PRODUCTION_JSON is not set. The API will rely on server environment variables or the default appsettings.json."
+            return
+          }
+
+          Set-Content -Path "src/Sabq.Api/appsettings.Production.json" -Value $env:APPSETTINGS_PRODUCTION_JSON -Encoding UTF8
+
+      - name: Restore API
+        run: dotnet restore src/Sabq.Api/Sabq.Api.csproj
+
+      - name: Restore tests
+        run: dotnet restore src/Sabq.Tests/Sabq.Tests.csproj
+
+      - name: Test
+        run: dotnet test src/Sabq.Tests/Sabq.Tests.csproj --configuration Release --no-restore
+
+      - name: Publish API
+        run: dotnet publish src/Sabq.Api/Sabq.Api.csproj --configuration Release --no-restore --output "$env:PUBLISH_DIR"
+
+      - name: Locate Web Deploy
+        shell: pwsh
+        run: |
+          $candidates = @(
+            "${env:ProgramFiles}\IIS\Microsoft Web Deploy V3\msdeploy.exe",
+            "${env:ProgramFiles(x86)}\IIS\Microsoft Web Deploy V3\msdeploy.exe"
+          )
+
+          $msdeploy = $candidates | Where-Object { Test-Path $_ } | Select-Object -First 1
+          if (-not $msdeploy) {
+            choco install webdeploy -y --no-progress
+            $msdeploy = $candidates | Where-Object { Test-Path $_ } | Select-Object -First 1
+          }
+
+          if (-not $msdeploy) {
+            throw "msdeploy.exe was not found after installing Web Deploy."
+          }
+
+          "MSDEPLOY_EXE=$msdeploy" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+      - name: Deploy API to MonsterASP
+        shell: pwsh
+        run: |
+          if (-not (Test-Path $env:PUBLISH_DIR)) {
+            throw "Publish directory was not found: $env:PUBLISH_DIR"
+          }
+
+          $arguments = @(
+            "-verb:sync",
+            "-source:contentPath=$env:PUBLISH_DIR",
+            "-dest:contentPath=$env:BACKEND_SITE_NAME,computerName=$env:BACKEND_PUBLISH_URL,userName=$env:BACKEND_USERNAME,password=$env:BACKEND_PASSWORD,authType=Basic",
+            "-allowUntrusted",
+            "-enableRule:AppOffline",
+            "-retryAttempts:3",
+            "-retryInterval:10000"
+          )
+
+          & $env:MSDEPLOY_EXE @arguments
