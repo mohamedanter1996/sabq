@@ -17,7 +17,6 @@ jobs:
 
     env:
       FRONTEND_DIST: ${{ github.workspace }}\src\Sabq.Web\dist\sabq-web\browser
-      FRONTEND_PUBLISH_URL: ${{ secrets.MONSTERASP_FRONTEND_PUBLISH_URL }}
       FRONTEND_SITE_NAME: ${{ secrets.MONSTERASP_FRONTEND_SITE_NAME }}
       FRONTEND_USERNAME: ${{ secrets.MONSTERASP_FRONTEND_USERNAME }}
       FRONTEND_PASSWORD: ${{ secrets.MONSTERASP_FRONTEND_PASSWORD }}
@@ -40,7 +39,7 @@ jobs:
         working-directory: .
         run: |
           $missing = @()
-          foreach ($name in @("FRONTEND_PUBLISH_URL", "FRONTEND_SITE_NAME", "FRONTEND_USERNAME", "FRONTEND_PASSWORD")) {
+          foreach ($name in @("FRONTEND_SITE_NAME", "FRONTEND_USERNAME", "FRONTEND_PASSWORD")) {
             if ([string]::IsNullOrWhiteSpace([Environment]::GetEnvironmentVariable($name))) {
               $missing += $name.Replace("FRONTEND_", "MONSTERASP_FRONTEND_")
             }
@@ -48,6 +47,10 @@ jobs:
 
           if ($missing.Count -gt 0) {
             throw "Missing required GitHub secrets: $($missing -join ', ')"
+          }
+
+          if ($env:FRONTEND_SITE_NAME.Trim() -notmatch "^site\d+$") {
+            throw "MONSTERASP_FRONTEND_SITE_NAME must be the MonsterASP website ID, for example site55521. Do not use the public frontend domain here."
           }
 
       - name: Install dependencies
@@ -68,76 +71,12 @@ jobs:
             throw "web.config was not copied to the frontend build output."
           }
 
-      - name: Locate Web Deploy
-        shell: pwsh
-        working-directory: .
-        run: |
-          $candidates = @(
-            "${env:ProgramFiles}\IIS\Microsoft Web Deploy V3\msdeploy.exe",
-            "${env:ProgramFiles(x86)}\IIS\Microsoft Web Deploy V3\msdeploy.exe"
-          )
-
-          $msdeploy = $candidates | Where-Object { Test-Path $_ } | Select-Object -First 1
-          if (-not $msdeploy) {
-            choco install webdeploy -y --no-progress
-            $msdeploy = $candidates | Where-Object { Test-Path $_ } | Select-Object -First 1
-          }
-
-          if (-not $msdeploy) {
-            throw "msdeploy.exe was not found after installing Web Deploy."
-          }
-
-          "MSDEPLOY_EXE=$msdeploy" | Out-File -FilePath $env:GITHUB_ENV -Append
-
       - name: Deploy frontend to MonsterASP
-        shell: pwsh
-        working-directory: .
-        run: |
-          function Normalize-WebDeployUrl {
-            param(
-              [Parameter(Mandatory=$true)][string]$RawUrl,
-              [Parameter(Mandatory=$true)][string]$SiteName
-            )
-
-            $cleanUrl = $RawUrl.Trim().Trim('"', "'")
-            $cleanSite = $SiteName.Trim().Trim('"', "'")
-
-            try {
-              $builder = [System.UriBuilder]::new($cleanUrl)
-            }
-            catch {
-              throw "MONSTERASP_FRONTEND_PUBLISH_URL must be a valid URL. Example: https://siteXXXXX.siteasp.net:8172"
-            }
-
-            if ($builder.Port -eq -1 -or $builder.Port -eq 80 -or $builder.Port -eq 443) {
-              $builder.Port = 8172
-            }
-
-            if ($builder.Path -notmatch "msdeploy\.axd$") {
-              $builder.Path = "msdeploy.axd"
-              $builder.Query = "site=$cleanSite"
-            }
-
-            return $builder.Uri.AbsoluteUri
-          }
-
-          $siteName = $env:FRONTEND_SITE_NAME.Trim().Trim('"', "'")
-          $publishUrl = Normalize-WebDeployUrl -RawUrl $env:FRONTEND_PUBLISH_URL -SiteName $siteName
-          $username = $env:FRONTEND_USERNAME.Trim().Trim('"', "'")
-          $password = $env:FRONTEND_PASSWORD.Trim().Trim('"', "'")
-          $destination = "-dest:contentPath=`"$siteName`",computerName=`"$publishUrl`",userName=`"$username`",password=`"$password`",authType=`"Basic`",includeAcls=`"False`""
-
-          $arguments = @(
-            "-verb:sync",
-            "-source:contentPath=$env:FRONTEND_DIST",
-            $destination,
-            "-allowUntrusted",
-            "-disableLink:AppPoolExtension",
-            "-disableLink:ContentExtension",
-            "-disableLink:CertificateExtension",
-            "-retryAttempts:3",
-            "-retryInterval:10000",
-            "-verbose"
-          )
-
-          & $env:MSDEPLOY_EXE @arguments
+        uses: rasmusbuchholdt/simply-web-deploy@2.2.0
+        with:
+          website-name: ${{ secrets.MONSTERASP_FRONTEND_SITE_NAME }}
+          server-computer-name: https://${{ secrets.MONSTERASP_FRONTEND_SITE_NAME }}.siteasp.net:8172
+          server-username: ${{ secrets.MONSTERASP_FRONTEND_USERNAME }}
+          server-password: ${{ secrets.MONSTERASP_FRONTEND_PASSWORD }}
+          source-path: '\src\Sabq.Web\dist\sabq-web\browser\'
+          target-delete: true

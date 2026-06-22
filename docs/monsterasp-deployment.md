@@ -18,7 +18,6 @@ Add these secrets in GitHub under `Settings` -> `Secrets and variables` -> `Acti
 
 Backend workflow:
 
-- `MONSTERASP_BACKEND_PUBLISH_URL`
 - `MONSTERASP_BACKEND_SITE_NAME`
 - `MONSTERASP_BACKEND_USERNAME`
 - `MONSTERASP_BACKEND_PASSWORD`
@@ -26,26 +25,26 @@ Backend workflow:
 
 Frontend workflow:
 
-- `MONSTERASP_FRONTEND_PUBLISH_URL`
 - `MONSTERASP_FRONTEND_SITE_NAME`
 - `MONSTERASP_FRONTEND_USERNAME`
 - `MONSTERASP_FRONTEND_PASSWORD`
 
-Use the exact Web Deploy values from the MonsterASP control panel for publish URL, site name, username, and password.
+Use the exact Web Deploy values from the MonsterASP control panel for site name, username, and password.
 
-MonsterASP WebDeploy URLs are not the public website URLs. Use the siteasp endpoint:
+`MONSTERASP_BACKEND_SITE_NAME` and `MONSTERASP_FRONTEND_SITE_NAME` must be the MonsterASP website IDs, for example:
+
+```text
+site55499
+site55521
+```
+
+Do not use the public frontend/API URLs such as `https://sabiqgame.com`, `https://sabiqgame.runasp.net`, or `https://sabiqgameapi.runasp.net` as the site name.
+
+The workflows build the WebDeploy server URL automatically from the site name:
 
 ```text
 https://siteXXXXX.siteasp.net:8172
 ```
-
-or the full endpoint:
-
-```text
-https://siteXXXXX.siteasp.net:8172/msdeploy.axd?site=siteXXXXX
-```
-
-Do not use the public frontend/API URLs such as `https://sabiqgame.com`, `https://sabiqgame.runasp.net`, or `https://sabiqgameapi.runasp.net` as the WebDeploy publish URL.
 
 ## Production API settings
 
