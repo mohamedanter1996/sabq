@@ -106,6 +106,7 @@ else
 }
 
 // Application Services
+builder.Services.AddHttpClient();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<RoomService>();
 builder.Services.AddScoped<GameService>();
@@ -162,7 +163,10 @@ builder.Services.AddAuthorization(options =>
 });
 
 // Background services
+builder.Services.Configure<Sabq.Api.BackgroundServices.QuestionBankRefreshOptions>(
+    builder.Configuration.GetSection("QuestionBankRefresh"));
 builder.Services.AddHostedService<Sabq.Api.BackgroundServices.ArchiveJobScheduler>();
+builder.Services.AddHostedService<Sabq.Api.BackgroundServices.QuestionBankRefreshScheduler>();
 
 // SignalR
 builder.Services.AddSignalR();
@@ -173,9 +177,15 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowWebClient", policy =>
     {
         policy.WithOrigins(
+            "https://sabiqgame.com",
+            "https://www.sabiqgame.com",
+            "https://sabiqgame.runasp.net",
             "http://localhost:4200",
             "http://localhost:4201",
-            "http://localhost:4202"
+            "http://localhost:4202",
+            "http://127.0.0.1:4200",
+            "http://127.0.0.1:4201",
+            "http://127.0.0.1:4202"
         )
         .AllowAnyHeader()
         .AllowAnyMethod()

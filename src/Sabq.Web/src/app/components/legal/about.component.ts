@@ -80,11 +80,20 @@ import { JsonLdService } from '../../services/json-ld.service';
           </p>
         </section>
 
+        <section class="sources">
+          <h2>مصادر الأسئلة</h2>
+          <p>
+            يعتمد بنك الأسئلة على بنك محلي مصري أولا، مع مراجعة الحقائق وبنية كل سؤال لضمان وجود أربع اختيارات
+            وإجابة صحيحة واحدة. عند استخدام مصادر مفتوحة أو بيانات قابلة للإسناد مثل Wikidata وOpen Trivia DB،
+            يتم الحفاظ على الإسناد وتجنّب أي أسئلة مولدة كحشو.
+          </p>
+        </section>
+
         <section class="stats">
           <h2>إحصائيات</h2>
           <div class="stats-grid">
             <div class="stat-card">
-              <div class="stat-number">10,000+</div>
+              <div class="stat-number">700+</div>
               <div class="stat-label">سؤال</div>
             </div>
             <div class="stat-card">
@@ -96,7 +105,7 @@ import { JsonLdService } from '../../services/json-ld.service';
               <div class="stat-label">مسابقة</div>
             </div>
             <div class="stat-card">
-              <div class="stat-number">20+</div>
+              <div class="stat-number">15</div>
               <div class="stat-label">تصنيف</div>
             </div>
           </div>
@@ -111,7 +120,7 @@ import { JsonLdService } from '../../services/json-ld.service';
             </div>
             <div class="faq-item">
               <h3>كيف أبدأ اللعب؟</h3>
-              <p>أدخل اسم العرض الخاص بك وانضم إلى غرفة موجودة أو أنشئ غرفتك الخاصة.</p>
+              <p>أدخل اسم المستخدم الخاص بك وانضم إلى غرفة موجودة أو أنشئ غرفتك الخاصة.</p>
             </div>
             <div class="faq-item">
               <h3>هل يمكنني اللعب مع أصدقائي؟</h3>
@@ -378,7 +387,7 @@ export class AboutComponent implements OnInit {
       },
       {
         question: 'كيف أبدأ اللعب في سابق؟',
-        answer: 'أدخل اسم العرض الخاص بك وانضم إلى غرفة موجودة أو أنشئ غرفتك الخاصة.'
+        answer: 'أدخل اسم المستخدم الخاص بك وانضم إلى غرفة موجودة أو أنشئ غرفتك الخاصة.'
       },
       {
         question: 'هل يمكنني اللعب مع أصدقائي؟',

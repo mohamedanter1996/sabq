@@ -34,6 +34,10 @@ import { RouterLink } from '@angular/router';
           </div>
           <p class="brand-description">منصة عربية رائدة لألعاب الأسئلة والمسابقات التفاعلية. انضم إلى مجتمعنا وتحدى أصدقاءك!</p>
 
+          <p class="source-note">
+            بنك الأسئلة مصري أولا، مع إسناد للمصادر المفتوحة والبيانات القابلة للتحقق مثل Wikidata وOpen Trivia DB عند استخدامها.
+          </p>
+
           <!-- Social Links -->
           <div class="social-links">
             <a href="https://twitter.com/sabq_quiz" target="_blank" rel="noopener" class="social-link twitter" aria-label="تويتر">
@@ -209,6 +213,14 @@ import { RouterLink } from '@angular/router';
       line-height: 1.7;
       color: rgba(255, 255, 255, 0.7);
       margin: 0;
+    }
+
+    .source-note {
+      font-family: 'Cairo', sans-serif;
+      font-size: 0.8rem;
+      line-height: 1.6;
+      color: rgba(255, 255, 255, 0.55);
+      margin: -0.25rem 0 0;
     }
     
     /* Social Links */

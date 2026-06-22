@@ -6,11 +6,12 @@ import { Subject, takeUntil } from 'rxjs';
 import { SeoService } from '../../services/seo.service';
 import { JsonLdService, Question, Option } from '../../services/json-ld.service';
 import { environment } from '../../../environments/environment';
+import { AdSlotComponent } from '../shared/ad-slot.component';
 
 @Component({
   selector: 'app-question-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, AdSlotComponent],
   template: `
     <div class="question-page">
       <div class="container">
@@ -77,6 +78,8 @@ import { environment } from '../../../environments/environment';
               <p class="correct-answer">{{ getCorrectAnswer() }}</p>
             </div>
           </div>
+
+          <app-ad-slot slotKey="questionDetail" placement="rectangle"></app-ad-slot>
 
           <div class="play-cta">
             <h3>هل تريد اختبار معلوماتك أكثر؟</h3>

@@ -21,4 +21,8 @@
     <ProjectReference Include="..\Sabq.Shared\Sabq.Shared.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Include="Data\QuestionBank\questions.ar.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>

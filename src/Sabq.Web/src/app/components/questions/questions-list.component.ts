@@ -7,6 +7,7 @@ import { Subject, takeUntil, debounceTime, distinctUntilChanged } from 'rxjs';
 import { SeoService } from '../../services/seo.service';
 import { JsonLdService, Question } from '../../services/json-ld.service';
 import { environment } from '../../../environments/environment';
+import { AdSlotComponent } from '../shared/ad-slot.component';
 
 interface PaginatedResponse<T> {
   items: T[];
@@ -21,13 +22,14 @@ interface PaginatedResponse<T> {
 interface Category {
   id: string;
   nameAr: string;
+  slug: string;
   questionCount: number;
 }
 
 @Component({
   selector: 'app-questions-list',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule],
+  imports: [CommonModule, RouterLink, FormsModule, AdSlotComponent],
   template: `
     <div class="questions-page">
       <div class="container">
@@ -38,7 +40,7 @@ interface Category {
           <ng-container *ngIf="selectedCategory">
             <a routerLink="/questions">الأسئلة</a>
             <span>›</span>
-            <span>{{ selectedCategory }}</span>
+            <span>{{ selectedCategoryLabel }}</span>
           </ng-container>
         </nav>
 
@@ -46,6 +48,8 @@ interface Category {
         <p class="subtitle" *ngIf="!selectedCategory">
           استعرض مجموعة واسعة من الأسئلة في مختلف التصنيفات. اختبر معلوماتك وتعلم شيئاً جديداً!
         </p>
+
+        <app-ad-slot slotKey="questionsTop" placement="banner"></app-ad-slot>
 
         <div class="filters">
           <div class="search-box">
@@ -76,7 +80,7 @@ interface Category {
           <a 
             *ngFor="let cat of categories"
             class="category-chip"
-            [class.active]="selectedCategory === cat.nameAr"
+            [class.active]="selectedCategory === cat.slug"
             [routerLink]="['/questions', getCategorySlug(cat)]">
             {{ cat.nameAr }} ({{ cat.questionCount }})
           </a>
@@ -88,19 +92,27 @@ interface Category {
         </div>
 
         <div class="questions-grid" *ngIf="!loading && questions.length > 0">
-          <a 
-            *ngFor="let q of questions; let i = index"
-            class="question-card"
-            [routerLink]="['/questions', q.categorySlug, q.slug]">
-            <div class="question-number">#{{ (currentPage - 1) * pageSize + i + 1 }}</div>
-            <h2 class="question-text">{{ q.textAr }}</h2>
-            <div class="question-meta">
-              <span class="category">{{ q.categoryNameAr }}</span>
-              <span class="difficulty" [class]="q.difficulty.toLowerCase()">
-                {{ getDifficultyLabel(q.difficulty) }}
-              </span>
-            </div>
-          </a>
+          <ng-container *ngFor="let q of questions; let i = index">
+            <a
+              class="question-card"
+              [routerLink]="['/questions', q.categorySlug, q.slug]">
+              <div class="question-number">#{{ (currentPage - 1) * pageSize + i + 1 }}</div>
+              <h2 class="question-text">{{ q.textAr }}</h2>
+              <div class="question-meta">
+                <span class="category">{{ q.categoryNameAr }}</span>
+                <span class="difficulty" [class]="q.difficulty.toLowerCase()">
+                  {{ getDifficultyLabel(q.difficulty) }}
+                </span>
+              </div>
+            </a>
+
+            <app-ad-slot
+              *ngIf="i === 5"
+              slotKey="questionsInFeed"
+              placement="in-feed"
+              [wide]="true">
+            </app-ad-slot>
+          </ng-container>
         </div>
 
         <div class="no-results" *ngIf="!loading && questions.length === 0">
@@ -455,9 +467,13 @@ export class QuestionsListComponent implements OnInit, OnDestroy {
 
   get pageTitle(): string {
     if (this.selectedCategory) {
-      return `أسئلة ${this.selectedCategory}`;
+      return `أسئلة ${this.selectedCategoryLabel}`;
     }
     return 'الأسئلة';
+  }
+
+  get selectedCategoryLabel(): string {
+    return this.categories.find(c => c.slug === this.selectedCategory)?.nameAr || this.selectedCategory;
   }
 
   constructor(
@@ -508,6 +524,7 @@ export class QuestionsListComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (categories) => {
           this.categories = categories;
+          this.updateSeo();
         },
         error: (err) => console.error('Error loading categories:', err)
       });
@@ -584,8 +601,7 @@ export class QuestionsListComponent implements OnInit, OnDestroy {
   }
 
   getCategorySlug(cat: Category): string {
-    // Return slug based on category - you may need to adjust this
-    return cat.nameAr.toLowerCase().replace(/\s+/g, '-');
+    return cat.slug;
   }
 
   getDifficultyLabel(difficulty: string): string {
@@ -631,24 +647,24 @@ export class QuestionsListComponent implements OnInit, OnDestroy {
 
   updateSeo(): void {
     const title = this.selectedCategory 
-      ? `أسئلة ${this.selectedCategory}` 
+      ? `أسئلة ${this.selectedCategoryLabel}`
       : 'الأسئلة';
     
     const description = this.selectedCategory
-      ? `استعرض أسئلة ${this.selectedCategory} على منصة سابق. اختبر معلوماتك وتنافس مع الآخرين.`
+      ? `استعرض أسئلة ${this.selectedCategoryLabel} على منصة سابق. اختبر معلوماتك وتنافس مع الآخرين.`
       : 'استعرض مجموعة واسعة من الأسئلة في مختلف التصنيفات على منصة سابق.';
 
     this.seoService.updateSeo({
       title,
       description,
-      keywords: `أسئلة, كويز, اختبارات, ${this.selectedCategory || 'ثقافة عامة'}, سابق`,
+      keywords: `أسئلة, كويز, اختبارات, ${this.selectedCategoryLabel || 'ثقافة عامة'}, سابق`,
       type: 'website'
     });
 
     const breadcrumbs = [{ name: 'الرئيسية', url: '/' }];
     if (this.selectedCategory) {
       breadcrumbs.push({ name: 'الأسئلة', url: '/questions' });
-      breadcrumbs.push({ name: this.selectedCategory, url: `/questions/${this.selectedCategory}` });
+      breadcrumbs.push({ name: this.selectedCategoryLabel, url: `/questions/${this.selectedCategory}` });
     } else {
       breadcrumbs.push({ name: 'الأسئلة', url: '/questions' });
     }

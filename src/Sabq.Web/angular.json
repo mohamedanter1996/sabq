@@ -20,6 +20,7 @@
             "tsConfig": "tsconfig.app.json",
             "assets": [
               "src/favicon.svg",
+              "src/web.config",
               "src/assets",
               {
                 "glob": "robots.txt",
@@ -49,16 +50,18 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500kb",
+                  "maximumWarning": "600kb",
                   "maximumError": "1mb"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "2kb",
-                  "maximumError": "4kb"
+                  "maximumWarning": "6kb",
+                  "maximumError": "8kb"
                 }
               ],
               "outputHashing": "all",
+              "ssr": false,
+              "prerender": false,
               "optimization": {
                 "scripts": true,
                 "styles": {
@@ -66,7 +69,7 @@
                   "inlineCritical": true
                 },
                 "fonts": {
-                  "inline": true
+                  "inline": false
                 }
               }
             },

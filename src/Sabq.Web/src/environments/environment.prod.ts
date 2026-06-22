@@ -1,6 +1,18 @@
 // Production environment configuration
 export const environment = {
   production: true,
-  apiUrl: 'https://api.sabq.app/api', // Update this with your production API URL
-  hubUrl: 'https://api.sabq.app/hubs/sabq' // Update this with your production hub URL
+  apiUrl: 'https://sabiqgameapi.runasp.net/api',
+  hubUrl: 'https://sabiqgameapi.runasp.net/hubs/sabq',
+  ads: {
+    enabled: false,
+    showPlaceholders: false,
+    client: '',
+    slots: {
+      homeTop: '',
+      questionsTop: '',
+      questionsInFeed: '',
+      questionDetail: '',
+      resultsBottom: ''
+    }
+  }
 };

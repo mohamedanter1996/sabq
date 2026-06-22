@@ -18,12 +18,12 @@ interface GuestLoginResponse { token: string; playerId: string; displayName: str
         <p style="text-align: center; color: var(--secondary); font-size: 20px; margin-bottom: 40px;">جاوب الأول… واكسب</p>
         
         <h2 style="margin-bottom: 20px;">مرحباً بك!</h2>
-        <p style="color: var(--text-secondary); margin-bottom: 30px;">أدخل اسم العرض للبدء</p>
+        <p style="color: var(--text-secondary); margin-bottom: 30px;">أدخل اسم المستخدم للبدء</p>
         
         <input 
           type="text" 
           [(ngModel)]="displayName" 
-          placeholder="اسم العرض"
+          placeholder="اسم المستخدم"
           (keyup.enter)="login()"
           style="margin-bottom: 20px;">
         
@@ -55,7 +55,7 @@ export class LoginComponent {
 
   login(): void {
     if (!this.displayName.trim()) {
-      this.errorMessage = 'الرجاء إدخال اسم العرض';
+      this.errorMessage = 'الرجاء إدخال اسم المستخدم';
       return;
     }
 

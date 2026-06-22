@@ -5,6 +5,7 @@ import { RealtimeService } from '../../services/realtime.service';
 import { AuthService } from '../../services/auth.service';
 import { SoundService } from '../../services/sound.service';
 import { Subscription } from 'rxjs';
+import { AdSlotComponent } from '../shared/ad-slot.component';
 
 interface PlayerLeaderboard { id: string; displayName: string; score: number; rank: number; }
 interface GameEndedEvent { finalLeaderboard: PlayerLeaderboard[]; winnerIds: string[]; }
@@ -12,7 +13,7 @@ interface GameEndedEvent { finalLeaderboard: PlayerLeaderboard[]; winnerIds: str
 @Component({
   selector: 'app-results',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, AdSlotComponent],
   template: `
     <div class="container results-container" style="max-width: 700px; margin-top: 50px; text-align: center;">
       <!-- Confetti Effect for Winner -->
@@ -47,6 +48,8 @@ interface GameEndedEvent { finalLeaderboard: PlayerLeaderboard[]; winnerIds: str
           <span style="font-size: 24px; font-weight: bold;" [style.color]="player.rank === 1 && !allSameScore ? '#f59e0b' : 'var(--accent)'">{{ player.score }} نقطة</span>
         </div>
       </div>
+
+      <app-ad-slot slotKey="resultsBottom" placement="banner"></app-ad-slot>
 
       <button class="btn btn-primary" style="width: 100%; margin-top: 40px; padding: 20px; font-size: 20px;" (click)="backToHome()">
         العودة للرئيسية

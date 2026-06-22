@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
 import { RealtimeService } from '../../services/realtime.service';
+import { AdSlotComponent } from '../shared/ad-slot.component';
 
 interface CategoryDto { id: string; nameAr: string; }
 interface CreateRoomResponse { roomId: string; roomCode: string; }
@@ -13,13 +14,15 @@ interface JoinRoomResponse { roomId: string; roomCode: string; categoryName: str
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, AdSlotComponent],
   template: `
     <div class="container" style="max-width: 800px; margin-top: 50px;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px;">
         <h1 style="color: var(--primary);">سابق</h1>
         <button class="btn" style="background: transparent; color: var(--error);" (click)="logout()">تسجيل خروج</button>
       </div>
+
+      <app-ad-slot slotKey="homeTop" placement="banner"></app-ad-slot>
 
       <div class="card" style="margin-bottom: 30px;">
         <h2 style="margin-bottom: 15px;">إنشاء غرفة جديدة</h2>
