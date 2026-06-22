@@ -33,6 +33,20 @@ Frontend workflow:
 
 Use the exact Web Deploy values from the MonsterASP control panel for publish URL, site name, username, and password.
 
+MonsterASP WebDeploy URLs are not the public website URLs. Use the siteasp endpoint:
+
+```text
+https://siteXXXXX.siteasp.net:8172
+```
+
+or the full endpoint:
+
+```text
+https://siteXXXXX.siteasp.net:8172/msdeploy.axd?site=siteXXXXX
+```
+
+Do not use the public frontend/API URLs such as `https://sabiqgame.com`, `https://sabiqgame.runasp.net`, or `https://sabiqgameapi.runasp.net` as the WebDeploy publish URL.
+
 ## Production API settings
 
 Keep live secrets out of git. Put production backend configuration in the `SABQ_API_APPSETTINGS_PRODUCTION_JSON` GitHub secret.

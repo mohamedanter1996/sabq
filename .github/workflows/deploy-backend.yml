@@ -102,14 +102,52 @@ jobs:
             throw "Publish directory was not found: $env:PUBLISH_DIR"
           }
 
+          function Normalize-WebDeployUrl {
+            param(
+              [Parameter(Mandatory=$true)][string]$RawUrl,
+              [Parameter(Mandatory=$true)][string]$SiteName
+            )
+
+            $cleanUrl = $RawUrl.Trim().Trim('"', "'")
+            $cleanSite = $SiteName.Trim().Trim('"', "'")
+
+            try {
+              $builder = [System.UriBuilder]::new($cleanUrl)
+            }
+            catch {
+              throw "MONSTERASP_BACKEND_PUBLISH_URL must be a valid URL. Example: https://siteXXXXX.siteasp.net:8172"
+            }
+
+            if ($builder.Port -eq -1 -or $builder.Port -eq 80 -or $builder.Port -eq 443) {
+              $builder.Port = 8172
+            }
+
+            if ($builder.Path -notmatch "msdeploy\.axd$") {
+              $builder.Path = "msdeploy.axd"
+              $builder.Query = "site=$cleanSite"
+            }
+
+            return $builder.Uri.AbsoluteUri
+          }
+
+          $siteName = $env:BACKEND_SITE_NAME.Trim().Trim('"', "'")
+          $publishUrl = Normalize-WebDeployUrl -RawUrl $env:BACKEND_PUBLISH_URL -SiteName $siteName
+          $username = $env:BACKEND_USERNAME.Trim().Trim('"', "'")
+          $password = $env:BACKEND_PASSWORD.Trim().Trim('"', "'")
+          $destination = "-dest:contentPath=`"$siteName`",computerName=`"$publishUrl`",userName=`"$username`",password=`"$password`",authType=`"Basic`",includeAcls=`"False`""
+
           $arguments = @(
             "-verb:sync",
             "-source:contentPath=$env:PUBLISH_DIR",
-            "-dest:contentPath=$env:BACKEND_SITE_NAME,computerName=$env:BACKEND_PUBLISH_URL,userName=$env:BACKEND_USERNAME,password=$env:BACKEND_PASSWORD,authType=Basic",
+            $destination,
             "-allowUntrusted",
             "-enableRule:AppOffline",
+            "-disableLink:AppPoolExtension",
+            "-disableLink:ContentExtension",
+            "-disableLink:CertificateExtension",
             "-retryAttempts:3",
-            "-retryInterval:10000"
+            "-retryInterval:10000",
+            "-verbose"
           )
 
           & $env:MSDEPLOY_EXE @arguments
