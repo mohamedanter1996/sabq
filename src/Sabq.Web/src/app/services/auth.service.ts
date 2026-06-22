@@ -1,4 +1,5 @@
-import { Injectable } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import { Injectable, PLATFORM_ID, inject } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
 export interface AuthState {
@@ -11,11 +12,8 @@ export interface AuthState {
   providedIn: 'root'
 })
 export class AuthService {
-  private authState = new BehaviorSubject<AuthState>({
-    playerId: sessionStorage.getItem('playerId'),
-    displayName: sessionStorage.getItem('displayName'),
-    token: sessionStorage.getItem('token')
-  });
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+  private authState = new BehaviorSubject<AuthState>(this.loadInitialState());
 
   authState$ = this.authState.asObservable();
 
@@ -37,18 +35,34 @@ export class AuthService {
   }
 
   setAuth(playerId: string, displayName: string, token: string): void {
-    sessionStorage.setItem('playerId', playerId);
-    sessionStorage.setItem('displayName', displayName);
-    sessionStorage.setItem('token', token);
+    if (this.isBrowser) {
+      sessionStorage.setItem('playerId', playerId);
+      sessionStorage.setItem('displayName', displayName);
+      sessionStorage.setItem('token', token);
+    }
     
     this.authState.next({ playerId, displayName, token });
   }
 
   clearAuth(): void {
-    sessionStorage.removeItem('playerId');
-    sessionStorage.removeItem('displayName');
-    sessionStorage.removeItem('token');
+    if (this.isBrowser) {
+      sessionStorage.removeItem('playerId');
+      sessionStorage.removeItem('displayName');
+      sessionStorage.removeItem('token');
+    }
     
     this.authState.next({ playerId: null, displayName: null, token: null });
+  }
+
+  private loadInitialState(): AuthState {
+    if (!this.isBrowser) {
+      return { playerId: null, displayName: null, token: null };
+    }
+
+    return {
+      playerId: sessionStorage.getItem('playerId'),
+      displayName: sessionStorage.getItem('displayName'),
+      token: sessionStorage.getItem('token')
+    };
   }
 }
