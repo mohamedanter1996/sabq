@@ -7,6 +7,7 @@ The local Arabic question bank is stored in `questions.ar.json` and is loaded by
 - Normal database seeding does not fetch questions from the internet.
 - The checked-in JSON is the source of truth for startup seeding.
 - Version 2 is Egypt-first: Egyptian film, football, literature, art, music, history, geography, and general knowledge are prioritized.
+- Global coverage is also curated where it improves play: world tournaments, world geography, science, technology, and broadly recognizable historical moments.
 - Questions should feel playable first: every category should use a small scene, clue, memory hook, or practical context instead of a bare dictionary prompt.
 - Good prompts should teach while they play by exposing why the fact matters: travel context, historical clues, cultural memory, everyday tech use, or a quick comparison.
 - `religion-islamic` contains informational Islam-related questions about Quran, seerah, companions, Islamic history, Al-Azhar, and Egyptian Islamic landmarks. It avoids fatwas, sectarian framing, and disputed rulings.
@@ -30,6 +31,18 @@ The local Arabic question bank is stored in `questions.ar.json` and is loaded by
 - Curated Egypt-first local records:
   - Locally generated from structured factual records checked into `scripts/generate-question-bank.mjs`.
   - Used for the current Arabic user-facing v2 bank.
+- FIFA tournament records: https://www.fifa.com/en/tournaments
+  - Used only as official factual reference for World Cup and global football tournament questions.
+- International Olympic Committee records: https://olympics.com/ioc
+  - Used only as official factual reference for Olympic and Paralympic history.
+- UEFA competition history: https://www.uefa.com/uefachampionsleague/history/
+  - Used only as official factual reference for European club competition history.
+- FIBA events history: https://www.fiba.basketball/en/history
+  - Used only as official factual reference for basketball tournament history.
+- NASA Solar System Exploration: https://science.nasa.gov/solar-system/
+  - Used for public space and solar-system facts.
+- Nobel Prize official facts: https://www.nobelprize.org/about-the-nobel-prize/
+  - Used only as official factual reference for Nobel history, categories, and award timing.
 
 ## Regeneration
 

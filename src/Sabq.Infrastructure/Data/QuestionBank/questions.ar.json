@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "generatedAtUtc": "2026-06-23T09:08:24.895Z",
+  "generatedAtUtc": "2026-06-23T09:48:29.529Z",
   "language": "ar",
   "focus": "Egypt-first",
   "sources": [
@@ -21,6 +21,42 @@
       "url": "local://scripts/generate-question-bank.mjs",
       "license": "Project-curated factual prompts",
       "usage": "Arabic user-facing question text and Egypt-first coverage."
+    },
+    {
+      "name": "FIFA tournament records",
+      "url": "https://www.fifa.com/en/tournaments",
+      "license": "Official factual reference; no copied prose",
+      "usage": "World Cup and global football tournament fact checks."
+    },
+    {
+      "name": "International Olympic Committee records",
+      "url": "https://olympics.com/ioc",
+      "license": "Official factual reference; no copied prose",
+      "usage": "Olympic and Paralympic history and symbol fact checks."
+    },
+    {
+      "name": "UEFA competition history",
+      "url": "https://www.uefa.com/uefachampionsleague/history/",
+      "license": "Official factual reference; no copied prose",
+      "usage": "European club tournament history and records."
+    },
+    {
+      "name": "FIBA events history",
+      "url": "https://www.fiba.basketball/en/history",
+      "license": "Official factual reference; no copied prose",
+      "usage": "Basketball tournament history and event references."
+    },
+    {
+      "name": "NASA Solar System Exploration",
+      "url": "https://science.nasa.gov/solar-system/",
+      "license": "United States government public information",
+      "usage": "Solar system and space science fact checks."
+    },
+    {
+      "name": "Nobel Prize official facts",
+      "url": "https://www.nobelprize.org/about-the-nobel-prize/",
+      "license": "Official factual reference; no copied prose",
+      "usage": "Nobel history, categories, and award timing fact checks."
     }
   ],
   "categories": [
@@ -9197,6 +9233,216 @@
       "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
     },
     {
+      "slug": "general-knowledge-famous-canal-clue-which-two-oceans-does-the-panama-canal-connect",
+      "categorySlug": "general-knowledge",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "ممر ملاحي شهير: قناة بنما تربط بين أي محيطين؟",
+      "textEn": "Famous canal clue: which two oceans does the Panama Canal connect?",
+      "options": [
+        {
+          "textAr": "الأطلسي والمتجمد الشمالي",
+          "textEn": "Atlantic and Arctic",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "الهندي والأطلسي",
+          "textEn": "Indian and Atlantic",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "الأطلسي والهادئ",
+          "textEn": "Atlantic and Pacific",
+          "isCorrect": true,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "الهندي والهادئ",
+          "textEn": "Indian and Pacific",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "general-knowledge-global-snapshot-in-which-year-were-the-nobel-prizes-first-awarded",
+      "categorySlug": "general-knowledge",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "لقطة عالمية: جوائز نوبل بدأت تمنح لأول مرة في أي سنة؟",
+      "textEn": "Global snapshot: in which year were the Nobel Prizes first awarded?",
+      "options": [
+        {
+          "textAr": "1896",
+          "textEn": "1896",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "1918",
+          "textEn": "1918",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "1969",
+          "textEn": "1969",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "1901",
+          "textEn": "1901",
+          "isCorrect": true,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "general-knowledge-name-card-whose-will-inspired-the-nobel-prizes",
+      "categorySlug": "general-knowledge",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "بطاقة اسم: وصية أي شخص كانت وراء فكرة جوائز نوبل؟",
+      "textEn": "Name card: whose will inspired the Nobel Prizes?",
+      "options": [
+        {
+          "textAr": "ألبرت أينشتاين",
+          "textEn": "Albert Einstein",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "ماري كوري",
+          "textEn": "Marie Curie",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "إسحاق نيوتن",
+          "textEn": "Isaac Newton",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "ألفريد نوبل",
+          "textEn": "Alfred Nobel",
+          "isCorrect": true,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "general-knowledge-prize-fact-nobel-ceremonies-are-usually-held-on-10-december-because-it-marks-what",
+      "categorySlug": "general-knowledge",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "معلومة جوائز: حفلات نوبل تقدم عادة في يوم 10 ديسمبر لأنه يوافق ماذا؟",
+      "textEn": "Prize fact: Nobel ceremonies are usually held on 10 December because it marks what?",
+      "options": [
+        {
+          "textAr": "بداية السنة الدراسية",
+          "textEn": "start of the school year",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "افتتاح أولمبياد حديث",
+          "textEn": "opening of the modern Olympics",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "ذكرى وفاة ألفريد نوبل",
+          "textEn": "anniversary of Alfred Nobel death",
+          "isCorrect": true,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "نهاية الحرب العالمية الأولى",
+          "textEn": "end of World War I",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "general-knowledge-quick-global-symbol-the-statue-of-liberty-came-to-the-us-as-a-gift-from-which-country",
+      "categorySlug": "general-knowledge",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "رمز عالمي سريع: تمثال الحرية وصل إلى أمريكا كهدية من أي دولة؟",
+      "textEn": "Quick global symbol: the Statue of Liberty came to the US as a gift from which country?",
+      "options": [
+        {
+          "textAr": "فرنسا",
+          "textEn": "France",
+          "isCorrect": true,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "إسبانيا",
+          "textEn": "Spain",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "إيطاليا",
+          "textEn": "Italy",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "بريطانيا",
+          "textEn": "Britain",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "general-knowledge-quick-useful-table-fact-if-you-hear-about-the-later-nobel-linked-prize-which-field-was-added-later",
+      "categorySlug": "general-knowledge",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "معلومة سريعة تنفع في القعدة: لو سمعت عن جائزة نوبل في الاقتصاد، فالمعلومة اللطيفة أنها أضيفت لاحقا في أي مجال؟",
+      "textEn": "Quick useful table fact: If you hear about the later Nobel-linked prize, which field was added later?",
+      "options": [
+        {
+          "textAr": "الكيمياء",
+          "textEn": "chemistry",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "الأدب",
+          "textEn": "literature",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "السلام",
+          "textEn": "peace",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "العلوم الاقتصادية",
+          "textEn": "economic sciences",
+          "isCorrect": true,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
       "slug": "general-knowledge-quick-useful-table-fact-what-is-the-capital-of-egypt",
       "categorySlug": "general-knowledge",
       "difficulty": "Easy",
@@ -10240,6 +10486,496 @@
         {
           "textAr": "بحر العرب",
           "textEn": "Arabian Sea",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "general-knowledge-space-story-in-one-line-which-mission-first-landed-humans-on-the-moon",
+      "categorySlug": "general-knowledge",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "قصة فضاء في سطر: أي مهمة أوصلت أول بشر إلى سطح القمر؟",
+      "textEn": "Space story in one line: which mission first landed humans on the Moon?",
+      "options": [
+        {
+          "textAr": "سبوتنيك 1",
+          "textEn": "Sputnik 1",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "أبولو 13",
+          "textEn": "Apollo 13",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "أبولو 11",
+          "textEn": "Apollo 11",
+          "isCorrect": true,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "فوياجر 1",
+          "textEn": "Voyager 1",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "general-knowledge-world-map-which-ocean-is-the-largest-on-earth",
+      "categorySlug": "general-knowledge",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "خريطة العالم: أكبر محيط على الأرض هو أي محيط؟",
+      "textEn": "World map: which ocean is the largest on Earth?",
+      "options": [
+        {
+          "textAr": "المحيط الأطلسي",
+          "textEn": "Atlantic Ocean",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "المحيط المتجمد الشمالي",
+          "textEn": "Arctic Ocean",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "المحيط الهندي",
+          "textEn": "Indian Ocean",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "المحيط الهادئ",
+          "textEn": "Pacific Ocean",
+          "isCorrect": true,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "geography-global-postcard-which-place-matches-deepest-known-part-of-the-oceans",
+      "categorySlug": "geography",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "بوست كارت عالمي: أي مكان ينطبق عليه وصف «أعمق منطقة معروفة في المحيطات»؟",
+      "textEn": "Global postcard: which place matches deepest known part of the oceans?",
+      "options": [
+        {
+          "textAr": "تاج محل",
+          "textEn": "Taj Mahal",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "خندق ماريانا",
+          "textEn": "Mariana Trench",
+          "isCorrect": true,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "سور الصين العظيم",
+          "textEn": "Great Wall of China",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "دار أوبرا سيدني",
+          "textEn": "Sydney Opera House",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "geography-global-postcard-which-place-matches-famous-white-marble-mausoleum",
+      "categorySlug": "geography",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "بوست كارت عالمي: أي مكان ينطبق عليه وصف «ضريح رخامي أبيض شهير»؟",
+      "textEn": "Global postcard: which place matches famous white marble mausoleum?",
+      "options": [
+        {
+          "textAr": "تاج محل",
+          "textEn": "Taj Mahal",
+          "isCorrect": true,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "ماتشو بيتشو",
+          "textEn": "Machu Picchu",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "تمثال الحرية",
+          "textEn": "Statue of Liberty",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "غابات الأمازون",
+          "textEn": "Amazon Rainforest",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "geography-global-postcard-which-place-matches-harbour-statue-welcoming-arrivals",
+      "categorySlug": "geography",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "بوست كارت عالمي: أي مكان ينطبق عليه وصف «تمثال يرحب بالقادمين إلى الميناء»؟",
+      "textEn": "Global postcard: which place matches harbour statue welcoming arrivals?",
+      "options": [
+        {
+          "textAr": "دار أوبرا سيدني",
+          "textEn": "Sydney Opera House",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "الصحراء الكبرى",
+          "textEn": "Sahara Desert",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "تمثال الحرية",
+          "textEn": "Statue of Liberty",
+          "isCorrect": true,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "برج إيفل",
+          "textEn": "Eiffel Tower",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "geography-global-postcard-which-place-matches-high-inca-city-in-the-andes",
+      "categorySlug": "geography",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "بوست كارت عالمي: أي مكان ينطبق عليه وصف «مدينة إنكا مرتفعة بين جبال الأنديز»؟",
+      "textEn": "Global postcard: which place matches high Inca city in the Andes?",
+      "options": [
+        {
+          "textAr": "الصحراء الكبرى",
+          "textEn": "Sahara Desert",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "خندق ماريانا",
+          "textEn": "Mariana Trench",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "ماتشو بيتشو",
+          "textEn": "Machu Picchu",
+          "isCorrect": true,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "جبل إيفرست",
+          "textEn": "Mount Everest",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "geography-global-postcard-which-place-matches-highest-peak-above-sea-level",
+      "categorySlug": "geography",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "بوست كارت عالمي: أي مكان ينطبق عليه وصف «أعلى قمة فوق مستوى سطح البحر»؟",
+      "textEn": "Global postcard: which place matches highest peak above sea level?",
+      "options": [
+        {
+          "textAr": "جبل إيفرست",
+          "textEn": "Mount Everest",
+          "isCorrect": true,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "الصحراء الكبرى",
+          "textEn": "Sahara Desert",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "الكولوسيوم",
+          "textEn": "Colosseum",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "دار أوبرا سيدني",
+          "textEn": "Sydney Opera House",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "geography-global-postcard-which-place-matches-historic-fortifications-stretching-for-long-distances",
+      "categorySlug": "geography",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "بوست كارت عالمي: أي مكان ينطبق عليه وصف «تحصينات تاريخية تمتد لمسافات طويلة»؟",
+      "textEn": "Global postcard: which place matches historic fortifications stretching for long distances?",
+      "options": [
+        {
+          "textAr": "تاج محل",
+          "textEn": "Taj Mahal",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "جبل إيفرست",
+          "textEn": "Mount Everest",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "سور الصين العظيم",
+          "textEn": "Great Wall of China",
+          "isCorrect": true,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "غابات الأمازون",
+          "textEn": "Amazon Rainforest",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "geography-global-postcard-which-place-matches-huge-ancient-roman-amphitheatre",
+      "categorySlug": "geography",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "بوست كارت عالمي: أي مكان ينطبق عليه وصف «مدرج روماني أثري ضخم»؟",
+      "textEn": "Global postcard: which place matches huge ancient Roman amphitheatre?",
+      "options": [
+        {
+          "textAr": "خندق ماريانا",
+          "textEn": "Mariana Trench",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "تمثال الحرية",
+          "textEn": "Statue of Liberty",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "تاج محل",
+          "textEn": "Taj Mahal",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "الكولوسيوم",
+          "textEn": "Colosseum",
+          "isCorrect": true,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "geography-global-postcard-which-place-matches-iron-tower-that-became-a-symbol-of-paris",
+      "categorySlug": "geography",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "بوست كارت عالمي: أي مكان ينطبق عليه وصف «برج حديدي صار رمزا لباريس»؟",
+      "textEn": "Global postcard: which place matches iron tower that became a symbol of Paris?",
+      "options": [
+        {
+          "textAr": "تاج محل",
+          "textEn": "Taj Mahal",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "الصحراء الكبرى",
+          "textEn": "Sahara Desert",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "برج خليفة",
+          "textEn": "Burj Khalifa",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "برج إيفل",
+          "textEn": "Eiffel Tower",
+          "isCorrect": true,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "geography-global-postcard-which-place-matches-performing-arts-building-with-sail-like-roofs",
+      "categorySlug": "geography",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "بوست كارت عالمي: أي مكان ينطبق عليه وصف «مبنى مسرحي شهير بسقفه الشبيه بالأشرعة»؟",
+      "textEn": "Global postcard: which place matches performing arts building with sail-like roofs?",
+      "options": [
+        {
+          "textAr": "ماتشو بيتشو",
+          "textEn": "Machu Picchu",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "تاج محل",
+          "textEn": "Taj Mahal",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "دار أوبرا سيدني",
+          "textEn": "Sydney Opera House",
+          "isCorrect": true,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "سور الصين العظيم",
+          "textEn": "Great Wall of China",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "geography-global-postcard-which-place-matches-super-tall-skyscraper",
+      "categorySlug": "geography",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "بوست كارت عالمي: أي مكان ينطبق عليه وصف «ناطحة سحاب فائقة الارتفاع»؟",
+      "textEn": "Global postcard: which place matches super-tall skyscraper?",
+      "options": [
+        {
+          "textAr": "برج خليفة",
+          "textEn": "Burj Khalifa",
+          "isCorrect": true,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "ماتشو بيتشو",
+          "textEn": "Machu Picchu",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "سور الصين العظيم",
+          "textEn": "Great Wall of China",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "دار أوبرا سيدني",
+          "textEn": "Sydney Opera House",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "geography-global-postcard-which-place-matches-vast-tropical-rainforest",
+      "categorySlug": "geography",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "بوست كارت عالمي: أي مكان ينطبق عليه وصف «غابة مطيرة استوائية شاسعة»؟",
+      "textEn": "Global postcard: which place matches vast tropical rainforest?",
+      "options": [
+        {
+          "textAr": "ماتشو بيتشو",
+          "textEn": "Machu Picchu",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "خندق ماريانا",
+          "textEn": "Mariana Trench",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "برج خليفة",
+          "textEn": "Burj Khalifa",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "غابات الأمازون",
+          "textEn": "Amazon Rainforest",
+          "isCorrect": true,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "geography-global-postcard-which-place-matches-world-largest-hot-desert",
+      "categorySlug": "geography",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "بوست كارت عالمي: أي مكان ينطبق عليه وصف «أكبر صحراء حارة في العالم»؟",
+      "textEn": "Global postcard: which place matches world largest hot desert?",
+      "options": [
+        {
+          "textAr": "جبل إيفرست",
+          "textEn": "Mount Everest",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "الصحراء الكبرى",
+          "textEn": "Sahara Desert",
+          "isCorrect": true,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "برج خليفة",
+          "textEn": "Burj Khalifa",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "غابات الأمازون",
+          "textEn": "Amazon Rainforest",
           "isCorrect": false,
           "displayOrder": 4
         }
@@ -12137,6 +12873,496 @@
       "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
     },
     {
+      "slug": "geography-world-tour-where-would-you-go-to-see-amazon-rainforest",
+      "categorySlug": "geography",
+      "difficulty": "Easy",
+      "timeLimitSec": 15,
+      "textAr": "جولة حول العالم: لو عايز تشوف غابات الأمازون، هتحجز ناحية فين؟",
+      "textEn": "World tour: where would you go to see Amazon Rainforest?",
+      "options": [
+        {
+          "textAr": "غرب المحيط الهادئ",
+          "textEn": "Western Pacific Ocean",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "أمريكا الجنوبية",
+          "textEn": "South America",
+          "isCorrect": true,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "أغرا، الهند",
+          "textEn": "Agra, India",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "بيرو",
+          "textEn": "Peru",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "geography-world-tour-where-would-you-go-to-see-burj-khalifa",
+      "categorySlug": "geography",
+      "difficulty": "Easy",
+      "timeLimitSec": 15,
+      "textAr": "جولة حول العالم: لو عايز تشوف برج خليفة، هتحجز ناحية فين؟",
+      "textEn": "World tour: where would you go to see Burj Khalifa?",
+      "options": [
+        {
+          "textAr": "أمريكا الجنوبية",
+          "textEn": "South America",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "دبي، الإمارات",
+          "textEn": "Dubai, United Arab Emirates",
+          "isCorrect": true,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "بيرو",
+          "textEn": "Peru",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "روما، إيطاليا",
+          "textEn": "Rome, Italy",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "geography-world-tour-where-would-you-go-to-see-colosseum",
+      "categorySlug": "geography",
+      "difficulty": "Easy",
+      "timeLimitSec": 15,
+      "textAr": "جولة حول العالم: لو عايز تشوف الكولوسيوم، هتحجز ناحية فين؟",
+      "textEn": "World tour: where would you go to see Colosseum?",
+      "options": [
+        {
+          "textAr": "روما، إيطاليا",
+          "textEn": "Rome, Italy",
+          "isCorrect": true,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "باريس، فرنسا",
+          "textEn": "Paris, France",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "نيويورك، الولايات المتحدة",
+          "textEn": "New York, United States",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "سيدني، أستراليا",
+          "textEn": "Sydney, Australia",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "geography-world-tour-where-would-you-go-to-see-eiffel-tower",
+      "categorySlug": "geography",
+      "difficulty": "Easy",
+      "timeLimitSec": 15,
+      "textAr": "جولة حول العالم: لو عايز تشوف برج إيفل، هتحجز ناحية فين؟",
+      "textEn": "World tour: where would you go to see Eiffel Tower?",
+      "options": [
+        {
+          "textAr": "باريس، فرنسا",
+          "textEn": "Paris, France",
+          "isCorrect": true,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "دبي، الإمارات",
+          "textEn": "Dubai, United Arab Emirates",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "سيدني، أستراليا",
+          "textEn": "Sydney, Australia",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "شمال أفريقيا",
+          "textEn": "North Africa",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "geography-world-tour-where-would-you-go-to-see-great-wall-of-china",
+      "categorySlug": "geography",
+      "difficulty": "Easy",
+      "timeLimitSec": 15,
+      "textAr": "جولة حول العالم: لو عايز تشوف سور الصين العظيم، هتحجز ناحية فين؟",
+      "textEn": "World tour: where would you go to see Great Wall of China?",
+      "options": [
+        {
+          "textAr": "شمال أفريقيا",
+          "textEn": "North Africa",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "أمريكا الجنوبية",
+          "textEn": "South America",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "الهيمالايا بين نيبال والصين",
+          "textEn": "Himalayas between Nepal and China",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "الصين",
+          "textEn": "China",
+          "isCorrect": true,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "geography-world-tour-where-would-you-go-to-see-machu-picchu",
+      "categorySlug": "geography",
+      "difficulty": "Easy",
+      "timeLimitSec": 15,
+      "textAr": "جولة حول العالم: لو عايز تشوف ماتشو بيتشو، هتحجز ناحية فين؟",
+      "textEn": "World tour: where would you go to see Machu Picchu?",
+      "options": [
+        {
+          "textAr": "شمال أفريقيا",
+          "textEn": "North Africa",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "أغرا، الهند",
+          "textEn": "Agra, India",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "الهيمالايا بين نيبال والصين",
+          "textEn": "Himalayas between Nepal and China",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "بيرو",
+          "textEn": "Peru",
+          "isCorrect": true,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "geography-world-tour-where-would-you-go-to-see-mariana-trench",
+      "categorySlug": "geography",
+      "difficulty": "Easy",
+      "timeLimitSec": 15,
+      "textAr": "جولة حول العالم: لو عايز تشوف خندق ماريانا، هتحجز ناحية فين؟",
+      "textEn": "World tour: where would you go to see Mariana Trench?",
+      "options": [
+        {
+          "textAr": "نيويورك، الولايات المتحدة",
+          "textEn": "New York, United States",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "غرب المحيط الهادئ",
+          "textEn": "Western Pacific Ocean",
+          "isCorrect": true,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "بيرو",
+          "textEn": "Peru",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "دبي، الإمارات",
+          "textEn": "Dubai, United Arab Emirates",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "geography-world-tour-where-would-you-go-to-see-mount-everest",
+      "categorySlug": "geography",
+      "difficulty": "Easy",
+      "timeLimitSec": 15,
+      "textAr": "جولة حول العالم: لو عايز تشوف جبل إيفرست، هتحجز ناحية فين؟",
+      "textEn": "World tour: where would you go to see Mount Everest?",
+      "options": [
+        {
+          "textAr": "أمريكا الجنوبية",
+          "textEn": "South America",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "دبي، الإمارات",
+          "textEn": "Dubai, United Arab Emirates",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "الهيمالايا بين نيبال والصين",
+          "textEn": "Himalayas between Nepal and China",
+          "isCorrect": true,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "أغرا، الهند",
+          "textEn": "Agra, India",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "geography-world-tour-where-would-you-go-to-see-sahara-desert",
+      "categorySlug": "geography",
+      "difficulty": "Easy",
+      "timeLimitSec": 15,
+      "textAr": "جولة حول العالم: لو عايز تشوف الصحراء الكبرى، هتحجز ناحية فين؟",
+      "textEn": "World tour: where would you go to see Sahara Desert?",
+      "options": [
+        {
+          "textAr": "شمال أفريقيا",
+          "textEn": "North Africa",
+          "isCorrect": true,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "الصين",
+          "textEn": "China",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "الهيمالايا بين نيبال والصين",
+          "textEn": "Himalayas between Nepal and China",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "أغرا، الهند",
+          "textEn": "Agra, India",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "geography-world-tour-where-would-you-go-to-see-statue-of-liberty",
+      "categorySlug": "geography",
+      "difficulty": "Easy",
+      "timeLimitSec": 15,
+      "textAr": "جولة حول العالم: لو عايز تشوف تمثال الحرية، هتحجز ناحية فين؟",
+      "textEn": "World tour: where would you go to see Statue of Liberty?",
+      "options": [
+        {
+          "textAr": "روما، إيطاليا",
+          "textEn": "Rome, Italy",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "باريس، فرنسا",
+          "textEn": "Paris, France",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "دبي، الإمارات",
+          "textEn": "Dubai, United Arab Emirates",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "نيويورك، الولايات المتحدة",
+          "textEn": "New York, United States",
+          "isCorrect": true,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "geography-world-tour-where-would-you-go-to-see-sydney-opera-house",
+      "categorySlug": "geography",
+      "difficulty": "Easy",
+      "timeLimitSec": 15,
+      "textAr": "جولة حول العالم: لو عايز تشوف دار أوبرا سيدني، هتحجز ناحية فين؟",
+      "textEn": "World tour: where would you go to see Sydney Opera House?",
+      "options": [
+        {
+          "textAr": "شمال أفريقيا",
+          "textEn": "North Africa",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "دبي، الإمارات",
+          "textEn": "Dubai, United Arab Emirates",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "أغرا، الهند",
+          "textEn": "Agra, India",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "سيدني، أستراليا",
+          "textEn": "Sydney, Australia",
+          "isCorrect": true,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "geography-world-tour-where-would-you-go-to-see-taj-mahal",
+      "categorySlug": "geography",
+      "difficulty": "Easy",
+      "timeLimitSec": 15,
+      "textAr": "جولة حول العالم: لو عايز تشوف تاج محل، هتحجز ناحية فين؟",
+      "textEn": "World tour: where would you go to see Taj Mahal?",
+      "options": [
+        {
+          "textAr": "أمريكا الجنوبية",
+          "textEn": "South America",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "سيدني، أستراليا",
+          "textEn": "Sydney, Australia",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "أغرا، الهند",
+          "textEn": "Agra, India",
+          "isCorrect": true,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "دبي، الإمارات",
+          "textEn": "Dubai, United Arab Emirates",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "history-flight-dream-the-wright-brothers-first-powered-flight-was-in-which-year",
+      "categorySlug": "history",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "حلم الطيران: أول رحلة طيران بمحرك للأخوين رايت كانت في أي سنة؟",
+      "textEn": "Flight dream: the Wright brothers first powered flight was in which year?",
+      "options": [
+        {
+          "textAr": "1903",
+          "textEn": "1903",
+          "isCorrect": true,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "1930",
+          "textEn": "1930",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "1957",
+          "textEn": "1957",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "1869",
+          "textEn": "1869",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "history-industrial-turning-point-the-industrial-revolution-began-strongly-in-which-country",
+      "categorySlug": "history",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "منعطف صناعي: الثورة الصناعية بدأت بقوة في أي بلد؟",
+      "textEn": "Industrial turning point: the Industrial Revolution began strongly in which country?",
+      "options": [
+        {
+          "textAr": "بريطانيا",
+          "textEn": "Britain",
+          "isCorrect": true,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "كندا",
+          "textEn": "Canada",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "البرازيل",
+          "textEn": "Brazil",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "اليابان",
+          "textEn": "Japan",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
       "slug": "history-missing-event-card-which-name-or-group-completes-alexander-the-great-enters-egypt",
       "categorySlug": "history",
       "difficulty": "Medium",
@@ -12901,6 +14127,181 @@
           "textAr": "أسوان",
           "textEn": "Aswan",
           "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "history-new-world-order-the-un-was-founded-after-which-major-war",
+      "categorySlug": "history",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "نظام عالمي جديد: تأسيس الأمم المتحدة جاء بعد أي حرب كبرى؟",
+      "textEn": "New world order: the UN was founded after which major war?",
+      "options": [
+        {
+          "textAr": "الحرب العالمية الثانية",
+          "textEn": "World War II",
+          "isCorrect": true,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "الحرب الباردة",
+          "textEn": "Cold War",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "حرب المئة عام",
+          "textEn": "Hundred Years War",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "حرب القرم",
+          "textEn": "Crimean War",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "history-old-law-card-magna-carta-in-1215-is-linked-to-which-country",
+      "categorySlug": "history",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "بطاقة قانون قديمة: وثيقة ماجنا كارتا سنة 1215 ارتبطت بأي بلد؟",
+      "textEn": "Old law card: Magna Carta in 1215 is linked to which country?",
+      "options": [
+        {
+          "textAr": "إنجلترا",
+          "textEn": "England",
+          "isCorrect": true,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "فرنسا",
+          "textEn": "France",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "إيطاليا",
+          "textEn": "Italy",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "الصين",
+          "textEn": "China",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "history-old-trade-route-the-silk-road-linked-china-with-which-wider-world",
+      "categorySlug": "history",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "طريق تجارة قديم: طريق الحرير كان يربط الصين غالبا بأي عالم أوسع؟",
+      "textEn": "Old trade route: the Silk Road linked China with which wider world?",
+      "options": [
+        {
+          "textAr": "أستراليا فقط",
+          "textEn": "Australia only",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "آسيا الوسطى وأوروبا",
+          "textEn": "Central Asia and Europe",
+          "isCorrect": true,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "القطب الجنوبي",
+          "textEn": "Antarctica",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "جزر الكاريبي فقط",
+          "textEn": "Caribbean islands only",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "history-reading-changing-invention-movable-type-printing-in-europe-is-linked-to-which-name",
+      "categorySlug": "history",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "اختراع غيّر القراءة: الطباعة بالحروف المتحركة في أوروبا ترتبط بأي اسم؟",
+      "textEn": "Reading-changing invention: movable-type printing in Europe is linked to which name?",
+      "options": [
+        {
+          "textAr": "جيمس وات",
+          "textEn": "James Watt",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "غاليليو غاليلي",
+          "textEn": "Galileo Galilei",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "يوهانس جوتنبرج",
+          "textEn": "Johannes Gutenberg",
+          "isCorrect": true,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "ليوناردو دافنشي",
+          "textEn": "Leonardo da Vinci",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "history-renaissance-and-art-the-european-renaissance-grew-strongly-from-which-area",
+      "categorySlug": "history",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "نهضة وفنون: عصر النهضة الأوروبي بدأ بقوة في أي منطقة؟",
+      "textEn": "Renaissance and art: the European Renaissance grew strongly from which area?",
+      "options": [
+        {
+          "textAr": "جنوب أفريقيا",
+          "textEn": "South Africa",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "المكسيك",
+          "textEn": "Mexico",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "النرويج",
+          "textEn": "Norway",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "إيطاليا",
+          "textEn": "Italy",
+          "isCorrect": true,
           "displayOrder": 4
         }
       ],
@@ -14440,6 +15841,41 @@
         {
           "textAr": "افتتاح قناة السويس",
           "textEn": "Opening of the Suez Canal",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "history-world-time-trip-the-fall-of-the-berlin-wall-is-usually-linked-to-which-year",
+      "categorySlug": "history",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "رحلة زمنية عالمية: سقوط جدار برلين يرتبط غالبا بأي سنة؟",
+      "textEn": "World time-trip: the fall of the Berlin Wall is usually linked to which year?",
+      "options": [
+        {
+          "textAr": "1969",
+          "textEn": "1969",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "1989",
+          "textEn": "1989",
+          "isCorrect": true,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "1945",
+          "textEn": "1945",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "2001",
+          "textEn": "2001",
           "isCorrect": false,
           "displayOrder": 4
         }
@@ -18297,6 +19733,146 @@
       "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
     },
     {
+      "slug": "science-nature-beach-tides-which-celestial-body-is-the-main-driver",
+      "categorySlug": "science-nature",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "مد وجزر على الشاطئ: العامل السماوي الأهم في حدوثهما هو إيه؟",
+      "textEn": "Beach tides: which celestial body is the main driver?",
+      "options": [
+        {
+          "textAr": "نجم الشعرى",
+          "textEn": "Sirius",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "زحل",
+          "textEn": "Saturn",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "القمر",
+          "textEn": "the Moon",
+          "isCorrect": true,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "المريخ",
+          "textEn": "Mars",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "science-nature-cosmic-address-our-solar-system-is-inside-which-galaxy",
+      "categorySlug": "science-nature",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "عنواننا الكوني: المجموعة الشمسية موجودة داخل أي مجرة؟",
+      "textEn": "Cosmic address: our solar system is inside which galaxy?",
+      "options": [
+        {
+          "textAr": "سحابة ماجلان الكبرى",
+          "textEn": "Large Magellanic Cloud",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "أندروميدا",
+          "textEn": "Andromeda",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "مجرة سومبريرو",
+          "textEn": "Sombrero Galaxy",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "درب التبانة",
+          "textEn": "Milky Way",
+          "isCorrect": true,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "science-nature-cosmic-speed-light-in-vacuum-travels-at-roughly-what-speed",
+      "categorySlug": "science-nature",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "سرعة كونية: الضوء في الفراغ يتحرك تقريبا بسرعة كام؟",
+      "textEn": "Cosmic speed: light in vacuum travels at roughly what speed?",
+      "options": [
+        {
+          "textAr": "1 كم في الثانية",
+          "textEn": "1 km per second",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "30 كم في الثانية",
+          "textEn": "30 km per second",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "1500 كم في الساعة",
+          "textEn": "1,500 km per hour",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "300 ألف كم في الثانية",
+          "textEn": "300,000 km per second",
+          "isCorrect": true,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "science-nature-everyday-chemistry-h2o-points-to-which-substance",
+      "categorySlug": "science-nature",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "كيمياء يومية: الرمز H2O يشير إلى أي مادة؟",
+      "textEn": "Everyday chemistry: H2O points to which substance?",
+      "options": [
+        {
+          "textAr": "الأكسجين",
+          "textEn": "oxygen",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "الماء",
+          "textEn": "water",
+          "isCorrect": true,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "ملح الطعام",
+          "textEn": "table salt",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "ثاني أكسيد الكربون",
+          "textEn": "carbon dioxide",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
       "slug": "science-nature-lab-and-space-clue-which-element-or-planet-matches-1",
       "categorySlug": "science-nature",
       "difficulty": "Medium",
@@ -18920,6 +20496,41 @@
         {
           "textAr": "عطارد",
           "textEn": "Mercury",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "science-nature-nasa-style-fact-how-many-planets-are-currently-in-the-solar-system",
+      "categorySlug": "science-nature",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "حقيقة من ناسا: عدد الكواكب في المجموعة الشمسية حاليا كام؟",
+      "textEn": "NASA-style fact: how many planets are currently in the solar system?",
+      "options": [
+        {
+          "textAr": "كوكبان فقط",
+          "textEn": "two planets",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "ثمانية كواكب",
+          "textEn": "eight planets",
+          "isCorrect": true,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "خمسة كواكب",
+          "textEn": "five planets",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "تسعة عشر كوكبا",
+          "textEn": "nineteen planets",
           "isCorrect": false,
           "displayOrder": 4
         }
@@ -19557,6 +21168,111 @@
       "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
     },
     {
+      "slug": "science-nature-plants-in-sunlight-what-is-the-process-that-uses-light-to-make-food",
+      "categorySlug": "science-nature",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "نباتات في الشمس: العملية التي تستخدم الضوء لصنع الغذاء اسمها إيه؟",
+      "textEn": "Plants in sunlight: what is the process that uses light to make food?",
+      "options": [
+        {
+          "textAr": "البناء الضوئي",
+          "textEn": "photosynthesis",
+          "isCorrect": true,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "التجمد",
+          "textEn": "freezing",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "التبخر",
+          "textEn": "evaporation",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "الصدأ",
+          "textEn": "rusting",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "science-nature-quick-biology-card-which-molecule-carries-genetic-instructions-in-our-cells",
+      "categorySlug": "science-nature",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "كارت أحياء سريع: الجزيء الذي يحمل التعليمات الوراثية في خلايانا اسمه إيه؟",
+      "textEn": "Quick biology card: which molecule carries genetic instructions in our cells?",
+      "options": [
+        {
+          "textAr": "DNA",
+          "textEn": "DNA",
+          "isCorrect": true,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "ATP",
+          "textEn": "ATP",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "CO2",
+          "textEn": "CO2",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "H2O",
+          "textEn": "H2O",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "science-nature-solar-system-giant-which-planet-is-the-largest",
+      "categorySlug": "science-nature",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "عملاق المجموعة الشمسية: أكبر كواكبها هو أي كوكب؟",
+      "textEn": "Solar-system giant: which planet is the largest?",
+      "options": [
+        {
+          "textAr": "عطارد",
+          "textEn": "Mercury",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "المشتري",
+          "textEn": "Jupiter",
+          "isCorrect": true,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "الزهرة",
+          "textEn": "Venus",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "المريخ",
+          "textEn": "Mars",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
       "slug": "science-nature-tiny-lab-card-which-marker-identifies-calcium",
       "categorySlug": "science-nature",
       "difficulty": "Easy",
@@ -20187,6 +21903,76 @@
       "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
     },
     {
+      "slug": "sports-africa-cup-story-the-first-afcon-began-in-which-decade",
+      "categorySlug": "sports",
+      "difficulty": "Easy",
+      "timeLimitSec": 15,
+      "textAr": "قصة كأس أفريقيا: أول نسخة من كأس الأمم الأفريقية بدأت في أي عقد؟",
+      "textEn": "Africa Cup story: the first AFCON began in which decade?",
+      "options": [
+        {
+          "textAr": "التسعينيات",
+          "textEn": "1990s",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "الخمسينيات",
+          "textEn": "1950s",
+          "isCorrect": true,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "الثلاثينيات",
+          "textEn": "1930s",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "السبعينيات",
+          "textEn": "1970s",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "sports-easy-world-cup-memory-hook-how-often-is-the-national-team-world-cup-usually-held",
+      "categorySlug": "sports",
+      "difficulty": "Easy",
+      "timeLimitSec": 15,
+      "textAr": "معلومة مونديالية سهلة الحفظ: كأس العالم للمنتخبات يقام غالبا كل كام سنة؟",
+      "textEn": "Easy World Cup memory hook: how often is the national-team World Cup usually held?",
+      "options": [
+        {
+          "textAr": "كل أربع سنوات",
+          "textEn": "every four years",
+          "isCorrect": true,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "كل عشر سنوات",
+          "textEn": "every ten years",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "كل سنة",
+          "textEn": "every year",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "كل سنتين",
+          "textEn": "every two years",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
       "slug": "sports-egyptian-champion-card-which-sport-made-ahmed-hassan-stand-out",
       "categorySlug": "sports",
       "difficulty": "Easy",
@@ -20601,6 +22387,811 @@
           "textAr": "الإسكواش",
           "textEn": "squash",
           "isCorrect": true,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "sports-european-nights-which-club-competition-began-as-the-european-champion-clubs-cup",
+      "categorySlug": "sports",
+      "difficulty": "Easy",
+      "timeLimitSec": 15,
+      "textAr": "ليالي أوروبا: أي بطولة أندية أوروبية بدأت باسم كأس الأندية الأوروبية البطلة؟",
+      "textEn": "European nights: which club competition began as the European Champion Clubs Cup?",
+      "options": [
+        {
+          "textAr": "كأس العالم للأندية",
+          "textEn": "Club World Cup",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "الدوري الأوروبي",
+          "textEn": "Europa League",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "كأس أمم أوروبا",
+          "textEn": "UEFA Euro",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "دوري أبطال أوروبا",
+          "textEn": "UEFA Champions League",
+          "isCorrect": true,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "sports-fast-tennis-clue-which-major-tournament-is-known-for-grass-courts-and-white-clothing",
+      "categorySlug": "sports",
+      "difficulty": "Easy",
+      "timeLimitSec": 15,
+      "textAr": "تنس بسرعة: أي بطولة كبرى مشهورة بالملاعب العشبية والملابس البيضاء؟",
+      "textEn": "Fast tennis clue: which major tournament is known for grass courts and white clothing?",
+      "options": [
+        {
+          "textAr": "أمريكا المفتوحة",
+          "textEn": "US Open",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "ويمبلدون",
+          "textEn": "Wimbledon",
+          "isCorrect": true,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "رولان جاروس",
+          "textEn": "Roland-Garros",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "أستراليا المفتوحة",
+          "textEn": "Australian Open",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "sports-first-world-cup-story-which-country-hosted-and-won-the-first-tournament-in-1930",
+      "categorySlug": "sports",
+      "difficulty": "Easy",
+      "timeLimitSec": 15,
+      "textAr": "حكاية أول مونديال: أي بلد استضاف أول كأس عالم وفاز به عام 1930؟",
+      "textEn": "First World Cup story: which country hosted and won the first tournament in 1930?",
+      "options": [
+        {
+          "textAr": "البرازيل",
+          "textEn": "Brazil",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "إيطاليا",
+          "textEn": "Italy",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "أوروجواي",
+          "textEn": "Uruguay",
+          "isCorrect": true,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "فرنسا",
+          "textEn": "France",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "sports-global-tournament-card-asian-national-team-tournament-which-tournament-is-it",
+      "categorySlug": "sports",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "بطاقة بطولة عالمية: بطولة منتخبات القارة الآسيوية. أي بطولة نقصد؟",
+      "textEn": "Global tournament card: Asian national-team tournament. Which tournament is it?",
+      "options": [
+        {
+          "textAr": "كأس آسيا",
+          "textEn": "AFC Asian Cup",
+          "isCorrect": true,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "بطولة العالم لألعاب القوى",
+          "textEn": "World Athletics Championships",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "كوبا أمريكا",
+          "textEn": "Copa America",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "الألعاب الأولمبية الحديثة",
+          "textEn": "Modern Olympic Games",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "sports-global-tournament-card-big-european-club-nights-which-tournament-is-it",
+      "categorySlug": "sports",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "بطاقة بطولة عالمية: ليالي الأندية الأوروبية الكبرى. أي بطولة نقصد؟",
+      "textEn": "Global tournament card: big European club nights. Which tournament is it?",
+      "options": [
+        {
+          "textAr": "دوري أبطال أوروبا",
+          "textEn": "UEFA Champions League",
+          "isCorrect": true,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "بطولة العالم لكرة اليد",
+          "textEn": "World Men Handball Championship",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "بطولة العالم لألعاب القوى",
+          "textEn": "World Athletics Championships",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "كأس الأمم الأفريقية",
+          "textEn": "Africa Cup of Nations",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "sports-global-tournament-card-big-final-mixing-sport-and-halftime-show-which-tournament-is-it",
+      "categorySlug": "sports",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "بطاقة بطولة عالمية: نهائي كبير يجمع الرياضة والعرض الموسيقي. أي بطولة نقصد؟",
+      "textEn": "Global tournament card: big final mixing sport and halftime show. Which tournament is it?",
+      "options": [
+        {
+          "textAr": "السوبر بول",
+          "textEn": "Super Bowl",
+          "isCorrect": true,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "كأس العالم للرجبي",
+          "textEn": "Rugby World Cup",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "رولان جاروس",
+          "textEn": "Roland-Garros",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "جائزة موناكو الكبرى",
+          "textEn": "Monaco Grand Prix",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "sports-global-tournament-card-biggest-national-team-stage-every-four-years-which-tournament-is-it",
+      "categorySlug": "sports",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "بطاقة بطولة عالمية: أكبر مسرح للمنتخبات كل أربع سنوات. أي بطولة نقصد؟",
+      "textEn": "Global tournament card: biggest national-team stage every four years. Which tournament is it?",
+      "options": [
+        {
+          "textAr": "كأس العالم للأندية",
+          "textEn": "FIFA Club World Cup",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "سباق فرنسا للدراجات",
+          "textEn": "Tour de France",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "كأس العالم لكرة القدم",
+          "textEn": "FIFA World Cup",
+          "isCorrect": true,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "الألعاب الأولمبية الحديثة",
+          "textEn": "Modern Olympic Games",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "sports-global-tournament-card-continental-club-champions-in-one-tournament-which-tournament-is-it",
+      "categorySlug": "sports",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "بطاقة بطولة عالمية: أندية أبطال القارات في بطولة واحدة. أي بطولة نقصد؟",
+      "textEn": "Global tournament card: continental club champions in one tournament. Which tournament is it?",
+      "options": [
+        {
+          "textAr": "جائزة موناكو الكبرى",
+          "textEn": "Monaco Grand Prix",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "كأس العالم للأندية",
+          "textEn": "FIFA Club World Cup",
+          "isCorrect": true,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "نهائيات NBA",
+          "textEn": "NBA Finals",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "كأس العالم للكريكيت",
+          "textEn": "Cricket World Cup",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "sports-global-tournament-card-formula-1-cars-on-narrow-streets-near-the-harbour-which-tournament-is-it",
+      "categorySlug": "sports",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "بطاقة بطولة عالمية: سيارات فورمولا 1 في شوارع ضيقة قرب الميناء. أي بطولة نقصد؟",
+      "textEn": "Global tournament card: Formula 1 cars on narrow streets near the harbour. Which tournament is it?",
+      "options": [
+        {
+          "textAr": "كأس العالم لكرة القدم",
+          "textEn": "FIFA World Cup",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "نهائيات NBA",
+          "textEn": "NBA Finals",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "بطولة العالم لكرة اليد",
+          "textEn": "World Men Handball Championship",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "جائزة موناكو الكبرى",
+          "textEn": "Monaco Grand Prix",
+          "isCorrect": true,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "sports-global-tournament-card-french-tennis-tournament-on-clay-courts-which-tournament-is-it",
+      "categorySlug": "sports",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "بطاقة بطولة عالمية: بطولة تنس فرنسية على الملاعب الترابية. أي بطولة نقصد؟",
+      "textEn": "Global tournament card: French tennis tournament on clay courts. Which tournament is it?",
+      "options": [
+        {
+          "textAr": "دوري أبطال أوروبا",
+          "textEn": "UEFA Champions League",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "رولان جاروس",
+          "textEn": "Roland-Garros",
+          "isCorrect": true,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "كأس العالم للكريكيت",
+          "textEn": "Cricket World Cup",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "كأس العالم لكرة السلة",
+          "textEn": "FIBA Basketball World Cup",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "sports-global-tournament-card-global-event-for-athletes-with-disabilities-which-tournament-is-it",
+      "categorySlug": "sports",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "بطاقة بطولة عالمية: حدث عالمي للرياضيين ذوي الإعاقة. أي بطولة نقصد؟",
+      "textEn": "Global tournament card: global event for athletes with disabilities. Which tournament is it?",
+      "options": [
+        {
+          "textAr": "كأس آسيا",
+          "textEn": "AFC Asian Cup",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "الألعاب البارالمبية",
+          "textEn": "Paralympic Games",
+          "isCorrect": true,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "رولان جاروس",
+          "textEn": "Roland-Garros",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "بطولة العالم لكرة اليد",
+          "textEn": "World Men Handball Championship",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "sports-global-tournament-card-global-event-with-many-sports-under-the-five-rings-which-tournament-is-it",
+      "categorySlug": "sports",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "بطاقة بطولة عالمية: حدث عالمي يجمع رياضات كثيرة تحت الحلقات الخمس. أي بطولة نقصد؟",
+      "textEn": "Global tournament card: global event with many sports under the five rings. Which tournament is it?",
+      "options": [
+        {
+          "textAr": "رولان جاروس",
+          "textEn": "Roland-Garros",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "جائزة موناكو الكبرى",
+          "textEn": "Monaco Grand Prix",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "كأس العالم لكرة السلة",
+          "textEn": "FIBA Basketball World Cup",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "الألعاب الأولمبية الحديثة",
+          "textEn": "Modern Olympic Games",
+          "isCorrect": true,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "sports-global-tournament-card-global-national-team-basketball-tournament-which-tournament-is-it",
+      "categorySlug": "sports",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "بطاقة بطولة عالمية: بطولة منتخبات كرة السلة عالميا. أي بطولة نقصد؟",
+      "textEn": "Global tournament card: global national-team basketball tournament. Which tournament is it?",
+      "options": [
+        {
+          "textAr": "كأس العالم للأندية",
+          "textEn": "FIFA Club World Cup",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "بطولة العالم لكرة اليد",
+          "textEn": "World Men Handball Championship",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "كأس العالم لكرة السلة",
+          "textEn": "FIBA Basketball World Cup",
+          "isCorrect": true,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "سباق فرنسا للدراجات",
+          "textEn": "Tour de France",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "sports-global-tournament-card-global-tournament-for-bat-and-wicket-cricket-which-tournament-is-it",
+      "categorySlug": "sports",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "بطاقة بطولة عالمية: بطولة عالمية في لعبة المضرب والويكيت. أي بطولة نقصد؟",
+      "textEn": "Global tournament card: global tournament for bat-and-wicket cricket. Which tournament is it?",
+      "options": [
+        {
+          "textAr": "كأس العالم للكريكيت",
+          "textEn": "Cricket World Cup",
+          "isCorrect": true,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "ويمبلدون",
+          "textEn": "Wimbledon",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "كأس العالم للرجبي",
+          "textEn": "Rugby World Cup",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "بطولة العالم لألعاب القوى",
+          "textEn": "World Athletics Championships",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "sports-global-tournament-card-global-tournament-for-the-oval-ball-game-which-tournament-is-it",
+      "categorySlug": "sports",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "بطاقة بطولة عالمية: بطولة عالمية للعبة الكرة البيضاوية. أي بطولة نقصد؟",
+      "textEn": "Global tournament card: global tournament for the oval-ball game. Which tournament is it?",
+      "options": [
+        {
+          "textAr": "كأس العالم للرجبي",
+          "textEn": "Rugby World Cup",
+          "isCorrect": true,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "كأس العالم للسيدات",
+          "textEn": "FIFA Women World Cup",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "نهائيات NBA",
+          "textEn": "NBA Finals",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "كأس العالم للأندية",
+          "textEn": "FIFA Club World Cup",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "sports-global-tournament-card-historic-south-american-national-team-tournament-which-tournament-is-it",
+      "categorySlug": "sports",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "بطاقة بطولة عالمية: بطولة منتخبات أمريكا الجنوبية التاريخية. أي بطولة نقصد؟",
+      "textEn": "Global tournament card: historic South American national-team tournament. Which tournament is it?",
+      "options": [
+        {
+          "textAr": "كأس العالم للرجبي",
+          "textEn": "Rugby World Cup",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "ويمبلدون",
+          "textEn": "Wimbledon",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "جائزة موناكو الكبرى",
+          "textEn": "Monaco Grand Prix",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "كوبا أمريكا",
+          "textEn": "Copa America",
+          "isCorrect": true,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "sports-global-tournament-card-historic-tennis-tournament-on-grass-courts-which-tournament-is-it",
+      "categorySlug": "sports",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "بطاقة بطولة عالمية: بطولة تنس عريقة على الملاعب العشبية. أي بطولة نقصد؟",
+      "textEn": "Global tournament card: historic tennis tournament on grass courts. Which tournament is it?",
+      "options": [
+        {
+          "textAr": "كأس العالم للأندية",
+          "textEn": "FIFA Club World Cup",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "جائزة موناكو الكبرى",
+          "textEn": "Monaco Grand Prix",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "كأس آسيا",
+          "textEn": "AFC Asian Cup",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "ويمبلدون",
+          "textEn": "Wimbledon",
+          "isCorrect": true,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "sports-global-tournament-card-long-race-and-yellow-jersey-around-france-which-tournament-is-it",
+      "categorySlug": "sports",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "بطاقة بطولة عالمية: رحلة طويلة وقميص أصفر حول فرنسا. أي بطولة نقصد؟",
+      "textEn": "Global tournament card: long race and yellow jersey around France. Which tournament is it?",
+      "options": [
+        {
+          "textAr": "السوبر بول",
+          "textEn": "Super Bowl",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "جائزة موناكو الكبرى",
+          "textEn": "Monaco Grand Prix",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "سباق فرنسا للدراجات",
+          "textEn": "Tour de France",
+          "isCorrect": true,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "كأس الأمم الأفريقية",
+          "textEn": "Africa Cup of Nations",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "sports-global-tournament-card-series-deciding-the-american-basketball-league-title-which-tournament-is-it",
+      "categorySlug": "sports",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "بطاقة بطولة عالمية: سلسلة حسم لقب دوري السلة الأمريكي. أي بطولة نقصد؟",
+      "textEn": "Global tournament card: series deciding the American basketball league title. Which tournament is it?",
+      "options": [
+        {
+          "textAr": "دوري أبطال أوروبا",
+          "textEn": "UEFA Champions League",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "كأس العالم لكرة السلة",
+          "textEn": "FIBA Basketball World Cup",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "نهائيات NBA",
+          "textEn": "NBA Finals",
+          "isCorrect": true,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "رولان جاروس",
+          "textEn": "Roland-Garros",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "sports-global-tournament-card-tournament-for-african-national-teams-which-tournament-is-it",
+      "categorySlug": "sports",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "بطاقة بطولة عالمية: بطولة تجمع منتخبات أفريقيا. أي بطولة نقصد؟",
+      "textEn": "Global tournament card: tournament for African national teams. Which tournament is it?",
+      "options": [
+        {
+          "textAr": "كأس العالم للكريكيت",
+          "textEn": "Cricket World Cup",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "نهائيات NBA",
+          "textEn": "NBA Finals",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "كأس الأمم الأفريقية",
+          "textEn": "Africa Cup of Nations",
+          "isCorrect": true,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "دوري أبطال أوروبا",
+          "textEn": "UEFA Champions League",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "sports-global-tournament-card-tournament-for-the-fast-seven-player-game-which-tournament-is-it",
+      "categorySlug": "sports",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "بطاقة بطولة عالمية: بطولة للعبة السريعة ذات السبعة لاعبين. أي بطولة نقصد؟",
+      "textEn": "Global tournament card: tournament for the fast seven-player game. Which tournament is it?",
+      "options": [
+        {
+          "textAr": "ويمبلدون",
+          "textEn": "Wimbledon",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "كأس آسيا",
+          "textEn": "AFC Asian Cup",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "كوبا أمريكا",
+          "textEn": "Copa America",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "بطولة العالم لكرة اليد",
+          "textEn": "World Men Handball Championship",
+          "isCorrect": true,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "sports-global-tournament-card-track-field-and-medals-outside-the-olympics-which-tournament-is-it",
+      "categorySlug": "sports",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "بطاقة بطولة عالمية: مضمار وميدان وميداليات خارج الأولمبياد. أي بطولة نقصد؟",
+      "textEn": "Global tournament card: track, field, and medals outside the Olympics. Which tournament is it?",
+      "options": [
+        {
+          "textAr": "بطولة العالم لألعاب القوى",
+          "textEn": "World Athletics Championships",
+          "isCorrect": true,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "كأس العالم للرجبي",
+          "textEn": "Rugby World Cup",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "كأس العالم للكريكيت",
+          "textEn": "Cricket World Cup",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "كأس آسيا",
+          "textEn": "AFC Asian Cup",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "sports-global-tournament-card-women-national-team-version-of-the-world-cup-which-tournament-is-it",
+      "categorySlug": "sports",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "بطاقة بطولة عالمية: نسخة المنتخبات النسائية من المونديال. أي بطولة نقصد؟",
+      "textEn": "Global tournament card: women national-team version of the World Cup. Which tournament is it?",
+      "options": [
+        {
+          "textAr": "جائزة موناكو الكبرى",
+          "textEn": "Monaco Grand Prix",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "كأس العالم للسيدات",
+          "textEn": "FIFA Women World Cup",
+          "isCorrect": true,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "كأس العالم لكرة القدم",
+          "textEn": "FIFA World Cup",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "نهائيات NBA",
+          "textEn": "NBA Finals",
+          "isCorrect": false,
           "displayOrder": 4
         }
       ],
@@ -22077,6 +24668,1476 @@
       "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
     },
     {
+      "slug": "sports-race-flavoured-sport-clue-the-yellow-jersey-is-famous-in-which-competition",
+      "categorySlug": "sports",
+      "difficulty": "Easy",
+      "timeLimitSec": 15,
+      "textAr": "رياضة بمذاق سباق: القميص الأصفر رمز مشهور في أي بطولة؟",
+      "textEn": "Race-flavoured sport clue: the yellow jersey is famous in which competition?",
+      "options": [
+        {
+          "textAr": "نهائيات NBA",
+          "textEn": "NBA Finals",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "جائزة موناكو الكبرى",
+          "textEn": "Monaco Grand Prix",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "سباق فرنسا للدراجات",
+          "textEn": "Tour de France",
+          "isCorrect": true,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "السوبر بول",
+          "textEn": "Super Bowl",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "sports-sports-remote-in-hand-which-sport-are-you-watching-with-afc-asian-cup",
+      "categorySlug": "sports",
+      "difficulty": "Easy",
+      "timeLimitSec": 15,
+      "textAr": "ريموت الرياضة معاك: لما تشغل كأس آسيا، أنت داخل على أي رياضة؟",
+      "textEn": "Sports remote in hand: which sport are you watching with AFC Asian Cup?",
+      "options": [
+        {
+          "textAr": "التنس",
+          "textEn": "tennis",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "كرة القدم",
+          "textEn": "football",
+          "isCorrect": true,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "كرة القدم الأمريكية",
+          "textEn": "American football",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "ألعاب القوى",
+          "textEn": "athletics",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "sports-sports-remote-in-hand-which-sport-are-you-watching-with-africa-cup-of-nations",
+      "categorySlug": "sports",
+      "difficulty": "Easy",
+      "timeLimitSec": 15,
+      "textAr": "ريموت الرياضة معاك: لما تشغل كأس الأمم الأفريقية، أنت داخل على أي رياضة؟",
+      "textEn": "Sports remote in hand: which sport are you watching with Africa Cup of Nations?",
+      "options": [
+        {
+          "textAr": "كرة اليد",
+          "textEn": "handball",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "الدراجات",
+          "textEn": "cycling",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "كرة القدم",
+          "textEn": "football",
+          "isCorrect": true,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "فورمولا 1",
+          "textEn": "Formula 1",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "sports-sports-remote-in-hand-which-sport-are-you-watching-with-copa-america",
+      "categorySlug": "sports",
+      "difficulty": "Easy",
+      "timeLimitSec": 15,
+      "textAr": "ريموت الرياضة معاك: لما تشغل كوبا أمريكا، أنت داخل على أي رياضة؟",
+      "textEn": "Sports remote in hand: which sport are you watching with Copa America?",
+      "options": [
+        {
+          "textAr": "ألعاب القوى",
+          "textEn": "athletics",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "الرجبي",
+          "textEn": "rugby",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "كرة اليد",
+          "textEn": "handball",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "كرة القدم",
+          "textEn": "football",
+          "isCorrect": true,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "sports-sports-remote-in-hand-which-sport-are-you-watching-with-cricket-world-cup",
+      "categorySlug": "sports",
+      "difficulty": "Easy",
+      "timeLimitSec": 15,
+      "textAr": "ريموت الرياضة معاك: لما تشغل كأس العالم للكريكيت، أنت داخل على أي رياضة؟",
+      "textEn": "Sports remote in hand: which sport are you watching with Cricket World Cup?",
+      "options": [
+        {
+          "textAr": "كرة القدم",
+          "textEn": "football",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "الرجبي",
+          "textEn": "rugby",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "الكريكيت",
+          "textEn": "cricket",
+          "isCorrect": true,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "كرة السلة",
+          "textEn": "basketball",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "sports-sports-remote-in-hand-which-sport-are-you-watching-with-fiba-basketball-world-cup",
+      "categorySlug": "sports",
+      "difficulty": "Easy",
+      "timeLimitSec": 15,
+      "textAr": "ريموت الرياضة معاك: لما تشغل كأس العالم لكرة السلة، أنت داخل على أي رياضة؟",
+      "textEn": "Sports remote in hand: which sport are you watching with FIBA Basketball World Cup?",
+      "options": [
+        {
+          "textAr": "كرة القدم الأمريكية",
+          "textEn": "American football",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "كرة القدم",
+          "textEn": "football",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "الرجبي",
+          "textEn": "rugby",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "كرة السلة",
+          "textEn": "basketball",
+          "isCorrect": true,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "sports-sports-remote-in-hand-which-sport-are-you-watching-with-fifa-club-world-cup",
+      "categorySlug": "sports",
+      "difficulty": "Easy",
+      "timeLimitSec": 15,
+      "textAr": "ريموت الرياضة معاك: لما تشغل كأس العالم للأندية، أنت داخل على أي رياضة؟",
+      "textEn": "Sports remote in hand: which sport are you watching with FIFA Club World Cup?",
+      "options": [
+        {
+          "textAr": "كرة السلة",
+          "textEn": "basketball",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "الرجبي",
+          "textEn": "rugby",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "كرة القدم",
+          "textEn": "football",
+          "isCorrect": true,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "الكريكيت",
+          "textEn": "cricket",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "sports-sports-remote-in-hand-which-sport-are-you-watching-with-fifa-women-world-cup",
+      "categorySlug": "sports",
+      "difficulty": "Easy",
+      "timeLimitSec": 15,
+      "textAr": "ريموت الرياضة معاك: لما تشغل كأس العالم للسيدات، أنت داخل على أي رياضة؟",
+      "textEn": "Sports remote in hand: which sport are you watching with FIFA Women World Cup?",
+      "options": [
+        {
+          "textAr": "كرة القدم",
+          "textEn": "football",
+          "isCorrect": true,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "ألعاب القوى",
+          "textEn": "athletics",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "كرة القدم الأمريكية",
+          "textEn": "American football",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "فورمولا 1",
+          "textEn": "Formula 1",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "sports-sports-remote-in-hand-which-sport-are-you-watching-with-fifa-world-cup",
+      "categorySlug": "sports",
+      "difficulty": "Easy",
+      "timeLimitSec": 15,
+      "textAr": "ريموت الرياضة معاك: لما تشغل كأس العالم لكرة القدم، أنت داخل على أي رياضة؟",
+      "textEn": "Sports remote in hand: which sport are you watching with FIFA World Cup?",
+      "options": [
+        {
+          "textAr": "كرة القدم",
+          "textEn": "football",
+          "isCorrect": true,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "الرجبي",
+          "textEn": "rugby",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "الدراجات",
+          "textEn": "cycling",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "فورمولا 1",
+          "textEn": "Formula 1",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "sports-sports-remote-in-hand-which-sport-are-you-watching-with-modern-olympic-games",
+      "categorySlug": "sports",
+      "difficulty": "Easy",
+      "timeLimitSec": 15,
+      "textAr": "ريموت الرياضة معاك: لما تشغل الألعاب الأولمبية الحديثة، أنت داخل على أي رياضة؟",
+      "textEn": "Sports remote in hand: which sport are you watching with Modern Olympic Games?",
+      "options": [
+        {
+          "textAr": "التنس",
+          "textEn": "tennis",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "الدراجات",
+          "textEn": "cycling",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "رياضات متعددة",
+          "textEn": "multi-sport",
+          "isCorrect": true,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "كرة اليد",
+          "textEn": "handball",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "sports-sports-remote-in-hand-which-sport-are-you-watching-with-monaco-grand-prix",
+      "categorySlug": "sports",
+      "difficulty": "Easy",
+      "timeLimitSec": 15,
+      "textAr": "ريموت الرياضة معاك: لما تشغل جائزة موناكو الكبرى، أنت داخل على أي رياضة؟",
+      "textEn": "Sports remote in hand: which sport are you watching with Monaco Grand Prix?",
+      "options": [
+        {
+          "textAr": "فورمولا 1",
+          "textEn": "Formula 1",
+          "isCorrect": true,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "كرة السلة",
+          "textEn": "basketball",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "كرة القدم الأمريكية",
+          "textEn": "American football",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "رياضات متعددة",
+          "textEn": "multi-sport",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "sports-sports-remote-in-hand-which-sport-are-you-watching-with-nba-finals",
+      "categorySlug": "sports",
+      "difficulty": "Easy",
+      "timeLimitSec": 15,
+      "textAr": "ريموت الرياضة معاك: لما تشغل نهائيات NBA، أنت داخل على أي رياضة؟",
+      "textEn": "Sports remote in hand: which sport are you watching with NBA Finals?",
+      "options": [
+        {
+          "textAr": "كرة السلة",
+          "textEn": "basketball",
+          "isCorrect": true,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "كرة القدم",
+          "textEn": "football",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "التنس",
+          "textEn": "tennis",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "الرجبي",
+          "textEn": "rugby",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "sports-sports-remote-in-hand-which-sport-are-you-watching-with-paralympic-games",
+      "categorySlug": "sports",
+      "difficulty": "Easy",
+      "timeLimitSec": 15,
+      "textAr": "ريموت الرياضة معاك: لما تشغل الألعاب البارالمبية، أنت داخل على أي رياضة؟",
+      "textEn": "Sports remote in hand: which sport are you watching with Paralympic Games?",
+      "options": [
+        {
+          "textAr": "التنس",
+          "textEn": "tennis",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "كرة اليد",
+          "textEn": "handball",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "رياضات متعددة",
+          "textEn": "multi-sport",
+          "isCorrect": true,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "كرة القدم",
+          "textEn": "football",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "sports-sports-remote-in-hand-which-sport-are-you-watching-with-roland-garros",
+      "categorySlug": "sports",
+      "difficulty": "Easy",
+      "timeLimitSec": 15,
+      "textAr": "ريموت الرياضة معاك: لما تشغل رولان جاروس، أنت داخل على أي رياضة؟",
+      "textEn": "Sports remote in hand: which sport are you watching with Roland-Garros?",
+      "options": [
+        {
+          "textAr": "الرجبي",
+          "textEn": "rugby",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "كرة اليد",
+          "textEn": "handball",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "التنس",
+          "textEn": "tennis",
+          "isCorrect": true,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "كرة القدم",
+          "textEn": "football",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "sports-sports-remote-in-hand-which-sport-are-you-watching-with-rugby-world-cup",
+      "categorySlug": "sports",
+      "difficulty": "Easy",
+      "timeLimitSec": 15,
+      "textAr": "ريموت الرياضة معاك: لما تشغل كأس العالم للرجبي، أنت داخل على أي رياضة؟",
+      "textEn": "Sports remote in hand: which sport are you watching with Rugby World Cup?",
+      "options": [
+        {
+          "textAr": "ألعاب القوى",
+          "textEn": "athletics",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "فورمولا 1",
+          "textEn": "Formula 1",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "الرجبي",
+          "textEn": "rugby",
+          "isCorrect": true,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "كرة السلة",
+          "textEn": "basketball",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "sports-sports-remote-in-hand-which-sport-are-you-watching-with-super-bowl",
+      "categorySlug": "sports",
+      "difficulty": "Easy",
+      "timeLimitSec": 15,
+      "textAr": "ريموت الرياضة معاك: لما تشغل السوبر بول، أنت داخل على أي رياضة؟",
+      "textEn": "Sports remote in hand: which sport are you watching with Super Bowl?",
+      "options": [
+        {
+          "textAr": "الدراجات",
+          "textEn": "cycling",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "فورمولا 1",
+          "textEn": "Formula 1",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "كرة القدم الأمريكية",
+          "textEn": "American football",
+          "isCorrect": true,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "رياضات متعددة",
+          "textEn": "multi-sport",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "sports-sports-remote-in-hand-which-sport-are-you-watching-with-tour-de-france",
+      "categorySlug": "sports",
+      "difficulty": "Easy",
+      "timeLimitSec": 15,
+      "textAr": "ريموت الرياضة معاك: لما تشغل سباق فرنسا للدراجات، أنت داخل على أي رياضة؟",
+      "textEn": "Sports remote in hand: which sport are you watching with Tour de France?",
+      "options": [
+        {
+          "textAr": "ألعاب القوى",
+          "textEn": "athletics",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "الرجبي",
+          "textEn": "rugby",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "رياضات متعددة",
+          "textEn": "multi-sport",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "الدراجات",
+          "textEn": "cycling",
+          "isCorrect": true,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "sports-sports-remote-in-hand-which-sport-are-you-watching-with-uefa-champions-league",
+      "categorySlug": "sports",
+      "difficulty": "Easy",
+      "timeLimitSec": 15,
+      "textAr": "ريموت الرياضة معاك: لما تشغل دوري أبطال أوروبا، أنت داخل على أي رياضة؟",
+      "textEn": "Sports remote in hand: which sport are you watching with UEFA Champions League?",
+      "options": [
+        {
+          "textAr": "كرة اليد",
+          "textEn": "handball",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "كرة القدم",
+          "textEn": "football",
+          "isCorrect": true,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "الكريكيت",
+          "textEn": "cricket",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "رياضات متعددة",
+          "textEn": "multi-sport",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "sports-sports-remote-in-hand-which-sport-are-you-watching-with-wimbledon",
+      "categorySlug": "sports",
+      "difficulty": "Easy",
+      "timeLimitSec": 15,
+      "textAr": "ريموت الرياضة معاك: لما تشغل ويمبلدون، أنت داخل على أي رياضة؟",
+      "textEn": "Sports remote in hand: which sport are you watching with Wimbledon?",
+      "options": [
+        {
+          "textAr": "الكريكيت",
+          "textEn": "cricket",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "التنس",
+          "textEn": "tennis",
+          "isCorrect": true,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "الرجبي",
+          "textEn": "rugby",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "فورمولا 1",
+          "textEn": "Formula 1",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "sports-sports-remote-in-hand-which-sport-are-you-watching-with-world-athletics-championships",
+      "categorySlug": "sports",
+      "difficulty": "Easy",
+      "timeLimitSec": 15,
+      "textAr": "ريموت الرياضة معاك: لما تشغل بطولة العالم لألعاب القوى، أنت داخل على أي رياضة؟",
+      "textEn": "Sports remote in hand: which sport are you watching with World Athletics Championships?",
+      "options": [
+        {
+          "textAr": "فورمولا 1",
+          "textEn": "Formula 1",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "ألعاب القوى",
+          "textEn": "athletics",
+          "isCorrect": true,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "الكريكيت",
+          "textEn": "cricket",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "كرة اليد",
+          "textEn": "handball",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "sports-sports-remote-in-hand-which-sport-are-you-watching-with-world-men-handball-championship",
+      "categorySlug": "sports",
+      "difficulty": "Easy",
+      "timeLimitSec": 15,
+      "textAr": "ريموت الرياضة معاك: لما تشغل بطولة العالم لكرة اليد، أنت داخل على أي رياضة؟",
+      "textEn": "Sports remote in hand: which sport are you watching with World Men Handball Championship?",
+      "options": [
+        {
+          "textAr": "كرة السلة",
+          "textEn": "basketball",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "كرة القدم",
+          "textEn": "football",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "كرة اليد",
+          "textEn": "handball",
+          "isCorrect": true,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "رياضات متعددة",
+          "textEn": "multi-sport",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "sports-tournament-memory-hook-which-sentence-marks-afc-asian-cup",
+      "categorySlug": "sports",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "معلومة تحفظ البطولة: أي جملة تميّز كأس آسيا؟",
+      "textEn": "Tournament memory hook: which sentence marks AFC Asian Cup?",
+      "options": [
+        {
+          "textAr": "الفائز يحصل على كأس لاري أوبراين",
+          "textEn": "winner receives the Larry O Brien Trophy",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "أول نسخة حديثة كانت في أثينا عام 1896",
+          "textEn": "first modern edition was in Athens in 1896",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "بطولة عالمية للعدو والرمي والقفز",
+          "textEn": "global championship for running, throwing, and jumping",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "انطلقت أول نسخة عام 1956",
+          "textEn": "first edition started in 1956",
+          "isCorrect": true,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "sports-tournament-memory-hook-which-sentence-marks-africa-cup-of-nations",
+      "categorySlug": "sports",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "معلومة تحفظ البطولة: أي جملة تميّز كأس الأمم الأفريقية؟",
+      "textEn": "Tournament memory hook: which sentence marks Africa Cup of Nations?",
+      "options": [
+        {
+          "textAr": "بدأت باسم كأس الأندية الأوروبية البطلة",
+          "textEn": "started as the European Champion Clubs Cup",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "انطلقت أول نسخة عام 1991",
+          "textEn": "first edition started in 1991",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "انطلقت أول نسخة عام 1957",
+          "textEn": "first edition started in 1957",
+          "isCorrect": true,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "انطلقت أول نسخة عام 1956",
+          "textEn": "first edition started in 1956",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "sports-tournament-memory-hook-which-sentence-marks-copa-america",
+      "categorySlug": "sports",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "معلومة تحفظ البطولة: أي جملة تميّز كوبا أمريكا؟",
+      "textEn": "Tournament memory hook: which sentence marks Copa America?",
+      "options": [
+        {
+          "textAr": "بدأت باسم كأس الأندية الأوروبية البطلة",
+          "textEn": "started as the European Champion Clubs Cup",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "انطلقت أول نسخة عام 1956",
+          "textEn": "first edition started in 1956",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "بدأت في الأرجنتين عام 1950",
+          "textEn": "started in Argentina in 1950",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "من أقدم بطولات المنتخبات القارية",
+          "textEn": "one of the oldest continental national-team tournaments",
+          "isCorrect": true,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "sports-tournament-memory-hook-which-sentence-marks-cricket-world-cup",
+      "categorySlug": "sports",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "معلومة تحفظ البطولة: أي جملة تميّز كأس العالم للكريكيت؟",
+      "textEn": "Tournament memory hook: which sentence marks Cricket World Cup?",
+      "options": [
+        {
+          "textAr": "انطلقت أول نسخة عام 1957",
+          "textEn": "first edition started in 1957",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "أول نسخة أقيمت في إنجلترا عام 1975",
+          "textEn": "first edition was held in England in 1975",
+          "isCorrect": true,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "تقام في باريس على ملاعب ترابية",
+          "textEn": "played in Paris on clay courts",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "أول نسخة كانت عام 1987",
+          "textEn": "first edition was in 1987",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "sports-tournament-memory-hook-which-sentence-marks-fiba-basketball-world-cup",
+      "categorySlug": "sports",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "معلومة تحفظ البطولة: أي جملة تميّز كأس العالم لكرة السلة؟",
+      "textEn": "Tournament memory hook: which sentence marks FIBA Basketball World Cup?",
+      "options": [
+        {
+          "textAr": "أول نسخة أقيمت في أوروجواي عام 1930",
+          "textEn": "first edition was held in Uruguay in 1930",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "أول نسخة حديثة كانت في أثينا عام 1896",
+          "textEn": "first modern edition was in Athens in 1896",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "بدأت في الأرجنتين عام 1950",
+          "textEn": "started in Argentina in 1950",
+          "isCorrect": true,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "تقام في باريس على ملاعب ترابية",
+          "textEn": "played in Paris on clay courts",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "sports-tournament-memory-hook-which-sentence-marks-fifa-club-world-cup",
+      "categorySlug": "sports",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "معلومة تحفظ البطولة: أي جملة تميّز كأس العالم للأندية؟",
+      "textEn": "Tournament memory hook: which sentence marks FIFA Club World Cup?",
+      "options": [
+        {
+          "textAr": "أول نسخة أقيمت في إنجلترا عام 1975",
+          "textEn": "first edition was held in England in 1975",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "أول بطولة للرجال أقيمت عام 1938",
+          "textEn": "first men tournament was held in 1938",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "من أقدم بطولات المنتخبات القارية",
+          "textEn": "one of the oldest continental national-team tournaments",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "يجمع أبطال الأندية من قارات مختلفة",
+          "textEn": "brings club champions from different continents together",
+          "isCorrect": true,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "sports-tournament-memory-hook-which-sentence-marks-fifa-women-world-cup",
+      "categorySlug": "sports",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "معلومة تحفظ البطولة: أي جملة تميّز كأس العالم للسيدات؟",
+      "textEn": "Tournament memory hook: which sentence marks FIFA Women World Cup?",
+      "options": [
+        {
+          "textAr": "أول نسخة حديثة كانت في أثينا عام 1896",
+          "textEn": "first modern edition was in Athens in 1896",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "انطلقت أول نسخة عام 1991",
+          "textEn": "first edition started in 1991",
+          "isCorrect": true,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "أول ألعاب بارالمبية رسمية كانت في روما عام 1960",
+          "textEn": "first official Paralympic Games were in Rome in 1960",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "الفائز يحصل على كأس لاري أوبراين",
+          "textEn": "winner receives the Larry O Brien Trophy",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "sports-tournament-memory-hook-which-sentence-marks-fifa-world-cup",
+      "categorySlug": "sports",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "معلومة تحفظ البطولة: أي جملة تميّز كأس العالم لكرة القدم؟",
+      "textEn": "Tournament memory hook: which sentence marks FIFA World Cup?",
+      "options": [
+        {
+          "textAr": "الفائز يحصل على كأس لاري أوبراين",
+          "textEn": "winner receives the Larry O Brien Trophy",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "أول نسخة حديثة كانت في أثينا عام 1896",
+          "textEn": "first modern edition was in Athens in 1896",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "أول نسخة أقيمت في أوروجواي عام 1930",
+          "textEn": "first edition was held in Uruguay in 1930",
+          "isCorrect": true,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "القميص الأصفر يميز متصدر الترتيب العام",
+          "textEn": "yellow jersey marks the general classification leader",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "sports-tournament-memory-hook-which-sentence-marks-modern-olympic-games",
+      "categorySlug": "sports",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "معلومة تحفظ البطولة: أي جملة تميّز الألعاب الأولمبية الحديثة؟",
+      "textEn": "Tournament memory hook: which sentence marks Modern Olympic Games?",
+      "options": [
+        {
+          "textAr": "تشتهر بالملاعب العشبية والتقاليد البيضاء",
+          "textEn": "known for grass courts and white-clothing traditions",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "الفائز يحصل على كأس لاري أوبراين",
+          "textEn": "winner receives the Larry O Brien Trophy",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "أول نسخة حديثة كانت في أثينا عام 1896",
+          "textEn": "first modern edition was in Athens in 1896",
+          "isCorrect": true,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "القميص الأصفر يميز متصدر الترتيب العام",
+          "textEn": "yellow jersey marks the general classification leader",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "sports-tournament-memory-hook-which-sentence-marks-monaco-grand-prix",
+      "categorySlug": "sports",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "معلومة تحفظ البطولة: أي جملة تميّز جائزة موناكو الكبرى؟",
+      "textEn": "Tournament memory hook: which sentence marks Monaco Grand Prix?",
+      "options": [
+        {
+          "textAr": "أول نسخة كانت عام 1987",
+          "textEn": "first edition was in 1987",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "أول ألعاب بارالمبية رسمية كانت في روما عام 1960",
+          "textEn": "first official Paralympic Games were in Rome in 1960",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "تقام على حلبة شوارع داخل موناكو",
+          "textEn": "held on a street circuit inside Monaco",
+          "isCorrect": true,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "بدأت في الأرجنتين عام 1950",
+          "textEn": "started in Argentina in 1950",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "sports-tournament-memory-hook-which-sentence-marks-nba-finals",
+      "categorySlug": "sports",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "معلومة تحفظ البطولة: أي جملة تميّز نهائيات NBA؟",
+      "textEn": "Tournament memory hook: which sentence marks NBA Finals?",
+      "options": [
+        {
+          "textAr": "أول نسخة أقيمت في إنجلترا عام 1975",
+          "textEn": "first edition was held in England in 1975",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "بدأت باسم كأس الأندية الأوروبية البطلة",
+          "textEn": "started as the European Champion Clubs Cup",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "الفائز يحصل على كأس لاري أوبراين",
+          "textEn": "winner receives the Larry O Brien Trophy",
+          "isCorrect": true,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "أول ألعاب بارالمبية رسمية كانت في روما عام 1960",
+          "textEn": "first official Paralympic Games were in Rome in 1960",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "sports-tournament-memory-hook-which-sentence-marks-paralympic-games",
+      "categorySlug": "sports",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "معلومة تحفظ البطولة: أي جملة تميّز الألعاب البارالمبية؟",
+      "textEn": "Tournament memory hook: which sentence marks Paralympic Games?",
+      "options": [
+        {
+          "textAr": "بطولة عالمية للعدو والرمي والقفز",
+          "textEn": "global championship for running, throwing, and jumping",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "أول ألعاب بارالمبية رسمية كانت في روما عام 1960",
+          "textEn": "first official Paralympic Games were in Rome in 1960",
+          "isCorrect": true,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "أول بطولة للرجال أقيمت عام 1938",
+          "textEn": "first men tournament was held in 1938",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "يحسم بطل دوري NFL",
+          "textEn": "decides the NFL champion",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "sports-tournament-memory-hook-which-sentence-marks-roland-garros",
+      "categorySlug": "sports",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "معلومة تحفظ البطولة: أي جملة تميّز رولان جاروس؟",
+      "textEn": "Tournament memory hook: which sentence marks Roland-Garros?",
+      "options": [
+        {
+          "textAr": "أول ألعاب بارالمبية رسمية كانت في روما عام 1960",
+          "textEn": "first official Paralympic Games were in Rome in 1960",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "أول نسخة أقيمت في إنجلترا عام 1975",
+          "textEn": "first edition was held in England in 1975",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "أول نسخة كانت عام 1987",
+          "textEn": "first edition was in 1987",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "تقام في باريس على ملاعب ترابية",
+          "textEn": "played in Paris on clay courts",
+          "isCorrect": true,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "sports-tournament-memory-hook-which-sentence-marks-rugby-world-cup",
+      "categorySlug": "sports",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "معلومة تحفظ البطولة: أي جملة تميّز كأس العالم للرجبي؟",
+      "textEn": "Tournament memory hook: which sentence marks Rugby World Cup?",
+      "options": [
+        {
+          "textAr": "من أقدم بطولات المنتخبات القارية",
+          "textEn": "one of the oldest continental national-team tournaments",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "أول نسخة كانت عام 1987",
+          "textEn": "first edition was in 1987",
+          "isCorrect": true,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "تشتهر بالملاعب العشبية والتقاليد البيضاء",
+          "textEn": "known for grass courts and white-clothing traditions",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "أول بطولة للرجال أقيمت عام 1938",
+          "textEn": "first men tournament was held in 1938",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "sports-tournament-memory-hook-which-sentence-marks-super-bowl",
+      "categorySlug": "sports",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "معلومة تحفظ البطولة: أي جملة تميّز السوبر بول؟",
+      "textEn": "Tournament memory hook: which sentence marks Super Bowl?",
+      "options": [
+        {
+          "textAr": "تقام في باريس على ملاعب ترابية",
+          "textEn": "played in Paris on clay courts",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "تشتهر بالملاعب العشبية والتقاليد البيضاء",
+          "textEn": "known for grass courts and white-clothing traditions",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "يحسم بطل دوري NFL",
+          "textEn": "decides the NFL champion",
+          "isCorrect": true,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "أول بطولة للرجال أقيمت عام 1938",
+          "textEn": "first men tournament was held in 1938",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "sports-tournament-memory-hook-which-sentence-marks-tour-de-france",
+      "categorySlug": "sports",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "معلومة تحفظ البطولة: أي جملة تميّز سباق فرنسا للدراجات؟",
+      "textEn": "Tournament memory hook: which sentence marks Tour de France?",
+      "options": [
+        {
+          "textAr": "تقام على حلبة شوارع داخل موناكو",
+          "textEn": "held on a street circuit inside Monaco",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "بدأت باسم كأس الأندية الأوروبية البطلة",
+          "textEn": "started as the European Champion Clubs Cup",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "القميص الأصفر يميز متصدر الترتيب العام",
+          "textEn": "yellow jersey marks the general classification leader",
+          "isCorrect": true,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "أول نسخة أقيمت في أوروجواي عام 1930",
+          "textEn": "first edition was held in Uruguay in 1930",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "sports-tournament-memory-hook-which-sentence-marks-uefa-champions-league",
+      "categorySlug": "sports",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "معلومة تحفظ البطولة: أي جملة تميّز دوري أبطال أوروبا؟",
+      "textEn": "Tournament memory hook: which sentence marks UEFA Champions League?",
+      "options": [
+        {
+          "textAr": "أول نسخة أقيمت في إنجلترا عام 1975",
+          "textEn": "first edition was held in England in 1975",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "بدأت باسم كأس الأندية الأوروبية البطلة",
+          "textEn": "started as the European Champion Clubs Cup",
+          "isCorrect": true,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "أول نسخة حديثة كانت في أثينا عام 1896",
+          "textEn": "first modern edition was in Athens in 1896",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "بطولة عالمية للعدو والرمي والقفز",
+          "textEn": "global championship for running, throwing, and jumping",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "sports-tournament-memory-hook-which-sentence-marks-wimbledon",
+      "categorySlug": "sports",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "معلومة تحفظ البطولة: أي جملة تميّز ويمبلدون؟",
+      "textEn": "Tournament memory hook: which sentence marks Wimbledon?",
+      "options": [
+        {
+          "textAr": "أول نسخة حديثة كانت في أثينا عام 1896",
+          "textEn": "first modern edition was in Athens in 1896",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "تشتهر بالملاعب العشبية والتقاليد البيضاء",
+          "textEn": "known for grass courts and white-clothing traditions",
+          "isCorrect": true,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "بدأت في الأرجنتين عام 1950",
+          "textEn": "started in Argentina in 1950",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "بطولة عالمية للعدو والرمي والقفز",
+          "textEn": "global championship for running, throwing, and jumping",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "sports-tournament-memory-hook-which-sentence-marks-world-athletics-championships",
+      "categorySlug": "sports",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "معلومة تحفظ البطولة: أي جملة تميّز بطولة العالم لألعاب القوى؟",
+      "textEn": "Tournament memory hook: which sentence marks World Athletics Championships?",
+      "options": [
+        {
+          "textAr": "الفائز يحصل على كأس لاري أوبراين",
+          "textEn": "winner receives the Larry O Brien Trophy",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "بطولة عالمية للعدو والرمي والقفز",
+          "textEn": "global championship for running, throwing, and jumping",
+          "isCorrect": true,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "أول نسخة حديثة كانت في أثينا عام 1896",
+          "textEn": "first modern edition was in Athens in 1896",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "تشتهر بالملاعب العشبية والتقاليد البيضاء",
+          "textEn": "known for grass courts and white-clothing traditions",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "sports-tournament-memory-hook-which-sentence-marks-world-men-handball-championship",
+      "categorySlug": "sports",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "معلومة تحفظ البطولة: أي جملة تميّز بطولة العالم لكرة اليد؟",
+      "textEn": "Tournament memory hook: which sentence marks World Men Handball Championship?",
+      "options": [
+        {
+          "textAr": "بدأت في الأرجنتين عام 1950",
+          "textEn": "started in Argentina in 1950",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "انطلقت أول نسخة عام 1957",
+          "textEn": "first edition started in 1957",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "انطلقت أول نسخة عام 1956",
+          "textEn": "first edition started in 1956",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "أول بطولة للرجال أقيمت عام 1938",
+          "textEn": "first men tournament was held in 1938",
+          "isCorrect": true,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "technology-cloud-idea-cloud-computing-usually-means-using-resources-located-where",
+      "categorySlug": "technology",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "فكرة السحابة: Cloud Computing يعني غالبا استخدام موارد موجودة فين؟",
+      "textEn": "Cloud idea: cloud computing usually means using resources located where?",
+      "options": [
+        {
+          "textAr": "كابل كهرباء منزلي",
+          "textEn": "home power cable",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "بطارية الهاتف فقط",
+          "textEn": "phone battery only",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "خوادم عبر الإنترنت",
+          "textEn": "internet servers",
+          "isCorrect": true,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "دفتر ورقي",
+          "textEn": "paper notebook",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
       "slug": "technology-digital-pocket-tool-which-technology-or-product-serves-computer-operating-system",
       "categorySlug": "technology",
       "difficulty": "Medium",
@@ -23120,6 +27181,181 @@
         {
           "textAr": "نظام تشغيل للحواسيب",
           "textEn": "computer operating system",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "technology-nearby-network-wi-fi-usually-provides-what-kind-of-connection",
+      "categorySlug": "technology",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "شبكة قريبة: Wi-Fi تستخدم غالبا لتوفير اتصال ماذا؟",
+      "textEn": "Nearby network: Wi-Fi usually provides what kind of connection?",
+      "options": [
+        {
+          "textAr": "ورق للطباعة",
+          "textEn": "printing paper",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "وقود للطائرات",
+          "textEn": "aircraft fuel",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "اتصال لاسلكي محلي",
+          "textEn": "local wireless connection",
+          "isCorrect": true,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "عدسة كاميرا",
+          "textEn": "camera lens",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "technology-open-word-open-source-usually-means-what-is-available",
+      "categorySlug": "technology",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "كلمة مفتوحة: Open Source معناها أن ماذا يكون متاحا غالبا؟",
+      "textEn": "Open word: open source usually means what is available?",
+      "options": [
+        {
+          "textAr": "الكود المصدري",
+          "textEn": "source code",
+          "isCorrect": true,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "كلمة السر",
+          "textEn": "password",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "رقم الهاتف الشخصي",
+          "textEn": "personal phone number",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "عنوان المنزل",
+          "textEn": "home address",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "technology-pocket-tech-what-does-gps-mainly-rely-on-to-locate-you",
+      "categorySlug": "technology",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "تقنية في جيبك: GPS يعتمد أساسا على ماذا ليحدد موقعك؟",
+      "textEn": "Pocket tech: what does GPS mainly rely on to locate you?",
+      "options": [
+        {
+          "textAr": "الأشرطة المغناطيسية",
+          "textEn": "magnetic tapes",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "الفاكس",
+          "textEn": "fax",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "الأقراص المدمجة فقط",
+          "textEn": "CDs only",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "الأقمار الصناعية",
+          "textEn": "satellites",
+          "isCorrect": true,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "technology-security-key-a-password-manager-mainly-helps-with-what",
+      "categorySlug": "technology",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "مفتاح الأمان: مدير كلمات المرور يساعدك أساسا في ماذا؟",
+      "textEn": "Security key: a password manager mainly helps with what?",
+      "options": [
+        {
+          "textAr": "شحن البطارية",
+          "textEn": "charging the battery",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "طباعة الصور",
+          "textEn": "printing photos",
+          "isCorrect": false,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "حفظ كلمات مرور قوية",
+          "textEn": "storing strong passwords",
+          "isCorrect": true,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "زيادة سرعة الإنترنت وحده",
+          "textEn": "only increasing internet speed",
+          "isCorrect": false,
+          "displayOrder": 4
+        }
+      ],
+      "source": "Curated Egypt-first factual bank / Wikidata-compatible open facts"
+    },
+    {
+      "slug": "technology-small-square-on-a-product-what-is-a-qr-code-usually-designed-for",
+      "categorySlug": "technology",
+      "difficulty": "Medium",
+      "timeLimitSec": 20,
+      "textAr": "مربع سريع على منتج: QR Code مصمم غالبا لأي استخدام؟",
+      "textEn": "Small square on a product: what is a QR Code usually designed for?",
+      "options": [
+        {
+          "textAr": "تبريد الطعام",
+          "textEn": "cooling food",
+          "isCorrect": false,
+          "displayOrder": 1
+        },
+        {
+          "textAr": "مسح سريع بالموبايل",
+          "textEn": "quick scanning by phone",
+          "isCorrect": true,
+          "displayOrder": 2
+        },
+        {
+          "textAr": "تشغيل محرك سيارة",
+          "textEn": "starting a car engine",
+          "isCorrect": false,
+          "displayOrder": 3
+        },
+        {
+          "textAr": "قياس ضغط الدم",
+          "textEn": "measuring blood pressure",
           "isCorrect": false,
           "displayOrder": 4
         }

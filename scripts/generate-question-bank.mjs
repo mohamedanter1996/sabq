@@ -127,6 +127,10 @@ function assertQuestionVoice(textAr) {
 }
 
 function frameDirectQuestion(categorySlug, textAr, textEn) {
+  if (textAr.includes(':')) {
+    return { textAr, textEn };
+  }
+
   const frame = directQuestionFrames[categorySlug];
   if (!frame) {
     return { textAr, textEn };
@@ -212,6 +216,21 @@ const egyptPlaces = [
   ['بحيرة ناصر', 'Lake Nasser', 'أسوان', 'Aswan', 'بحيرة صناعية خلف السد العالي', 'reservoir behind the High Dam'],
   ['واحة سيوة', 'Siwa Oasis', 'مطروح', 'Matrouh', 'واحة صحراوية وثقافة أمازيغية', 'desert oasis and Amazigh culture']
 ].map(([nameAr, nameEn, governorateAr, governorateEn, knownForAr, knownForEn]) => ({ nameAr, nameEn, governorateAr, governorateEn, knownForAr, knownForEn }));
+
+const globalPlaces = [
+  ['برج إيفل', 'Eiffel Tower', 'باريس، فرنسا', 'Paris, France', 'برج حديدي صار رمزا لباريس', 'iron tower that became a symbol of Paris'],
+  ['سور الصين العظيم', 'Great Wall of China', 'الصين', 'China', 'تحصينات تاريخية تمتد لمسافات طويلة', 'historic fortifications stretching for long distances'],
+  ['ماتشو بيتشو', 'Machu Picchu', 'بيرو', 'Peru', 'مدينة إنكا مرتفعة بين جبال الأنديز', 'high Inca city in the Andes'],
+  ['تاج محل', 'Taj Mahal', 'أغرا، الهند', 'Agra, India', 'ضريح رخامي أبيض شهير', 'famous white marble mausoleum'],
+  ['الكولوسيوم', 'Colosseum', 'روما، إيطاليا', 'Rome, Italy', 'مدرج روماني أثري ضخم', 'huge ancient Roman amphitheatre'],
+  ['تمثال الحرية', 'Statue of Liberty', 'نيويورك، الولايات المتحدة', 'New York, United States', 'تمثال يرحب بالقادمين إلى الميناء', 'harbour statue welcoming arrivals'],
+  ['برج خليفة', 'Burj Khalifa', 'دبي، الإمارات', 'Dubai, United Arab Emirates', 'ناطحة سحاب فائقة الارتفاع', 'super-tall skyscraper'],
+  ['غابات الأمازون', 'Amazon Rainforest', 'أمريكا الجنوبية', 'South America', 'غابة مطيرة استوائية شاسعة', 'vast tropical rainforest'],
+  ['الصحراء الكبرى', 'Sahara Desert', 'شمال أفريقيا', 'North Africa', 'أكبر صحراء حارة في العالم', 'world largest hot desert'],
+  ['جبل إيفرست', 'Mount Everest', 'الهيمالايا بين نيبال والصين', 'Himalayas between Nepal and China', 'أعلى قمة فوق مستوى سطح البحر', 'highest peak above sea level'],
+  ['خندق ماريانا', 'Mariana Trench', 'غرب المحيط الهادئ', 'Western Pacific Ocean', 'أعمق منطقة معروفة في المحيطات', 'deepest known part of the oceans'],
+  ['دار أوبرا سيدني', 'Sydney Opera House', 'سيدني، أستراليا', 'Sydney, Australia', 'مبنى مسرحي شهير بسقفه الشبيه بالأشرعة', 'performing arts building with sail-like roofs']
+].map(([nameAr, nameEn, locationAr, locationEn, knownForAr, knownForEn]) => ({ nameAr, nameEn, locationAr, locationEn, knownForAr, knownForEn }));
 
 const egyptHistoryEvents = [
   ['توحيد القطرين في مصر القديمة', 'Unification of Upper and Lower Egypt', 'نعرمر', 'Narmer', 'نحو 3100 قبل الميلاد', 'c. 3100 BCE'],
@@ -359,6 +378,29 @@ const egyptSportsPeople = [
   ['كرم جابر', 'Karam Gaber', 'المصارعة', 'wrestling', 'مصر', 'Egypt'],
   ['علاء أبو القاسم', 'Alaaeldin Abouelkassem', 'السلاح', 'fencing', 'مصر', 'Egypt']
 ].map(([nameAr, nameEn, sportAr, sportEn, knownForAr, knownForEn]) => ({ nameAr, nameEn, sportAr, sportEn, knownForAr, knownForEn }));
+
+const worldSportsTournaments = [
+  ['كأس العالم لكرة القدم', 'FIFA World Cup', 'كرة القدم', 'football', 'أكبر مسرح للمنتخبات كل أربع سنوات', 'biggest national-team stage every four years', 'أول نسخة أقيمت في أوروجواي عام 1930', 'first edition was held in Uruguay in 1930'],
+  ['كأس العالم للسيدات', 'FIFA Women World Cup', 'كرة القدم', 'football', 'نسخة المنتخبات النسائية من المونديال', 'women national-team version of the World Cup', 'انطلقت أول نسخة عام 1991', 'first edition started in 1991'],
+  ['كأس الأمم الأفريقية', 'Africa Cup of Nations', 'كرة القدم', 'football', 'بطولة تجمع منتخبات أفريقيا', 'tournament for African national teams', 'انطلقت أول نسخة عام 1957', 'first edition started in 1957'],
+  ['دوري أبطال أوروبا', 'UEFA Champions League', 'كرة القدم', 'football', 'ليالي الأندية الأوروبية الكبرى', 'big European club nights', 'بدأت باسم كأس الأندية الأوروبية البطلة', 'started as the European Champion Clubs Cup'],
+  ['كوبا أمريكا', 'Copa America', 'كرة القدم', 'football', 'بطولة منتخبات أمريكا الجنوبية التاريخية', 'historic South American national-team tournament', 'من أقدم بطولات المنتخبات القارية', 'one of the oldest continental national-team tournaments'],
+  ['كأس آسيا', 'AFC Asian Cup', 'كرة القدم', 'football', 'بطولة منتخبات القارة الآسيوية', 'Asian national-team tournament', 'انطلقت أول نسخة عام 1956', 'first edition started in 1956'],
+  ['كأس العالم للأندية', 'FIFA Club World Cup', 'كرة القدم', 'football', 'أندية أبطال القارات في بطولة واحدة', 'continental club champions in one tournament', 'يجمع أبطال الأندية من قارات مختلفة', 'brings club champions from different continents together'],
+  ['الألعاب الأولمبية الحديثة', 'Modern Olympic Games', 'رياضات متعددة', 'multi-sport', 'حدث عالمي يجمع رياضات كثيرة تحت الحلقات الخمس', 'global event with many sports under the five rings', 'أول نسخة حديثة كانت في أثينا عام 1896', 'first modern edition was in Athens in 1896'],
+  ['الألعاب البارالمبية', 'Paralympic Games', 'رياضات متعددة', 'multi-sport', 'حدث عالمي للرياضيين ذوي الإعاقة', 'global event for athletes with disabilities', 'أول ألعاب بارالمبية رسمية كانت في روما عام 1960', 'first official Paralympic Games were in Rome in 1960'],
+  ['ويمبلدون', 'Wimbledon', 'التنس', 'tennis', 'بطولة تنس عريقة على الملاعب العشبية', 'historic tennis tournament on grass courts', 'تشتهر بالملاعب العشبية والتقاليد البيضاء', 'known for grass courts and white-clothing traditions'],
+  ['رولان جاروس', 'Roland-Garros', 'التنس', 'tennis', 'بطولة تنس فرنسية على الملاعب الترابية', 'French tennis tournament on clay courts', 'تقام في باريس على ملاعب ترابية', 'played in Paris on clay courts'],
+  ['سباق فرنسا للدراجات', 'Tour de France', 'الدراجات', 'cycling', 'رحلة طويلة وقميص أصفر حول فرنسا', 'long race and yellow jersey around France', 'القميص الأصفر يميز متصدر الترتيب العام', 'yellow jersey marks the general classification leader'],
+  ['جائزة موناكو الكبرى', 'Monaco Grand Prix', 'فورمولا 1', 'Formula 1', 'سيارات فورمولا 1 في شوارع ضيقة قرب الميناء', 'Formula 1 cars on narrow streets near the harbour', 'تقام على حلبة شوارع داخل موناكو', 'held on a street circuit inside Monaco'],
+  ['كأس العالم للكريكيت', 'Cricket World Cup', 'الكريكيت', 'cricket', 'بطولة عالمية في لعبة المضرب والويكيت', 'global tournament for bat-and-wicket cricket', 'أول نسخة أقيمت في إنجلترا عام 1975', 'first edition was held in England in 1975'],
+  ['كأس العالم للرجبي', 'Rugby World Cup', 'الرجبي', 'rugby', 'بطولة عالمية للعبة الكرة البيضاوية', 'global tournament for the oval-ball game', 'أول نسخة كانت عام 1987', 'first edition was in 1987'],
+  ['كأس العالم لكرة السلة', 'FIBA Basketball World Cup', 'كرة السلة', 'basketball', 'بطولة منتخبات كرة السلة عالميا', 'global national-team basketball tournament', 'بدأت في الأرجنتين عام 1950', 'started in Argentina in 1950'],
+  ['نهائيات NBA', 'NBA Finals', 'كرة السلة', 'basketball', 'سلسلة حسم لقب دوري السلة الأمريكي', 'series deciding the American basketball league title', 'الفائز يحصل على كأس لاري أوبراين', 'winner receives the Larry O Brien Trophy'],
+  ['بطولة العالم لكرة اليد', 'World Men Handball Championship', 'كرة اليد', 'handball', 'بطولة للعبة السريعة ذات السبعة لاعبين', 'tournament for the fast seven-player game', 'أول بطولة للرجال أقيمت عام 1938', 'first men tournament was held in 1938'],
+  ['السوبر بول', 'Super Bowl', 'كرة القدم الأمريكية', 'American football', 'نهائي كبير يجمع الرياضة والعرض الموسيقي', 'big final mixing sport and halftime show', 'يحسم بطل دوري NFL', 'decides the NFL champion'],
+  ['بطولة العالم لألعاب القوى', 'World Athletics Championships', 'ألعاب القوى', 'athletics', 'مضمار وميدان وميداليات خارج الأولمبياد', 'track, field, and medals outside the Olympics', 'بطولة عالمية للعدو والرمي والقفز', 'global championship for running, throwing, and jumping']
+].map(([nameAr, nameEn, sportAr, sportEn, identityAr, identityEn, memoryAr, memoryEn]) => ({ nameAr, nameEn, sportAr, sportEn, identityAr, identityEn, memoryAr, memoryEn }));
 
 const egyptArtists = [
   ['محمود مختار', 'Mahmoud Mokhtar', 'نهضة مصر', 'Egypt Renaissance', 'النحت', 'sculpture'],
@@ -508,12 +550,62 @@ const generalFacts = [
   ['ما اسم اللغة الرسمية في مصر؟', 'What is the official language of Egypt?', 'العربية', 'Arabic', [['الإنجليزية', 'English'], ['الفرنسية', 'French'], ['الإيطالية', 'Italian']]]
 ];
 
+const globalGeneralFacts = [
+  ['لقطة عالمية: جوائز نوبل بدأت تمنح لأول مرة في أي سنة؟', 'Global snapshot: in which year were the Nobel Prizes first awarded?', '1901', '1901', [['1896', '1896'], ['1918', '1918'], ['1969', '1969']]],
+  ['بطاقة اسم: وصية أي شخص كانت وراء فكرة جوائز نوبل؟', 'Name card: whose will inspired the Nobel Prizes?', 'ألفريد نوبل', 'Alfred Nobel', [['ألبرت أينشتاين', 'Albert Einstein'], ['ماري كوري', 'Marie Curie'], ['إسحاق نيوتن', 'Isaac Newton']]],
+  ['لو سمعت عن جائزة نوبل في الاقتصاد، فالمعلومة اللطيفة أنها أضيفت لاحقا في أي مجال؟', 'If you hear about the later Nobel-linked prize, which field was added later?', 'العلوم الاقتصادية', 'economic sciences', [['الأدب', 'literature'], ['الكيمياء', 'chemistry'], ['السلام', 'peace']]],
+  ['قصة فضاء في سطر: أي مهمة أوصلت أول بشر إلى سطح القمر؟', 'Space story in one line: which mission first landed humans on the Moon?', 'أبولو 11', 'Apollo 11', [['فوياجر 1', 'Voyager 1'], ['سبوتنيك 1', 'Sputnik 1'], ['أبولو 13', 'Apollo 13']]],
+  ['خريطة العالم: أكبر محيط على الأرض هو أي محيط؟', 'World map: which ocean is the largest on Earth?', 'المحيط الهادئ', 'Pacific Ocean', [['المحيط الأطلسي', 'Atlantic Ocean'], ['المحيط الهندي', 'Indian Ocean'], ['المحيط المتجمد الشمالي', 'Arctic Ocean']]],
+  ['ممر ملاحي شهير: قناة بنما تربط بين أي محيطين؟', 'Famous canal clue: which two oceans does the Panama Canal connect?', 'الأطلسي والهادئ', 'Atlantic and Pacific', [['الهندي والهادئ', 'Indian and Pacific'], ['الأطلسي والمتجمد الشمالي', 'Atlantic and Arctic'], ['الهندي والأطلسي', 'Indian and Atlantic']]],
+  ['رمز عالمي سريع: تمثال الحرية وصل إلى أمريكا كهدية من أي دولة؟', 'Quick global symbol: the Statue of Liberty came to the US as a gift from which country?', 'فرنسا', 'France', [['إيطاليا', 'Italy'], ['إسبانيا', 'Spain'], ['بريطانيا', 'Britain']]],
+  ['معلومة جوائز: حفلات نوبل تقدم عادة في يوم 10 ديسمبر لأنه يوافق ماذا؟', 'Prize fact: Nobel ceremonies are usually held on 10 December because it marks what?', 'ذكرى وفاة ألفريد نوبل', 'anniversary of Alfred Nobel death', [['بداية السنة الدراسية', 'start of the school year'], ['نهاية الحرب العالمية الأولى', 'end of World War I'], ['افتتاح أولمبياد حديث', 'opening of the modern Olympics']]]
+];
+
+const globalHistoryFacts = [
+  ['رحلة زمنية عالمية: سقوط جدار برلين يرتبط غالبا بأي سنة؟', 'World time-trip: the fall of the Berlin Wall is usually linked to which year?', '1989', '1989', [['1945', '1945'], ['1969', '1969'], ['2001', '2001']]],
+  ['اختراع غيّر القراءة: الطباعة بالحروف المتحركة في أوروبا ترتبط بأي اسم؟', 'Reading-changing invention: movable-type printing in Europe is linked to which name?', 'يوهانس جوتنبرج', 'Johannes Gutenberg', [['غاليليو غاليلي', 'Galileo Galilei'], ['ليوناردو دافنشي', 'Leonardo da Vinci'], ['جيمس وات', 'James Watt']]],
+  ['بطاقة قانون قديمة: وثيقة ماجنا كارتا سنة 1215 ارتبطت بأي بلد؟', 'Old law card: Magna Carta in 1215 is linked to which country?', 'إنجلترا', 'England', [['فرنسا', 'France'], ['إيطاليا', 'Italy'], ['الصين', 'China']]],
+  ['منعطف صناعي: الثورة الصناعية بدأت بقوة في أي بلد؟', 'Industrial turning point: the Industrial Revolution began strongly in which country?', 'بريطانيا', 'Britain', [['اليابان', 'Japan'], ['البرازيل', 'Brazil'], ['كندا', 'Canada']]],
+  ['طريق تجارة قديم: طريق الحرير كان يربط الصين غالبا بأي عالم أوسع؟', 'Old trade route: the Silk Road linked China with which wider world?', 'آسيا الوسطى وأوروبا', 'Central Asia and Europe', [['أستراليا فقط', 'Australia only'], ['القطب الجنوبي', 'Antarctica'], ['جزر الكاريبي فقط', 'Caribbean islands only']]],
+  ['نهضة وفنون: عصر النهضة الأوروبي بدأ بقوة في أي منطقة؟', 'Renaissance and art: the European Renaissance grew strongly from which area?', 'إيطاليا', 'Italy', [['النرويج', 'Norway'], ['المكسيك', 'Mexico'], ['جنوب أفريقيا', 'South Africa']]],
+  ['حلم الطيران: أول رحلة طيران بمحرك للأخوين رايت كانت في أي سنة؟', 'Flight dream: the Wright brothers first powered flight was in which year?', '1903', '1903', [['1869', '1869'], ['1930', '1930'], ['1957', '1957']]],
+  ['نظام عالمي جديد: تأسيس الأمم المتحدة جاء بعد أي حرب كبرى؟', 'New world order: the UN was founded after which major war?', 'الحرب العالمية الثانية', 'World War II', [['حرب القرم', 'Crimean War'], ['حرب المئة عام', 'Hundred Years War'], ['الحرب الباردة', 'Cold War']]]
+];
+
+const globalScienceFacts = [
+  ['كارت أحياء سريع: الجزيء الذي يحمل التعليمات الوراثية في خلايانا اسمه إيه؟', 'Quick biology card: which molecule carries genetic instructions in our cells?', 'DNA', 'DNA', [['ATP', 'ATP'], ['CO2', 'CO2'], ['H2O', 'H2O']]],
+  ['نباتات في الشمس: العملية التي تستخدم الضوء لصنع الغذاء اسمها إيه؟', 'Plants in sunlight: what is the process that uses light to make food?', 'البناء الضوئي', 'photosynthesis', [['التبخر', 'evaporation'], ['الصدأ', 'rusting'], ['التجمد', 'freezing']]],
+  ['عنواننا الكوني: المجموعة الشمسية موجودة داخل أي مجرة؟', 'Cosmic address: our solar system is inside which galaxy?', 'درب التبانة', 'Milky Way', [['أندروميدا', 'Andromeda'], ['سحابة ماجلان الكبرى', 'Large Magellanic Cloud'], ['مجرة سومبريرو', 'Sombrero Galaxy']]],
+  ['كيمياء يومية: الرمز H2O يشير إلى أي مادة؟', 'Everyday chemistry: H2O points to which substance?', 'الماء', 'water', [['الأكسجين', 'oxygen'], ['ثاني أكسيد الكربون', 'carbon dioxide'], ['ملح الطعام', 'table salt']]],
+  ['عملاق المجموعة الشمسية: أكبر كواكبها هو أي كوكب؟', 'Solar-system giant: which planet is the largest?', 'المشتري', 'Jupiter', [['المريخ', 'Mars'], ['الزهرة', 'Venus'], ['عطارد', 'Mercury']]],
+  ['مد وجزر على الشاطئ: العامل السماوي الأهم في حدوثهما هو إيه؟', 'Beach tides: which celestial body is the main driver?', 'القمر', 'the Moon', [['المريخ', 'Mars'], ['زحل', 'Saturn'], ['نجم الشعرى', 'Sirius']]],
+  ['سرعة كونية: الضوء في الفراغ يتحرك تقريبا بسرعة كام؟', 'Cosmic speed: light in vacuum travels at roughly what speed?', '300 ألف كم في الثانية', '300,000 km per second', [['30 كم في الثانية', '30 km per second'], ['1500 كم في الساعة', '1,500 km per hour'], ['1 كم في الثانية', '1 km per second']]],
+  ['حقيقة من ناسا: عدد الكواكب في المجموعة الشمسية حاليا كام؟', 'NASA-style fact: how many planets are currently in the solar system?', 'ثمانية كواكب', 'eight planets', [['خمسة كواكب', 'five planets'], ['تسعة عشر كوكبا', 'nineteen planets'], ['كوكبان فقط', 'two planets']]]
+];
+
+const globalTechFacts = [
+  ['تقنية في جيبك: GPS يعتمد أساسا على ماذا ليحدد موقعك؟', 'Pocket tech: what does GPS mainly rely on to locate you?', 'الأقمار الصناعية', 'satellites', [['الأشرطة المغناطيسية', 'magnetic tapes'], ['الفاكس', 'fax'], ['الأقراص المدمجة فقط', 'CDs only']]],
+  ['مربع سريع على منتج: QR Code مصمم غالبا لأي استخدام؟', 'Small square on a product: what is a QR Code usually designed for?', 'مسح سريع بالموبايل', 'quick scanning by phone', [['تشغيل محرك سيارة', 'starting a car engine'], ['تبريد الطعام', 'cooling food'], ['قياس ضغط الدم', 'measuring blood pressure']]],
+  ['فكرة السحابة: Cloud Computing يعني غالبا استخدام موارد موجودة فين؟', 'Cloud idea: cloud computing usually means using resources located where?', 'خوادم عبر الإنترنت', 'internet servers', [['دفتر ورقي', 'paper notebook'], ['بطارية الهاتف فقط', 'phone battery only'], ['كابل كهرباء منزلي', 'home power cable']]],
+  ['كلمة مفتوحة: Open Source معناها أن ماذا يكون متاحا غالبا؟', 'Open word: open source usually means what is available?', 'الكود المصدري', 'source code', [['رقم الهاتف الشخصي', 'personal phone number'], ['كلمة السر', 'password'], ['عنوان المنزل', 'home address']]],
+  ['مفتاح الأمان: مدير كلمات المرور يساعدك أساسا في ماذا؟', 'Security key: a password manager mainly helps with what?', 'حفظ كلمات مرور قوية', 'storing strong passwords', [['زيادة سرعة الإنترنت وحده', 'only increasing internet speed'], ['طباعة الصور', 'printing photos'], ['شحن البطارية', 'charging the battery']]],
+  ['شبكة قريبة: Wi-Fi تستخدم غالبا لتوفير اتصال ماذا؟', 'Nearby network: Wi-Fi usually provides what kind of connection?', 'اتصال لاسلكي محلي', 'local wireless connection', [['وقود للطائرات', 'aircraft fuel'], ['ورق للطباعة', 'printing paper'], ['عدسة كاميرا', 'camera lens']]]
+];
+
 for (const [textAr, textEn, answerAr, answerEn, wrong] of generalFacts) {
   addDirectQuestion('general-knowledge', 'Easy', 15, textAr, textEn, answerAr, answerEn, wrong);
 }
 
+for (const [textAr, textEn, answerAr, answerEn, wrong] of globalGeneralFacts) {
+  addDirectQuestion('general-knowledge', 'Medium', 20, textAr, textEn, answerAr, answerEn, wrong);
+}
+
 for (const [textAr, textEn, answerAr, answerEn, wrong] of religionQuestions) {
   addDirectQuestion('religion-islamic', 'Easy', 15, textAr, textEn, answerAr, answerEn, wrong);
+}
+
+for (const [textAr, textEn, answerAr, answerEn, wrong] of globalHistoryFacts) {
+  addDirectQuestion('history', 'Medium', 20, textAr, textEn, answerAr, answerEn, wrong);
 }
 
 addFieldQuestions('geography', egyptPlaces, [
@@ -522,6 +614,15 @@ addFieldQuestions('geography', egyptPlaces, [
   ] },
   { arField: 'knownForAr', enField: 'knownForEn', difficulty: 'Medium', timeLimitSec: 20, variants: [
     { ar: (r) => `لقطة سياحية: ${r.nameAr} معروف للزوار بإيه؟`, en: (r) => `Travel snapshot: what do visitors know ${r.nameEn} for?` }
+  ] }
+]);
+
+addFieldQuestions('geography', globalPlaces, [
+  { arField: 'locationAr', enField: 'locationEn', difficulty: 'Easy', timeLimitSec: 15, variants: [
+    { ar: (r) => `جولة حول العالم: لو عايز تشوف ${r.nameAr}، هتحجز ناحية فين؟`, en: (r) => `World tour: where would you go to see ${r.nameEn}?` }
+  ] },
+  { arField: 'nameAr', enField: 'nameEn', difficulty: 'Medium', timeLimitSec: 20, variants: [
+    { ar: (r) => `بوست كارت عالمي: أي مكان ينطبق عليه وصف «${r.knownForAr}»؟`, en: (r) => `Global postcard: which place matches ${r.knownForEn}?` }
   ] }
 ]);
 
@@ -597,6 +698,18 @@ addFieldQuestions('sports', egyptSportsPeople, [
   ] }
 ]);
 
+addFieldQuestions('sports', worldSportsTournaments, [
+  { arField: 'nameAr', enField: 'nameEn', difficulty: 'Medium', timeLimitSec: 20, variants: [
+    { ar: (r) => `بطاقة بطولة عالمية: ${r.identityAr}. أي بطولة نقصد؟`, en: (r) => `Global tournament card: ${r.identityEn}. Which tournament is it?` }
+  ] },
+  { arField: 'sportAr', enField: 'sportEn', difficulty: 'Easy', timeLimitSec: 15, variants: [
+    { ar: (r) => `ريموت الرياضة معاك: لما تشغل ${r.nameAr}، أنت داخل على أي رياضة؟`, en: (r) => `Sports remote in hand: which sport are you watching with ${r.nameEn}?` }
+  ] },
+  { arField: 'memoryAr', enField: 'memoryEn', difficulty: 'Medium', timeLimitSec: 20, variants: [
+    { ar: (r) => `معلومة تحفظ البطولة: أي جملة تميّز ${r.nameAr}؟`, en: (r) => `Tournament memory hook: which sentence marks ${r.nameEn}?` }
+  ] }
+]);
+
 addFieldQuestions('science-nature', scienceRecords, [
   { arField: 'symbolAr', enField: 'symbolEn', difficulty: 'Easy', timeLimitSec: 15, variants: [
     { ar: (r) => `بطاقة معمل صغيرة: لو العنصر أو الكوكب هو ${r.nameAr}، إيه العلامة اللي تميزه؟`, en: (r) => `Tiny lab card: which marker identifies ${r.nameEn}?` }
@@ -606,6 +719,10 @@ addFieldQuestions('science-nature', scienceRecords, [
   ] }
 ]);
 
+for (const [textAr, textEn, answerAr, answerEn, wrong] of globalScienceFacts) {
+  addDirectQuestion('science-nature', 'Medium', 20, textAr, textEn, answerAr, answerEn, wrong);
+}
+
 addFieldQuestions('technology', techRecords, [
   { arField: 'creatorAr', enField: 'creatorEn', difficulty: 'Medium', timeLimitSec: 20, variants: [
     { ar: (r) => `كواليس التقنية: مين الاسم أو الجهة المرتبطة ببداية ${r.nameAr}؟`, en: (r) => `Tech backstory: which name or group is linked to the start of ${r.nameEn}?` }
@@ -614,6 +731,10 @@ addFieldQuestions('technology', techRecords, [
     { ar: (r) => `لو صاحبك قال ${r.nameAr}، تتوقع يستخدمه غالبا في إيه؟`, en: (r) => `If a friend mentions ${r.nameEn}, what would they mostly use it for?` }
   ] }
 ]);
+
+for (const [textAr, textEn, answerAr, answerEn, wrong] of globalTechFacts) {
+  addDirectQuestion('technology', 'Medium', 20, textAr, textEn, answerAr, answerEn, wrong);
+}
 
 addFieldQuestions('politics', politicsRecords, [
   { arField: 'headquartersAr', enField: 'headquartersEn', difficulty: 'Medium', timeLimitSec: 20, variants: [
@@ -737,7 +858,13 @@ const sportsDirectQuestions = [
   ['ما مركز عصام الحضري الشهير في كرة القدم؟', 'What was Essam El Hadary famous position in football?', 'حراسة المرمى', 'goalkeeping', [['قلب الدفاع', 'center back'], ['رأس الحربة', 'striker'], ['الجناح الأيسر', 'left winger']]],
   ['أي منتخب ارتبط باسم حسام حسن كلاعب تاريخي؟', 'Which national team is Hossam Hassan historically associated with?', 'منتخب مصر', 'Egypt national team', [['منتخب المغرب', 'Morocco national team'], ['منتخب تونس', 'Tunisia national team'], ['منتخب الجزائر', 'Algeria national team']]],
   ['أي ناد إنجليزي ارتبط باسم محمد صلاح عالميا؟', 'Which English club is Mohamed Salah globally associated with?', 'ليفربول (Liverpool)', 'Liverpool', [['تشيلسي (Chelsea)', 'Chelsea'], ['آرسنال (Arsenal)', 'Arsenal'], ['مانشستر سيتي (Manchester City)', 'Manchester City']]],
-  ['أي رياضة جماعية تشتهر بها بطولة كأس العالم لكرة القدم؟', 'Which team sport is FIFA World Cup associated with?', 'كرة القدم', 'football', [['كرة اليد', 'handball'], ['كرة السلة', 'basketball'], ['الكرة الطائرة', 'volleyball']]]
+  ['أي رياضة جماعية تشتهر بها بطولة كأس العالم لكرة القدم؟', 'Which team sport is FIFA World Cup associated with?', 'كرة القدم', 'football', [['كرة اليد', 'handball'], ['كرة السلة', 'basketball'], ['الكرة الطائرة', 'volleyball']]],
+  ['حكاية أول مونديال: أي بلد استضاف أول كأس عالم وفاز به عام 1930؟', 'First World Cup story: which country hosted and won the first tournament in 1930?', 'أوروجواي', 'Uruguay', [['إيطاليا', 'Italy'], ['البرازيل', 'Brazil'], ['فرنسا', 'France']]],
+  ['معلومة مونديالية سهلة الحفظ: كأس العالم للمنتخبات يقام غالبا كل كام سنة؟', 'Easy World Cup memory hook: how often is the national-team World Cup usually held?', 'كل أربع سنوات', 'every four years', [['كل سنة', 'every year'], ['كل سنتين', 'every two years'], ['كل عشر سنوات', 'every ten years']]],
+  ['قصة كأس أفريقيا: أول نسخة من كأس الأمم الأفريقية بدأت في أي عقد؟', 'Africa Cup story: the first AFCON began in which decade?', 'الخمسينيات', '1950s', [['الثلاثينيات', '1930s'], ['السبعينيات', '1970s'], ['التسعينيات', '1990s']]],
+  ['ليالي أوروبا: أي بطولة أندية أوروبية بدأت باسم كأس الأندية الأوروبية البطلة؟', 'European nights: which club competition began as the European Champion Clubs Cup?', 'دوري أبطال أوروبا', 'UEFA Champions League', [['الدوري الأوروبي', 'Europa League'], ['كأس العالم للأندية', 'Club World Cup'], ['كأس أمم أوروبا', 'UEFA Euro']]],
+  ['تنس بسرعة: أي بطولة كبرى مشهورة بالملاعب العشبية والملابس البيضاء؟', 'Fast tennis clue: which major tournament is known for grass courts and white clothing?', 'ويمبلدون', 'Wimbledon', [['رولان جاروس', 'Roland-Garros'], ['أمريكا المفتوحة', 'US Open'], ['أستراليا المفتوحة', 'Australian Open']]],
+  ['رياضة بمذاق سباق: القميص الأصفر رمز مشهور في أي بطولة؟', 'Race-flavoured sport clue: the yellow jersey is famous in which competition?', 'سباق فرنسا للدراجات', 'Tour de France', [['جائزة موناكو الكبرى', 'Monaco Grand Prix'], ['السوبر بول', 'Super Bowl'], ['نهائيات NBA', 'NBA Finals']]]
 ];
 
 for (const [textAr, textEn, answerAr, answerEn, wrong] of sportsDirectQuestions) {
@@ -829,6 +956,42 @@ const bank = {
       url: 'local://scripts/generate-question-bank.mjs',
       license: 'Project-curated factual prompts',
       usage: 'Arabic user-facing question text and Egypt-first coverage.'
+    },
+    {
+      name: 'FIFA tournament records',
+      url: 'https://www.fifa.com/en/tournaments',
+      license: 'Official factual reference; no copied prose',
+      usage: 'World Cup and global football tournament fact checks.'
+    },
+    {
+      name: 'International Olympic Committee records',
+      url: 'https://olympics.com/ioc',
+      license: 'Official factual reference; no copied prose',
+      usage: 'Olympic and Paralympic history and symbol fact checks.'
+    },
+    {
+      name: 'UEFA competition history',
+      url: 'https://www.uefa.com/uefachampionsleague/history/',
+      license: 'Official factual reference; no copied prose',
+      usage: 'European club tournament history and records.'
+    },
+    {
+      name: 'FIBA events history',
+      url: 'https://www.fiba.basketball/en/history',
+      license: 'Official factual reference; no copied prose',
+      usage: 'Basketball tournament history and event references.'
+    },
+    {
+      name: 'NASA Solar System Exploration',
+      url: 'https://science.nasa.gov/solar-system/',
+      license: 'United States government public information',
+      usage: 'Solar system and space science fact checks.'
+    },
+    {
+      name: 'Nobel Prize official facts',
+      url: 'https://www.nobelprize.org/about-the-nobel-prize/',
+      license: 'Official factual reference; no copied prose',
+      usage: 'Nobel history, categories, and award timing fact checks.'
     }
   ],
   categories,
