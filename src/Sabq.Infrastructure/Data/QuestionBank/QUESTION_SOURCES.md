@@ -15,9 +15,11 @@ The local Arabic question bank is stored in `questions.ar.json` and is loaded by
 - `religion-islamic` contains informational Islam-related questions about Quran, seerah, companions, Islamic history, Al-Azhar, and Egyptian Islamic landmarks. It avoids fatwas, sectarian framing, and disputed rulings.
 - Filler prompts such as "اختر الإجابة الصحيحة المرتبطة بـ..." are rejected by the generator and must not appear in the bank.
 - Dry repeated stems such as "بماذا يشتهر", "ما الاستخدام الأشهر", "ما نوع", and plain year/author templates are rejected when produced from generated field templates.
+- Sports tournament prompts that ask the player to infer a basic team type from the tournament name, such as "تخص غالبا أي نوع فرق؟", are rejected as too obvious.
 - Prompts are rejected when the correct answer appears literally inside the Arabic question text.
 - Over-obvious clue/answer pairs are rejected, such as asking about "الفيل الأفريقي" with "أفريقيا" as the answer.
 - Distractors should match the answer type: player with players, tournament with tournaments, country with countries, animal trait with animal traits, and organization with organizations.
+- Distractors should also be close enough to create a real decision: clubs from the same league or country, players from a similar era or role, scientific terms from the same topic, and landmarks or institutions from the same family.
 - The optional monthly refresh job is disabled by default and only imports from configured open or structured providers after validation.
 - Existing questions that are not in the JSON bank are disabled, not deleted, to preserve game history.
 - Every active question must have exactly four options and exactly one correct answer.

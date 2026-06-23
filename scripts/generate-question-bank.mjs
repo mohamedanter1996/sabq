@@ -36,7 +36,9 @@ const bannedQuestionPhrases = [
   'ما المجال الرئيسي لعمل',
   'أين يعيش',
   'أين يقع مقر',
-  'ما الرمز أو الوصف المختصر'
+  'ما الرمز أو الوصف المختصر',
+  'تخص غالبا أي نوع فرق',
+  'أي نوع فرق'
 ];
 const sportsForbiddenTerms = [
   'الإسكواش',
@@ -286,15 +288,28 @@ function addDirectQuestion(categorySlug, difficulty, timeLimitSec, textAr, textE
   );
 }
 
-function fieldPool(records, arField, enField) {
-  return records.map((record) => ({ ar: record[arField], en: record[enField] }));
+function fieldPool(records, arField, enField, centerIndex = null, radius = null) {
+  let sourceRecords = records;
+  if (Number.isInteger(centerIndex) && Number.isInteger(radius)) {
+    let start = Math.max(0, centerIndex - radius);
+    let end = Math.min(records.length, centerIndex + radius + 1);
+    const uniqueCount = () => new Set(records.slice(start, end).map((record) => record[arField])).size;
+    while (uniqueCount() < 4 && (start > 0 || end < records.length)) {
+      start = Math.max(0, start - 1);
+      end = Math.min(records.length, end + 1);
+    }
+    sourceRecords = records.slice(start, end);
+  }
+
+  return sourceRecords.map((record) => ({ ar: record[arField], en: record[enField] }));
 }
 
 function addFieldQuestions(categorySlug, records, specs, questionSource = source) {
-  for (const record of records) {
+  for (let recordIndex = 0; recordIndex < records.length; recordIndex += 1) {
+    const record = records[recordIndex];
     for (const spec of specs) {
       const correct = { ar: record[spec.arField], en: record[spec.enField] };
-      const pool = fieldPool(records, spec.arField, spec.enField);
+      const pool = fieldPool(records, spec.arField, spec.enField, recordIndex, spec.poolRadius);
       for (const variant of spec.variants) {
         const textAr = variant.ar(record);
         const textEn = variant.en(record);
@@ -545,6 +560,93 @@ const footballTournaments = [
   ['كأس مصر', 'Egypt Cup', 'أندية مصر', 'Egyptian clubs', 'بطولة خروج مغلوب تعطي فرصة للمفاجآت المحلية', 'knockout cup that creates local upsets', 'أقدم من الدوري المصري الممتاز', 'older than the Egyptian Premier League']
 ].map(([nameAr, nameEn, scopeAr, scopeEn, identityAr, identityEn, memoryAr, memoryEn]) => ({ nameAr, nameEn, scopeAr, scopeEn, identityAr, identityEn, memoryAr, memoryEn }));
 
+const footballTournamentClueQuestions = [
+  ['ذاكرة 1930: أول نسخة عالمية أقيمت في أوروجواي، وبعدها بقى اللقب حلم كل منتخب. أي بطولة؟', '1930 memory: the first global edition was in Uruguay, then it became every national team dream. Which tournament?', 'كأس العالم لكرة القدم', 'FIFA World Cup', [['كأس أمم أوروبا', 'UEFA Euro'], ['كوبا أمريكا', 'Copa America'], ['كأس آسيا', 'AFC Asian Cup']]],
+  ['كرة السيدات: بطولة عالمية بدأت عام 1991 ووسعت مساحة اللعبة خارج نسخة الرجال. أي بطولة؟', 'Women football: a global tournament began in 1991 and expanded the game beyond the men version. Which tournament?', 'كأس العالم للسيدات', 'FIFA Women World Cup', [['كأس العالم لكرة القدم', 'FIFA World Cup'], ['كأس أمم أوروبا', 'UEFA Euro'], ['كأس آسيا', 'AFC Asian Cup']]],
+  ['قارة بثلاثة ألوان كروية: بطولة بدأت عام 1957 وصارت محطة كبيرة لمنتخبات مصر وغانا والكاميرون. أي بطولة؟', 'Three-colour continent clue: a tournament began in 1957 and became a major stage for Egypt, Ghana, and Cameroon. Which tournament?', 'كأس الأمم الأفريقية', 'Africa Cup of Nations', [['كوبا أمريكا', 'Copa America'], ['كأس آسيا', 'AFC Asian Cup'], ['كأس أمم أوروبا', 'UEFA Euro']]],
+  ['نشيد قبل البداية وليال خروج مغلوب وأندية كبيرة من القارة العجوز. أي بطولة؟', 'Anthem before kick-off, knockout nights, and elite clubs from the old continent. Which tournament?', 'دوري أبطال أوروبا', 'UEFA Champions League', [['الدوري الأوروبي', 'UEFA Europa League'], ['كأس العالم للأندية', 'FIFA Club World Cup'], ['دوري أبطال أفريقيا', 'CAF Champions League']]],
+  ['اسمها القديم كان كأس الاتحاد الأوروبي، ومكانها غالبا بعد بطولة الأبطال في سلم القارة. أي بطولة؟', 'Its old name was the UEFA Cup, and it usually sits below the champions tournament in the continental ladder. Which tournament?', 'الدوري الأوروبي', 'UEFA Europa League', [['دوري أبطال أوروبا', 'UEFA Champions League'], ['كأس الكونفدرالية الأفريقية', 'CAF Confederation Cup'], ['كأس أمم أوروبا', 'UEFA Euro']]],
+  ['أقدم صراع قاري للمنتخبات تقريبا، وفي ذاكرته البرازيل والأرجنتين وأوروجواي معا. أي بطولة؟', 'One of the oldest continental national-team rivalries, with Brazil, Argentina, and Uruguay in the same memory. Which tournament?', 'كوبا أمريكا', 'Copa America', [['كأس الأمم الأفريقية', 'Africa Cup of Nations'], ['كأس آسيا', 'AFC Asian Cup'], ['كأس أمم أوروبا', 'UEFA Euro']]],
+  ['صيف قاري بدأ تاريخه عام 1960 ويجمع مدارس كروية من مدريد وروما وباريس وبرلين. أي بطولة؟', 'A continental summer whose history began in 1960 and gathers football schools from Madrid, Rome, Paris, and Berlin. Which tournament?', 'كأس أمم أوروبا', 'UEFA Euro', [['كوبا أمريكا', 'Copa America'], ['كأس آسيا', 'AFC Asian Cup'], ['كأس الأمم الأفريقية', 'Africa Cup of Nations']]],
+  ['شرق وغرب القارة في بطولة منتخبات بدأت عام 1956، وفيها قصص اليابان والسعودية وكوريا. أي بطولة؟', 'East and west of the continent in a national-team tournament that began in 1956, with Japan, Saudi Arabia, and Korea stories. Which tournament?', 'كأس آسيا', 'AFC Asian Cup', [['كأس أمم أوروبا', 'UEFA Euro'], ['كوبا أمريكا', 'Copa America'], ['كأس الأمم الأفريقية', 'Africa Cup of Nations']]],
+  ['مش منتخبات: الفكرة هنا أن بطل كل قارة يختبر نفسه أمام أبطال قارات أخرى. أي بطولة؟', 'Not national teams: the idea is that each continent club champion tests itself against other continental champions. Which tournament?', 'كأس العالم للأندية', 'FIFA Club World Cup', [['دوري أبطال أوروبا', 'UEFA Champions League'], ['دوري أبطال أفريقيا', 'CAF Champions League'], ['الدوري الأوروبي', 'UEFA Europa League']]],
+  ['اللقب القاري الأكبر للأندية في أفريقيا، وذكرياته المصرية غالبا بين الأهلي والزمالك. أي بطولة؟', 'The biggest continental club title in Africa, with Egyptian memories often around Al Ahly and Zamalek. Which tournament?', 'دوري أبطال أفريقيا', 'CAF Champions League', [['كأس الكونفدرالية الأفريقية', 'CAF Confederation Cup'], ['كأس الأمم الأفريقية', 'Africa Cup of Nations'], ['الدوري المصري الممتاز', 'Egyptian Premier League']]],
+  ['مشوار أفريقي للأندية يأتي غالبا بعد بطولة الأبطال، لكنه يظل لقبا قاريا مهما. أي بطولة؟', 'An African club route usually below the champions tournament, but still an important continental title. Which tournament?', 'كأس الكونفدرالية الأفريقية', 'CAF Confederation Cup', [['دوري أبطال أفريقيا', 'CAF Champions League'], ['الدوري الأوروبي', 'UEFA Europa League'], ['كأس مصر', 'Egypt Cup']]],
+  ['مسابقة محلية بدأ موسمها الأول 1948-1949، وتاريخها متداخل مع قمة الأهلي والزمالك. أي بطولة؟', 'A domestic competition whose first season was 1948-1949, with history tied to Al Ahly and Zamalek rivalry. Which competition?', 'الدوري المصري الممتاز', 'Egyptian Premier League', [['كأس مصر', 'Egypt Cup'], ['كأس السوبر المصري', 'Egyptian Super Cup'], ['دوري أبطال أفريقيا', 'CAF Champions League']]],
+  ['إيقاع سريع وبث عالمي واسم جديد منذ 1992، وفيه صار أنفيلد وملاعب مانشستر جزءا من الذاكرة. أي دوري؟', 'Fast pace, global broadcast, and a new name since 1992, with Anfield and Manchester grounds in the memory. Which league?', 'الدوري الإنجليزي الممتاز', 'Premier League', [['الدوري الإسباني', 'LaLiga'], ['الدوري الإيطالي', 'Serie A'], ['الدوري الألماني', 'Bundesliga']]],
+  ['مسرح طويل للكلاسيكو، وحين يلمع ريال مدريد وبرشلونة فأنت غالبا تشاهد أي دوري؟', 'A long-running stage for El Clasico; when Real Madrid and Barcelona shine, which league are you likely watching?', 'الدوري الإسباني', 'LaLiga', [['الدوري الإنجليزي الممتاز', 'Premier League'], ['الدوري الإيطالي', 'Serie A'], ['الدوري الفرنسي', 'Ligue 1']]],
+  ['دوري تكتيكي الطابع في الذاكرة، وأسماء ميلان وإنتر ويوفنتوس مفاتيح قوية له. أي دوري؟', 'A league remembered for tactical identity, with Milan, Inter, and Juventus as strong keys. Which league?', 'الدوري الإيطالي', 'Serie A', [['الدوري الألماني', 'Bundesliga'], ['الدوري الفرنسي', 'Ligue 1'], ['الدوري الإسباني', 'LaLiga']]],
+  ['مدرجات ضخمة وضغط عال، وبايرن ميونخ حاضر بقوة في العقود الأخيرة. أي دوري؟', 'Huge stands, high pressing, and Bayern Munich strongly present in recent decades. Which league?', 'الدوري الألماني', 'Bundesliga', [['الدوري الإنجليزي الممتاز', 'Premier League'], ['الدوري الإيطالي', 'Serie A'], ['الدوري الفرنسي', 'Ligue 1']]],
+  ['دوري خرج منه نجوم شباب كثيرون قبل الانتقال لأوروبا الكبرى، وباريس سان جيرمان عنوانه الحديث. أي دوري؟', 'A league that produced many young stars before bigger European moves, with Paris Saint-Germain as its modern headline. Which league?', 'الدوري الفرنسي', 'Ligue 1', [['الدوري الإسباني', 'LaLiga'], ['الدوري الألماني', 'Bundesliga'], ['الدوري الإيطالي', 'Serie A']]],
+  ['بطولة خروج مغلوب محلية تسمح بالمفاجآت، وأقدم من مسابقة الدوري الطويلة. أي بطولة؟', 'A domestic knockout competition that allows upsets and is older than the long league competition. Which tournament?', 'كأس مصر', 'Egypt Cup', [['الدوري المصري الممتاز', 'Egyptian Premier League'], ['كأس السوبر المصري', 'Egyptian Super Cup'], ['دوري أبطال أفريقيا', 'CAF Champions League']]]
+];
+
+const footballPlayerCareerQuestions = [
+  ['بوابة أوروبية مبكرة: قبل إنجلترا وإيطاليا، أي ناد سويسري فتح الطريق لمحمد صلاح؟', 'Early European gate: before England and Italy, which Swiss club opened Mohamed Salah path?', 'بازل (Basel)', 'Basel', [['يونغ بويز (Young Boys)', 'Young Boys'], ['زيورخ (Zurich)', 'FC Zurich'], ['جراسهوبرز (Grasshoppers)', 'Grasshoppers']]],
+  ['محطة إيطالية: أي ناد من العاصمة الإيطالية لعب له محمد صلاح قبل أنفيلد؟', 'Italian stop: which club from the Italian capital did Mohamed Salah play for before Anfield?', 'روما (Roma)', 'Roma', [['لاتسيو (Lazio)', 'Lazio'], ['ميلان (Milan)', 'AC Milan'], ['نابولي (Napoli)', 'Napoli']]],
+  ['قبل الأهلي: أي ناد مصري كان محطة محمد أبو تريكة قبل القلعة الحمراء؟', 'Before Al Ahly: which Egyptian club was Mohamed Aboutrika stop before the Red Castle?', 'الترسانة', 'Tersana', [['المقاولون العرب', 'Al Mokawloon'], ['إنبي', 'ENPPI'], ['الإسماعيلي', 'Ismaily']]],
+  ['القميص الأهم في حكاية بيبو: أي ناد مصري صار رمز محمود الخطيب؟', 'The key shirt in Bibo story: which Egyptian club became Mahmoud El Khatib symbol?', 'الأهلي', 'Al Ahly', [['الزمالك', 'Zamalek'], ['الإسماعيلي', 'Ismaily'], ['المصري البورسعيدي', 'Al Masry']]],
+  ['رحلة التوأم: حسام حسن لعب للقطبين، لكن أي منتخب كان عنوان أرقامه الدولية؟', 'Twin journey: Hossam Hassan played for both giants, but which national team defined his international numbers?', 'منتخب مصر', 'Egypt national team', [['منتخب المغرب', 'Morocco national team'], ['منتخب تونس', 'Tunisia national team'], ['منتخب الجزائر', 'Algeria national team']]],
+  ['من القطب الأحمر إلى القطب الأبيض: أي ناد مصري صار محطة إبراهيم حسن بعد الأهلي؟', 'From the red giant to the white giant: which Egyptian club became Ibrahim Hassan stop after Al Ahly?', 'الزمالك', 'Zamalek', [['الإسماعيلي', 'Ismaily'], ['المصري البورسعيدي', 'Al Masry'], ['بيراميدز', 'Pyramids']]],
+  ['قبل لقب السد العالي جماهيريا: أي ناد مصري خرج منه عصام الحضري قبل انتقاله للأهلي؟', 'Before the High Dam nickname: which Egyptian club did Essam El Hadary come from before Al Ahly?', 'دمياط', 'Damietta', [['غزل المحلة', 'Ghazl El Mahalla'], ['المنصورة', 'Mansoura'], ['الاتحاد السكندري', 'Al Ittihad Alexandria']]],
+  ['محطة تركية بارزة: أي ناد من كبار إسطنبول لعب له أحمد حسن؟', 'Major Turkish stop: which Istanbul giant did Ahmed Hassan play for?', 'بشكتاش (Besiktas)', 'Besiktas', [['غلطة سراي (Galatasaray)', 'Galatasaray'], ['فنربخشة (Fenerbahce)', 'Fenerbahce'], ['طرابزون سبور (Trabzonspor)', 'Trabzonspor']]],
+  ['بوابة هولندا: أي ناد هولندي كان محطة مبكرة لأحمد حسام ميدو؟', 'Dutch gate: which Dutch club was an early stop for Ahmed Hossam Mido?', 'أياكس (Ajax)', 'Ajax', [['آيندهوفن (PSV)', 'PSV'], ['فينورد (Feyenoord)', 'Feyenoord'], ['ألكمار (AZ)', 'AZ Alkmaar']]],
+  ['محطة إنجليزية: أي ناد في برمنغهام لعب له محمود تريزيجيه؟', 'English stop: which Birmingham club did Mahmoud Trezeguet play for?', 'أستون فيلا (Aston Villa)', 'Aston Villa', [['برمنغهام سيتي (Birmingham City)', 'Birmingham City'], ['وست بروميتش (West Brom)', 'West Bromwich Albion'], ['وولفرهامبتون (Wolves)', 'Wolverhampton Wanderers']]],
+  ['في مصر: أحمد سيد زيزو اشتهر جماهيريا بقميص أي ناد؟', 'In Egypt: which club shirt is Ahmed Sayed Zizo best known for among fans?', 'الزمالك', 'Zamalek', [['الأهلي', 'Al Ahly'], ['بيراميدز', 'Pyramids'], ['الإسماعيلي', 'Ismaily']]],
+  ['قبل انتقاله للأهلي: أي ناد مصري صنع جزءا كبيرا من شهرة إمام عاشور؟', 'Before moving to Al Ahly: which Egyptian club built a big part of Emam Ashour fame?', 'الزمالك', 'Zamalek', [['بيراميدز', 'Pyramids'], ['الإسماعيلي', 'Ismaily'], ['المصري البورسعيدي', 'Al Masry']]],
+  ['حراسة المرمى الحديثة: محمد الشناوي ارتبط أساسيا بأي ناد مصري كبير؟', 'Modern goalkeeping: Mohamed El Shenawy is strongly linked with which major Egyptian club?', 'الأهلي', 'Al Ahly', [['الزمالك', 'Zamalek'], ['بيراميدز', 'Pyramids'], ['الإسماعيلي', 'Ismaily']]],
+  ['قبل أن يصبح اسما مهما في الأهلي: أي ناد تونسي خرج منه علي معلول؟', 'Before becoming important at Al Ahly: which Tunisian club did Ali Maaloul come from?', 'النادي الصفاقسي', 'CS Sfaxien', [['الترجي', 'Esperance'], ['النجم الساحلي', 'Etoile du Sahel'], ['النادي الإفريقي', 'Club Africain']]],
+  ['قبل باريس وميامي: أي ناد إسباني صنع أسطورة ليونيل ميسي؟', 'Before Paris and Miami: which Spanish club made Lionel Messi legend?', 'برشلونة (Barcelona)', 'Barcelona', [['ريال مدريد (Real Madrid)', 'Real Madrid'], ['أتلتيكو مدريد (Atletico Madrid)', 'Atletico Madrid'], ['فالنسيا (Valencia)', 'Valencia']]],
+  ['قبل مانشستر يونايتد: أي ناد برتغالي كان بوابة كريستيانو رونالدو؟', 'Before Manchester United: which Portuguese club was Cristiano Ronaldo gateway?', 'سبورتنغ لشبونة (Sporting CP)', 'Sporting CP', [['بنفيكا (Benfica)', 'Benfica'], ['بورتو (Porto)', 'Porto'], ['سبورتنغ براغا (Braga)', 'Braga']]],
+  ['أسطورة البرازيل الأكبر قضى معظم مجده المحلي مع أي ناد؟', 'Brazil greatest legend spent most of his domestic glory with which club?', 'سانتوس (Santos)', 'Santos', [['فلامنغو (Flamengo)', 'Flamengo'], ['كورينثيانز (Corinthians)', 'Corinthians'], ['بالميراس (Palmeiras)', 'Palmeiras']]],
+  ['قبل نابولي: أي ناد إسباني لعب له دييغو مارادونا؟', 'Before Napoli: which Spanish club did Diego Maradona play for?', 'برشلونة (Barcelona)', 'Barcelona', [['ريال مدريد (Real Madrid)', 'Real Madrid'], ['أتلتيكو مدريد (Atletico Madrid)', 'Atletico Madrid'], ['إشبيلية (Sevilla)', 'Sevilla']]],
+  ['قبل ريال مدريد: أي ناد إيطالي كان محطة زين الدين زيدان الكبرى؟', 'Before Real Madrid: which Italian club was Zinedine Zidane major stop?', 'يوفنتوس (Juventus)', 'Juventus', [['ميلان (Milan)', 'AC Milan'], ['إنتر ميلان (Inter)', 'Inter Milan'], ['روما (Roma)', 'Roma']]],
+  ['قبل برشلونة: أي ناد فرنسي كان محطة رونالدينيو الأوروبية؟', 'Before Barcelona: which French club was Ronaldinho European stop?', 'باريس سان جيرمان (PSG)', 'Paris Saint-Germain', [['مارسيليا (Marseille)', 'Marseille'], ['ليون (Lyon)', 'Lyon'], ['موناكو (Monaco)', 'Monaco']]],
+  ['قبل باريس سان جيرمان: أي ناد فرنسي أطلق كيليان مبابي أوروبيا؟', 'Before Paris Saint-Germain: which French club launched Kylian Mbappe in Europe?', 'موناكو (Monaco)', 'Monaco', [['ليون (Lyon)', 'Lyon'], ['مارسيليا (Marseille)', 'Marseille'], ['ليل (Lille)', 'Lille']]],
+  ['قبل مانشستر سيتي: أي ناد ألماني كان محطة إيرلينغ هالاند المرعبة؟', 'Before Manchester City: which German club was Erling Haaland frightening stop?', 'بوروسيا دورتموند (Dortmund)', 'Borussia Dortmund', [['بايرن ميونخ (Bayern Munich)', 'Bayern Munich'], ['لايبزيغ (RB Leipzig)', 'RB Leipzig'], ['باير ليفركوزن (Leverkusen)', 'Bayer Leverkusen']]],
+  ['قبل ريال مدريد: أي ناد إنجليزي لعب له لوكا مودريتش؟', 'Before Real Madrid: which English club did Luka Modric play for?', 'توتنهام (Tottenham)', 'Tottenham Hotspur', [['آرسنال (Arsenal)', 'Arsenal'], ['تشيلسي (Chelsea)', 'Chelsea'], ['ليفربول (Liverpool)', 'Liverpool']]],
+  ['بعد برشلونة: أي ناد ياباني لعب له أندريس إنييستا؟', 'After Barcelona: which Japanese club did Andres Iniesta play for?', 'فيسيل كوبي (Vissel Kobe)', 'Vissel Kobe', [['يوكوهاما مارينوس', 'Yokohama F. Marinos'], ['أوراوا ريدز', 'Urawa Red Diamonds'], ['كاشيما أنتلرز', 'Kashima Antlers']]],
+  ['بعد برشلونة: أي ناد قطري لعب له تشافي قبل التدريب؟', 'After Barcelona: which Qatari club did Xavi play for before coaching?', 'السد القطري', 'Al Sadd', [['الدحيل', 'Al Duhail'], ['الريان', 'Al Rayyan'], ['الغرافة', 'Al Gharafa']]],
+  ['قبل سنوات يوفنتوس الطويلة: أي ناد إيطالي بدأ معه جيانلويجي بوفون؟', 'Before the long Juventus years: which Italian club did Gianluigi Buffon start with?', 'بارما (Parma)', 'Parma', [['لاتسيو (Lazio)', 'Lazio'], ['روما (Roma)', 'Roma'], ['فيورنتينا (Fiorentina)', 'Fiorentina']]],
+  ['قبل ريال مدريد مباشرة: أي ناد إيطالي لعب له روبرتو كارلوس؟', 'Right before Real Madrid: which Italian club did Roberto Carlos play for?', 'إنتر ميلان (Inter)', 'Inter Milan', [['ميلان (Milan)', 'AC Milan'], ['يوفنتوس (Juventus)', 'Juventus'], ['روما (Roma)', 'Roma']]],
+  ['وفاء نادر: باولو مالديني قضى مسيرته الكبيرة مع أي ناد إيطالي؟', 'Rare loyalty: Paolo Maldini spent his great career with which Italian club?', 'ميلان (Milan)', 'AC Milan', [['إنتر ميلان (Inter)', 'Inter Milan'], ['يوفنتوس (Juventus)', 'Juventus'], ['روما (Roma)', 'Roma']]],
+  ['أول محطة أوروبية لنيمار بعد البرازيل كانت مع أي ناد إسباني؟', 'Neymar first European stop after Brazil was with which Spanish club?', 'برشلونة (Barcelona)', 'Barcelona', [['ريال مدريد (Real Madrid)', 'Real Madrid'], ['أتلتيكو مدريد (Atletico Madrid)', 'Atletico Madrid'], ['فالنسيا (Valencia)', 'Valencia']]],
+  ['حكاية الدوري الإنجليزي 2016: رياض محرز صنع المعجزة مع أي ناد؟', '2016 English league story: Riyad Mahrez made the miracle with which club?', 'ليستر سيتي (Leicester City)', 'Leicester City', [['إيفرتون (Everton)', 'Everton'], ['وست هام (West Ham)', 'West Ham United'], ['نيوكاسل (Newcastle)', 'Newcastle United']]],
+  ['بعد ريال مدريد: أي ناد ألماني لعب له أشرف حكيمي على سبيل الإعارة؟', 'After Real Madrid: which German club did Achraf Hakimi join on loan?', 'بوروسيا دورتموند (Dortmund)', 'Borussia Dortmund', [['بايرن ميونخ (Bayern Munich)', 'Bayern Munich'], ['لايبزيغ (RB Leipzig)', 'RB Leipzig'], ['باير ليفركوزن (Leverkusen)', 'Bayer Leverkusen']]],
+  ['قبل السياسة: جورج ويا اشتهر أوروبيا بقميص أي ناد إيطالي؟', 'Before politics: George Weah became famous in Europe with which Italian club?', 'ميلان (Milan)', 'AC Milan', [['إنتر ميلان (Inter)', 'Inter Milan'], ['يوفنتوس (Juventus)', 'Juventus'], ['روما (Roma)', 'Roma']]],
+  ['قبل تشيلسي: أي ناد فرنسي كان محطة ديدييه دروغبا الكبرى؟', 'Before Chelsea: which French club was Didier Drogba major stop?', 'مارسيليا (Marseille)', 'Marseille', [['ليون (Lyon)', 'Lyon'], ['باريس سان جيرمان (PSG)', 'Paris Saint-Germain'], ['موناكو (Monaco)', 'Monaco']]],
+  ['ثلاثية 2010: صامويل إيتو حققها في إيطاليا مع أي ناد؟', '2010 treble: Samuel Eto o achieved it in Italy with which club?', 'إنتر ميلان (Inter)', 'Inter Milan', [['ميلان (Milan)', 'AC Milan'], ['يوفنتوس (Juventus)', 'Juventus'], ['روما (Roma)', 'Roma']]],
+  ['سنوات ألمانيا: أي ناد ارتبط باسم محمد زيدان في دوري الأبطال والبوندسليغا؟', 'Germany years: which club is Mohamed Zidan linked with in the Champions League and Bundesliga?', 'بوروسيا دورتموند (Dortmund)', 'Borussia Dortmund', [['بايرن ميونخ (Bayern Munich)', 'Bayern Munich'], ['شالكه (Schalke)', 'Schalke'], ['باير ليفركوزن (Leverkusen)', 'Bayer Leverkusen']]],
+  ['القيصر الألماني: أي ناد ألماني كان بيته الكروي الأكبر؟', 'The German Kaiser: which German club was Franz Beckenbauer biggest football home?', 'بايرن ميونخ (Bayern Munich)', 'Bayern Munich', [['بوروسيا دورتموند (Dortmund)', 'Borussia Dortmund'], ['هامبورغ (Hamburg)', 'Hamburg'], ['شالكه (Schalke)', 'Schalke']]]
+];
+
+const footballDeepCutQuestions = [
+  ['كأس أفريقيا 2010: مهاجم دخل من الدكة وسجل أهدافا حاسمة لمصر. مين؟', 'AFCON 2010: a substitute striker scored decisive goals for Egypt. Who was it?', 'محمد ناجي جدو', 'Mohamed Nagy Gedo', [['عماد متعب', 'Emad Moteab'], ['أحمد رؤوف', 'Ahmed Raouf'], ['عمرو زكي', 'Amr Zaki']]],
+  ['ظهير لا يهدأ في جيل مصر الذهبي، لعب يمينا ويسارا ووسط الملعب أحيانا. مين؟', 'A tireless fullback in Egypt golden generation, playing right, left, and sometimes midfield. Who?', 'أحمد فتحي', 'Ahmed Fathi', [['سيد معوض', 'Sayed Moawad'], ['وائل جمعة', 'Wael Gomaa'], ['أحمد المحمدي', 'Ahmed Elmohamady']]],
+  ['قلب دفاع لقبته جماهير الأهلي بالصخرة، وكان عنوانا لصلابة منتخب مصر. مين؟', 'A centre-back nicknamed the rock by Al Ahly fans and tied to Egypt defensive solidity. Who?', 'وائل جمعة', 'Wael Gomaa', [['شادي محمد', 'Shady Mohamed'], ['هاني سعيد', 'Hany Said'], ['بشير التابعي', 'Bashir El Tabei']]],
+  ['في الأهلي ومنتخب مصر: لاعب وسط هجومي اشتهر بالتحرك بين الخطوط والتمرير الذكي. مين؟', 'At Al Ahly and Egypt: an attacking midfielder known for movement between lines and smart passing. Who?', 'محمد بركات', 'Mohamed Barakat', [['حسام غالي', 'Hossam Ghaly'], ['أحمد حسن', 'Ahmed Hassan'], ['وليد سليمان', 'Walid Soliman']]],
+  ['جناح أيسر كان من مفاتيح منتخب مصر في 2008 و2010 مع حسن شحاتة. مين؟', 'A left-back/wing-side player who was key for Egypt in 2008 and 2010 under Hassan Shehata. Who?', 'سيد معوض', 'Sayed Moawad', [['أحمد فتحي', 'Ahmed Fathi'], ['أحمد المحمدي', 'Ahmed Elmohamady'], ['هاني سعيد', 'Hany Said']]],
+  ['رحلة إنجلترا: مهاجم مصري تألق فترة قصيرة مع ويغان وسجل حضورا قويا في البريميرليج. مين؟', 'England spell: an Egyptian striker shone briefly with Wigan and made a strong Premier League impression. Who?', 'عمرو زكي', 'Amr Zaki', [['أحمد حسام ميدو', 'Mido'], ['محمد زيدان', 'Mohamed Zidan'], ['محمود تريزيجيه', 'Trezeguet']]],
+  ['صانع لعب مصري ارتبط بالزمالك ولقبته الجماهير بالثعلب الصغير. مين؟', 'Egyptian playmaker linked with Zamalek and nicknamed the little fox. Who?', 'حازم إمام', 'Hazem Emam', [['شيكابالا', 'Shikabala'], ['أيمن يونس', 'Ayman Younes'], ['طارق يحيى', 'Tarek Yehia']]],
+  ['صانع ألعاب مصري احترف في بنفيكا وكان من الأسماء الفنية في التسعينات. مين؟', 'Egyptian playmaker who played for Benfica and was one of the technical names of the 1990s. Who?', 'عبد الستار صبري', 'Abdel Sattar Sabry', [['حازم إمام', 'Hazem Emam'], ['نادر السيد', 'Nader El Sayed'], ['أحمد حسن', 'Ahmed Hassan']]],
+  ['حارس مصري لمع مع الزمالك ومنتخب مصر قبل جيل الحضري الطويل. مين؟', 'Egyptian goalkeeper who shone with Zamalek and Egypt before El Hadary long era. Who?', 'نادر السيد', 'Nader El Sayed', [['عبد الواحد السيد', 'Abdelwahed El Sayed'], ['محمد عبد المنصف', 'Mohamed Abdel Monsef'], ['أمير عبد الحميد', 'Amir Abdelhamid']]],
+  ['محترف مصري في البوندسليغا، اسمه ارتبط بماينز ودورتموند وهامبورغ. مين؟', 'Egyptian Bundesliga professional linked with Mainz, Dortmund, and Hamburg. Who?', 'محمد زيدان', 'Mohamed Zidan', [['أحمد حسام ميدو', 'Mido'], ['عمرو زكي', 'Amr Zaki'], ['أحمد المحمدي', 'Ahmed Elmohamady']]],
+  ['لاعب مصري حديث، تألق في ألمانيا مع فرانكفورت وصار اسمه حاضرا في هجوم المنتخب. مين؟', 'Modern Egyptian player who shone in Germany with Frankfurt and became present in Egypt attack. Who?', 'عمر مرموش', 'Omar Marmoush', [['مصطفى محمد', 'Mostafa Mohamed'], ['محمود تريزيجيه', 'Trezeguet'], ['رمضان صبحي', 'Ramadan Sobhi']]],
+  ['مهاجم مصري انتقل إلى نانت بعد تجربة تركية، وغالبا يلعب كرأس حربة صريح. مين؟', 'Egyptian striker who moved to Nantes after a Turkish spell and usually plays as a central striker. Who?', 'مصطفى محمد', 'Mostafa Mohamed', [['عمر مرموش', 'Omar Marmoush'], ['أحمد حسن كوكا', 'Ahmed Hassan Kouka'], ['محمود كهربا', 'Mahmoud Kahraba']]],
+  ['جناح مصري بدأ نجما صغيرا في الأهلي ثم عاد لمصر عبر بوابة بيراميدز. مين؟', 'Egyptian winger who started as a young star at Al Ahly then returned to Egypt through Pyramids. Who?', 'رمضان صبحي', 'Ramadan Sobhi', [['إمام عاشور', 'Emam Ashour'], ['كهربا', 'Kahraba'], ['أحمد سيد زيزو', 'Zizo']]],
+  ['مدافع مصري لعب في وست بروميتش ثم صار من وجوه دفاع المنتخب الحديثة. مين؟', 'Egyptian defender who played for West Brom and became part of the modern national defence. Who?', 'أحمد حجازي', 'Ahmed Hegazi', [['علي جبر', 'Ali Gabr'], ['محمود علاء', 'Mahmoud Alaa'], ['باهر المحمدي', 'Baher El Mohamady']]],
+  ['ظهير مصري لعب سنوات طويلة في إنجلترا مع هال سيتي وأستون فيلا. مين؟', 'Egyptian fullback who spent long years in England with Hull City and Aston Villa. Who?', 'أحمد المحمدي', 'Ahmed Elmohamady', [['أحمد فتحي', 'Ahmed Fathi'], ['أحمد حجازي', 'Ahmed Hegazi'], ['كريم حافظ', 'Karim Hafez']]],
+  ['أسطورة أفريقية ناعمة القدمين، اشتهر بلمهارات في بولتون وباريس ونيجيريا. مين؟', 'An African flair legend known for skill at Bolton, Paris, and Nigeria. Who?', 'جي جي أوكوتشا', 'Jay-Jay Okocha', [['نوانكو كانو', 'Nwankwo Kanu'], ['يايا توريه', 'Yaya Toure'], ['مايكل إيسيان', 'Michael Essien']]],
+  ['مهاجم نيجيري طويل ارتبط بأرسنال وإنتر، وكان بطلا أفريقيا ودوليا. مين؟', 'Tall Nigerian forward linked with Arsenal and Inter, an African and international football hero. Who?', 'نوانكو كانو', 'Nwankwo Kanu', [['جي جي أوكوتشا', 'Jay-Jay Okocha'], ['إيمانويل أديبايور', 'Emmanuel Adebayor'], ['صامويل إيتو', 'Samuel Eto o']]],
+  ['لاعب وسط إيفواري قوي، ارتبط بمانشستر سيتي وبرشلونة أكثر من غيرهما. مين؟', 'Powerful Ivorian midfielder most linked with Manchester City and Barcelona. Who?', 'يايا توريه', 'Yaya Toure', [['مايكل إيسيان', 'Michael Essien'], ['جون أوبي ميكل', 'John Obi Mikel'], ['سولي مونتاري', 'Sulley Muntari']]],
+  ['لاعب وسط غاني شرس، ارتبط بتشيلسي وريال مدريد وميلان. مين؟', 'Tough Ghanaian midfielder linked with Chelsea, Real Madrid, and Milan. Who?', 'مايكل إيسيان', 'Michael Essien', [['يايا توريه', 'Yaya Toure'], ['سولي مونتاري', 'Sulley Muntari'], ['كيفن برينس بواتينغ', 'Kevin-Prince Boateng']]],
+  ['صانع لعب مغربي قاد ذاكرة مونديال 1998 ومرسيليا، واسمه يرتبط برقم 10. مين؟', 'Moroccan playmaker tied to the 1998 World Cup memory and Marseille, linked with number 10. Who?', 'مصطفى حجي', 'Mustapha Hadji', [['نور الدين النيبت', 'Noureddine Naybet'], ['يوسف شيبو', 'Youssef Chippo'], ['صلاح الدين بصير', 'Salaheddine Bassir']]],
+  ['مدافع مغربي قديم، لعب لديبورتيفو لاكورونيا وكان من أعمدة المنتخب. مين؟', 'Old-school Moroccan defender who played for Deportivo La Coruna and anchored the national team. Who?', 'نور الدين النيبت', 'Noureddine Naybet', [['مصطفى حجي', 'Mustapha Hadji'], ['رومان سايس', 'Romain Saiss'], ['مهدي بن عطية', 'Mehdi Benatia']]],
+  ['مهاجم توغولي طويل، اشتهر في أرسنال ومانشستر سيتي وريال مدريد. مين؟', 'Tall Togolese striker known from Arsenal, Manchester City, and Real Madrid. Who?', 'إيمانويل أديبايور', 'Emmanuel Adebayor', [['نوانكو كانو', 'Nwankwo Kanu'], ['ديدييه دروغبا', 'Didier Drogba'], ['فريديريك كانوتيه', 'Frederic Kanoute']]],
+  ['مهاجم مالي أنيق لعب لإشبيلية وتوتنهام وارتبط بالأهداف الهادئة. مين؟', 'Elegant Malian striker who played for Sevilla and Tottenham and was known for calm finishing. Who?', 'فريديريك كانوتيه', 'Frederic Kanoute', [['إيمانويل أديبايور', 'Emmanuel Adebayor'], ['سيدو كيتا', 'Seydou Keita'], ['يايا توريه', 'Yaya Toure']]],
+  ['لاعب وسط أرجنتيني كلاسيكي، اسمه يرتبط ببوكا جونيورز وفياريال أكثر من الأضواء الحديثة. مين؟', 'Classic Argentine playmaker linked with Boca Juniors and Villarreal more than modern spotlight. Who?', 'خوان رومان ريكيلمي', 'Juan Roman Riquelme', [['بابلو أيمار', 'Pablo Aimar'], ['خوان سيباستيان فيرون', 'Juan Sebastian Veron'], ['خافيير سافيولا', 'Javier Saviola']]]
+];
+
 const egyptArtists = [
   ['محمود مختار', 'Mahmoud Mokhtar', 'نهضة مصر', 'Egypt Renaissance', 'النحت', 'sculpture'],
   ['محمود سعيد', 'Mahmoud Said', 'بنات بحري', 'Banat Bahari', 'التصوير الزيتي', 'oil painting'],
@@ -695,81 +797,81 @@ const generalFacts = [
 
 const globalGeneralFacts = [
   ['لقطة عالمية: جوائز نوبل بدأت تمنح لأول مرة في أي سنة؟', 'Global snapshot: in which year were the Nobel Prizes first awarded?', '1901', '1901', [['1896', '1896'], ['1918', '1918'], ['1969', '1969']]],
-  ['بطاقة اسم: وصية أي شخص كانت وراء فكرة جوائز نوبل؟', 'Name card: whose will inspired the Nobel Prizes?', 'ألفريد نوبل', 'Alfred Nobel', [['ألبرت أينشتاين', 'Albert Einstein'], ['ماري كوري', 'Marie Curie'], ['إسحاق نيوتن', 'Isaac Newton']]],
+  ['بطاقة اسم: وصية أي شخص كانت وراء فكرة جوائز نوبل؟', 'Name card: whose will inspired the Nobel Prizes?', 'ألفريد نوبل', 'Alfred Nobel', [['أندرو كارنيغي', 'Andrew Carnegie'], ['جون د. روكفلر', 'John D. Rockefeller'], ['غوستاف دالين', 'Gustaf Dalen']]],
   ['لو سمعت عن جائزة نوبل في الاقتصاد، فالمعلومة اللطيفة أنها أضيفت لاحقا في أي مجال؟', 'If you hear about the later Nobel-linked prize, which field was added later?', 'العلوم الاقتصادية', 'economic sciences', [['الأدب', 'literature'], ['الكيمياء', 'chemistry'], ['السلام', 'peace']]],
   ['قصة فضاء في سطر: أي مهمة أوصلت أول بشر إلى سطح القمر؟', 'Space story in one line: which mission first landed humans on the Moon?', 'أبولو 11', 'Apollo 11', [['فوياجر 1', 'Voyager 1'], ['سبوتنيك 1', 'Sputnik 1'], ['أبولو 13', 'Apollo 13']]],
   ['خريطة العالم: أكبر محيط على الأرض هو أي محيط؟', 'World map: which ocean is the largest on Earth?', 'المحيط الهادئ', 'Pacific Ocean', [['المحيط الأطلسي', 'Atlantic Ocean'], ['المحيط الهندي', 'Indian Ocean'], ['المحيط المتجمد الشمالي', 'Arctic Ocean']]],
   ['ممر ملاحي شهير: قناة بنما تربط بين أي محيطين؟', 'Famous canal clue: which two oceans does the Panama Canal connect?', 'الأطلسي والهادئ', 'Atlantic and Pacific', [['الهندي والهادئ', 'Indian and Pacific'], ['الأطلسي والمتجمد الشمالي', 'Atlantic and Arctic'], ['الهندي والأطلسي', 'Indian and Atlantic']]],
   ['رمز عالمي سريع: تمثال الحرية وصل إلى أمريكا كهدية من أي دولة؟', 'Quick global symbol: the Statue of Liberty came to the US as a gift from which country?', 'فرنسا', 'France', [['إيطاليا', 'Italy'], ['إسبانيا', 'Spain'], ['بريطانيا', 'Britain']]],
-  ['معلومة جوائز: حفلات نوبل تقدم عادة في يوم 10 ديسمبر لأنه يوافق ماذا؟', 'Prize fact: Nobel ceremonies are usually held on 10 December because it marks what?', 'ذكرى وفاة ألفريد نوبل', 'anniversary of Alfred Nobel death', [['بداية السنة الدراسية', 'start of the school year'], ['نهاية الحرب العالمية الأولى', 'end of World War I'], ['افتتاح أولمبياد حديث', 'opening of the modern Olympics']]]
+  ['معلومة جوائز: حفلات نوبل تقدم عادة في يوم 10 ديسمبر لأنه يوافق ماذا؟', 'Prize fact: Nobel ceremonies are usually held on 10 December because it marks what?', 'ذكرى وفاة ألفريد نوبل', 'anniversary of Alfred Nobel death', [['ذكرى ميلاد ألفريد نوبل', 'anniversary of Alfred Nobel birth'], ['تاريخ توقيع وصية نوبل', 'date of Nobel will signing'], ['ذكرى أول حفل لجوائز نوبل', 'anniversary of the first Nobel ceremony']]]
 ];
 
 const globalHistoryFacts = [
   ['رحلة زمنية عالمية: سقوط جدار برلين يرتبط غالبا بأي سنة؟', 'World time-trip: the fall of the Berlin Wall is usually linked to which year?', '1989', '1989', [['1945', '1945'], ['1969', '1969'], ['2001', '2001']]],
   ['اختراع غيّر القراءة: الطباعة بالحروف المتحركة في أوروبا ترتبط بأي اسم؟', 'Reading-changing invention: movable-type printing in Europe is linked to which name?', 'يوهانس جوتنبرج', 'Johannes Gutenberg', [['غاليليو غاليلي', 'Galileo Galilei'], ['ليوناردو دافنشي', 'Leonardo da Vinci'], ['جيمس وات', 'James Watt']]],
-  ['بطاقة قانون قديمة: وثيقة ماجنا كارتا سنة 1215 ارتبطت بأي بلد؟', 'Old law card: Magna Carta in 1215 is linked to which country?', 'إنجلترا', 'England', [['فرنسا', 'France'], ['إيطاليا', 'Italy'], ['الصين', 'China']]],
-  ['منعطف صناعي: الثورة الصناعية بدأت بقوة في أي بلد؟', 'Industrial turning point: the Industrial Revolution began strongly in which country?', 'بريطانيا', 'Britain', [['اليابان', 'Japan'], ['البرازيل', 'Brazil'], ['كندا', 'Canada']]],
-  ['طريق تجارة قديم: طريق الحرير كان يربط الصين غالبا بأي عالم أوسع؟', 'Old trade route: the Silk Road linked China with which wider world?', 'آسيا الوسطى وأوروبا', 'Central Asia and Europe', [['أستراليا فقط', 'Australia only'], ['القطب الجنوبي', 'Antarctica'], ['جزر الكاريبي فقط', 'Caribbean islands only']]],
-  ['نهضة وفنون: عصر النهضة الأوروبي بدأ بقوة في أي منطقة؟', 'Renaissance and art: the European Renaissance grew strongly from which area?', 'إيطاليا', 'Italy', [['النرويج', 'Norway'], ['المكسيك', 'Mexico'], ['جنوب أفريقيا', 'South Africa']]],
+  ['بطاقة قانون قديمة: وثيقة ماجنا كارتا سنة 1215 ارتبطت بأي بلد؟', 'Old law card: Magna Carta in 1215 is linked to which country?', 'إنجلترا', 'England', [['فرنسا', 'France'], ['إسبانيا', 'Spain'], ['البرتغال', 'Portugal']]],
+  ['منعطف صناعي: الثورة الصناعية بدأت بقوة في أي بلد؟', 'Industrial turning point: the Industrial Revolution began strongly in which country?', 'بريطانيا', 'Britain', [['فرنسا', 'France'], ['ألمانيا', 'Germany'], ['بلجيكا', 'Belgium']]],
+  ['طريق تجارة قديم: طريق الحرير كان يربط الصين غالبا بأي عالم أوسع؟', 'Old trade route: the Silk Road linked China with which wider world?', 'آسيا الوسطى وأوروبا', 'Central Asia and Europe', [['جنوب شرق آسيا والهند', 'Southeast Asia and India'], ['شرق أفريقيا والبحر الأحمر', 'East Africa and the Red Sea'], ['روسيا وسيبيريا فقط', 'Russia and Siberia only']]],
+  ['نهضة وفنون: عصر النهضة الأوروبي بدأ بقوة في أي منطقة؟', 'Renaissance and art: the European Renaissance grew strongly from which area?', 'إيطاليا', 'Italy', [['فلاندرز', 'Flanders'], ['فرنسا', 'France'], ['ألمانيا', 'Germany']]],
   ['حلم الطيران: أول رحلة طيران بمحرك للأخوين رايت كانت في أي سنة؟', 'Flight dream: the Wright brothers first powered flight was in which year?', '1903', '1903', [['1869', '1869'], ['1930', '1930'], ['1957', '1957']]],
-  ['نظام عالمي جديد: تأسيس الأمم المتحدة جاء بعد أي حرب كبرى؟', 'New world order: the UN was founded after which major war?', 'الحرب العالمية الثانية', 'World War II', [['حرب القرم', 'Crimean War'], ['حرب المئة عام', 'Hundred Years War'], ['الحرب الباردة', 'Cold War']]]
+  ['نظام عالمي جديد: تأسيس الأمم المتحدة جاء بعد أي حرب كبرى؟', 'New world order: the UN was founded after which major war?', 'الحرب العالمية الثانية', 'World War II', [['الحرب العالمية الأولى', 'World War I'], ['الحرب الباردة', 'Cold War'], ['الحرب الكورية', 'Korean War']]]
 ];
 
 const globalScienceFacts = [
   ['كارت أحياء سريع: الجزيء الذي يحمل التعليمات الوراثية في خلايانا اسمه إيه؟', 'Quick biology card: which molecule carries genetic instructions in our cells?', 'DNA', 'DNA', [['ATP', 'ATP'], ['CO2', 'CO2'], ['H2O', 'H2O']]],
-  ['نباتات في الشمس: العملية التي تستخدم الضوء لصنع الغذاء اسمها إيه؟', 'Plants in sunlight: what is the process that uses light to make food?', 'البناء الضوئي', 'photosynthesis', [['التبخر', 'evaporation'], ['الصدأ', 'rusting'], ['التجمد', 'freezing']]],
+  ['نباتات في الشمس: العملية التي تستخدم الضوء لصنع الغذاء اسمها إيه؟', 'Plants in sunlight: what is the process that uses light to make food?', 'البناء الضوئي', 'photosynthesis', [['التنفس الخلوي', 'cellular respiration'], ['النتح', 'transpiration'], ['الإنبات', 'germination']]],
   ['عنواننا الكوني: المجموعة الشمسية موجودة داخل أي مجرة؟', 'Cosmic address: our solar system is inside which galaxy?', 'درب التبانة', 'Milky Way', [['أندروميدا', 'Andromeda'], ['سحابة ماجلان الكبرى', 'Large Magellanic Cloud'], ['مجرة سومبريرو', 'Sombrero Galaxy']]],
-  ['كيمياء يومية: الرمز H2O يشير إلى أي مادة؟', 'Everyday chemistry: H2O points to which substance?', 'الماء', 'water', [['الأكسجين', 'oxygen'], ['ثاني أكسيد الكربون', 'carbon dioxide'], ['ملح الطعام', 'table salt']]],
-  ['عملاق المجموعة الشمسية: أكبر كواكبها هو أي كوكب؟', 'Solar-system giant: which planet is the largest?', 'المشتري', 'Jupiter', [['المريخ', 'Mars'], ['الزهرة', 'Venus'], ['عطارد', 'Mercury']]],
-  ['مد وجزر على الشاطئ: العامل السماوي الأهم في حدوثهما هو إيه؟', 'Beach tides: which celestial body is the main driver?', 'القمر', 'the Moon', [['المريخ', 'Mars'], ['زحل', 'Saturn'], ['نجم الشعرى', 'Sirius']]],
+  ['كيمياء يومية: الرمز H2O يشير إلى أي مادة؟', 'Everyday chemistry: H2O points to which substance?', 'الماء', 'water', [['فوق أكسيد الهيدروجين', 'hydrogen peroxide'], ['ثاني أكسيد الكربون', 'carbon dioxide'], ['الأمونيا', 'ammonia']]],
+  ['عملاق المجموعة الشمسية: أكبر كواكبها هو أي كوكب؟', 'Solar-system giant: which planet is the largest?', 'المشتري', 'Jupiter', [['زحل', 'Saturn'], ['أورانوس', 'Uranus'], ['نبتون', 'Neptune']]],
+  ['مد وجزر على الشاطئ: العامل السماوي الأهم في حدوثهما هو إيه؟', 'Beach tides: which celestial body is the main driver?', 'القمر', 'the Moon', [['الشمس', 'the Sun'], ['المشتري', 'Jupiter'], ['الزهرة', 'Venus']]],
   ['سرعة كونية: الضوء في الفراغ يتحرك تقريبا بسرعة كام؟', 'Cosmic speed: light in vacuum travels at roughly what speed?', '300 ألف كم في الثانية', '300,000 km per second', [['30 كم في الثانية', '30 km per second'], ['1500 كم في الساعة', '1,500 km per hour'], ['1 كم في الثانية', '1 km per second']]],
-  ['حقيقة من ناسا: عدد الكواكب في المجموعة الشمسية حاليا كام؟', 'NASA-style fact: how many planets are currently in the solar system?', 'ثمانية كواكب', 'eight planets', [['خمسة كواكب', 'five planets'], ['تسعة عشر كوكبا', 'nineteen planets'], ['كوكبان فقط', 'two planets']]]
+  ['حقيقة من ناسا: عدد الكواكب في المجموعة الشمسية حاليا كام؟', 'NASA-style fact: how many planets are currently in the solar system?', 'ثمانية كواكب', 'eight planets', [['سبعة كواكب', 'seven planets'], ['تسعة كواكب', 'nine planets'], ['عشرة كواكب', 'ten planets']]]
 ];
 
 const globalTechFacts = [
-  ['تقنية في جيبك: GPS يعتمد أساسا على ماذا ليحدد موقعك؟', 'Pocket tech: what does GPS mainly rely on to locate you?', 'الأقمار الصناعية', 'satellites', [['الأشرطة المغناطيسية', 'magnetic tapes'], ['الفاكس', 'fax'], ['الأقراص المدمجة فقط', 'CDs only']]],
-  ['مربع سريع على منتج: QR Code مصمم غالبا لأي استخدام؟', 'Small square on a product: what is a QR Code usually designed for?', 'مسح سريع بالموبايل', 'quick scanning by phone', [['تشغيل محرك سيارة', 'starting a car engine'], ['تبريد الطعام', 'cooling food'], ['قياس ضغط الدم', 'measuring blood pressure']]],
-  ['فكرة السحابة: Cloud Computing يعني غالبا استخدام موارد موجودة فين؟', 'Cloud idea: cloud computing usually means using resources located where?', 'خوادم عبر الإنترنت', 'internet servers', [['دفتر ورقي', 'paper notebook'], ['بطارية الهاتف فقط', 'phone battery only'], ['كابل كهرباء منزلي', 'home power cable']]],
-  ['كلمة مفتوحة: Open Source معناها أن ماذا يكون متاحا غالبا؟', 'Open word: open source usually means what is available?', 'الكود المصدري', 'source code', [['رقم الهاتف الشخصي', 'personal phone number'], ['كلمة السر', 'password'], ['عنوان المنزل', 'home address']]],
-  ['مفتاح الأمان: مدير كلمات المرور يساعدك أساسا في ماذا؟', 'Security key: a password manager mainly helps with what?', 'حفظ كلمات مرور قوية', 'storing strong passwords', [['زيادة سرعة الإنترنت وحده', 'only increasing internet speed'], ['طباعة الصور', 'printing photos'], ['شحن البطارية', 'charging the battery']]],
-  ['شبكة قريبة: Wi-Fi تستخدم غالبا لتوفير اتصال ماذا؟', 'Nearby network: Wi-Fi usually provides what kind of connection?', 'اتصال لاسلكي محلي', 'local wireless connection', [['وقود للطائرات', 'aircraft fuel'], ['ورق للطباعة', 'printing paper'], ['عدسة كاميرا', 'camera lens']]]
+  ['تقنية في جيبك: GPS يعتمد أساسا على ماذا ليحدد موقعك؟', 'Pocket tech: what does GPS mainly rely on to locate you?', 'الأقمار الصناعية', 'satellites', [['أبراج الهاتف فقط', 'cell towers only'], ['نقاط Wi-Fi فقط', 'Wi-Fi access points only'], ['منارات بلوتوث', 'Bluetooth beacons']]],
+  ['مربع سريع على منتج: QR Code مصمم غالبا لأي استخدام؟', 'Small square on a product: what is a QR Code usually designed for?', 'مسح سريع بالموبايل', 'quick scanning by phone', [['قراءة باركود خطي فقط', 'reading a linear barcode only'], ['تشفير كلمة مرور الجهاز', 'encrypting a device password'], ['توقيع ملف رقمي', 'digitally signing a file']]],
+  ['فكرة السحابة: Cloud Computing يعني غالبا استخدام موارد موجودة فين؟', 'Cloud idea: cloud computing usually means using resources located where?', 'خوادم عبر الإنترنت', 'internet servers', [['خادم محلي داخل المكتب', 'local office server'], ['قرص تخزين خارجي', 'external storage drive'], ['راوتر منزلي فقط', 'home router only']]],
+  ['كلمة مفتوحة: Open Source معناها أن ماذا يكون متاحا غالبا؟', 'Open word: open source usually means what is available?', 'الكود المصدري', 'source code', [['ملف التشغيل النهائي', 'compiled binary'], ['مفتاح API', 'API key'], ['قاعدة بيانات المستخدمين', 'user database']]],
+  ['مفتاح الأمان: مدير كلمات المرور يساعدك أساسا في ماذا؟', 'Security key: a password manager mainly helps with what?', 'حفظ كلمات مرور قوية', 'storing strong passwords', [['المصادقة الثنائية فقط', 'two-factor authentication only'], ['تشفير القرص بالكامل', 'full-disk encryption'], ['فحص البرمجيات الخبيثة', 'malware scanning']]],
+  ['شبكة قريبة: Wi-Fi تستخدم غالبا لتوفير اتصال ماذا؟', 'Nearby network: Wi-Fi usually provides what kind of connection?', 'اتصال لاسلكي محلي', 'local wireless connection', [['اتصال بلوتوث قصير المدى', 'short-range Bluetooth connection'], ['اتصال خلوي واسع النطاق', 'wide-area cellular connection'], ['اتصال NFC شديد القرب', 'very-near NFC connection']]]
 ];
 
 const animalTrickyFacts = [
   ['لغز طبيعة: كائن بحري ينام بنصف دماغه أحيانا ويستخدم الأصوات للتواصل. من هو؟', 'Nature riddle: which sea animal can rest half its brain and uses sound to communicate?', 'الدلفين', 'dolphin', [['الحوت الأزرق', 'blue whale'], ['البطريق', 'penguin'], ['النسر الأصلع', 'bald eagle']]],
   ['مفارقة الحجم: أضخم حيوان معروف يعتمد في غذائه على كائنات صغيرة جدا. من هو؟', 'Size paradox: the largest known animal feeds on tiny organisms. Which one?', 'الحوت الأزرق', 'blue whale', [['الفيل الأفريقي', 'African elephant'], ['التمساح النيلي', 'Nile crocodile'], ['الأسد', 'lion']]],
-  ['طائر ببدلة رسمية: لا يطير لكنه سباح ممتاز في المياه الباردة. من هو؟', 'Tuxedo bird clue: it cannot fly but swims brilliantly in cold water. Which one?', 'البطريق', 'penguin', [['أبو قردان', 'cattle egret'], ['النسر الأصلع', 'bald eagle'], ['النحلة', 'bee']]],
+  ['طائر ببدلة رسمية: لا يطير لكنه سباح ممتاز في المياه الباردة. من هو؟', 'Tuxedo bird clue: it cannot fly but swims brilliantly in cold water. Which one?', 'البطريق', 'penguin', [['النعامة', 'ostrich'], ['طائر الغاق', 'cormorant'], ['طائر القطرس', 'albatross']]],
   ['صديق الفلاح: طائر تراه قرب الماشية والحقول لأنه يلتقط الحشرات حولها. من هو؟', 'Farmer friend: which bird is seen near cattle and fields catching insects?', 'أبو قردان', 'cattle egret', [['النسر الأصلع', 'bald eagle'], ['البطريق', 'penguin'], ['الدلفين', 'dolphin']]],
-  ['خدعة الصحراء: السنام لا يخزن ماء مباشرة بل دهونا تساعده وقت الشدة. أي حيوان؟', 'Desert trick: the hump stores fat, not water directly. Which animal?', 'الجمل', 'camel', [['الكنغر', 'kangaroo'], ['الفيل الأفريقي', 'African elephant'], ['الأسد', 'lion']]],
-  ['أبيض وأسود لكن ليس بطريقا: غذاؤه الشهير الخيزران. من هو؟', 'Black and white but not a penguin: its famous food is bamboo. Which animal?', 'الباندا العملاقة', 'giant panda', [['النحلة', 'bee'], ['الكنغر', 'kangaroo'], ['أبو قردان', 'cattle egret']]],
-  ['لقطة نيلية: زاحف صبور وفكه من أقوى أسلحته. من هو؟', 'Nile clue: a patient reptile whose jaw is its main weapon. Which one?', 'التمساح النيلي', 'Nile crocodile', [['الجمل', 'camel'], ['الدلفين', 'dolphin'], ['البطريق', 'penguin']]],
-  ['مصنع صغير للطبيعة: يجمع الرحيق ويساعد النباتات على التلقيح. من هو؟', 'Tiny nature factory: it gathers nectar and helps plants pollinate. Which one?', 'النحلة', 'bee', [['الباندا العملاقة', 'giant panda'], ['أبو قردان', 'cattle egret'], ['الكنغر', 'kangaroo']]],
-  ['حقيبة طبيعية: الصغير يكمل نموه في جراب الأم بعد الولادة. أي حيوان؟', 'Natural pouch: the young continues growing in the mother pouch. Which animal?', 'الكنغر', 'kangaroo', [['الجمل', 'camel'], ['النسر الأصلع', 'bald eagle'], ['التمساح النيلي', 'Nile crocodile']]],
-  ['رمز سياسي من عالم الطيور: جارح أبيض الرأس صار شعارا أمريكيا مشهورا. من هو؟', 'Political bird symbol: a white-headed raptor became a famous American emblem. Which bird?', 'النسر الأصلع', 'bald eagle', [['النحلة', 'bee'], ['البطريق', 'penguin'], ['أبو قردان', 'cattle egret']]]
+  ['خدعة الصحراء: السنام لا يخزن ماء مباشرة بل دهونا تساعده وقت الشدة. أي حيوان؟', 'Desert trick: the hump stores fat, not water directly. Which animal?', 'الجمل', 'camel', [['المها العربي', 'Arabian oryx'], ['اللاما', 'llama'], ['الغزال', 'gazelle']]],
+  ['أبيض وأسود لكن ليس بطريقا: غذاؤه الشهير الخيزران. من هو؟', 'Black and white but not a penguin: its famous food is bamboo. Which animal?', 'الباندا العملاقة', 'giant panda', [['الدب الأسود الآسيوي', 'Asian black bear'], ['دب الشمس', 'sun bear'], ['الباندا الحمراء', 'red panda']]],
+  ['لقطة نيلية: زاحف صبور وفكه من أقوى أسلحته. من هو؟', 'Nile clue: a patient reptile whose jaw is its main weapon. Which one?', 'التمساح النيلي', 'Nile crocodile', [['القاطور الأمريكي', 'American alligator'], ['تمساح المياه المالحة', 'saltwater crocodile'], ['الورل النيلي', 'Nile monitor']]],
+  ['مصنع صغير للطبيعة: يجمع الرحيق ويساعد النباتات على التلقيح. من هو؟', 'Tiny nature factory: it gathers nectar and helps plants pollinate. Which one?', 'النحلة', 'bee', [['الدبور', 'wasp'], ['الفراشة', 'butterfly'], ['الذبابة الحوامة', 'hoverfly']]],
+  ['حقيبة طبيعية: الصغير يكمل نموه في جراب الأم بعد الولادة. أي حيوان؟', 'Natural pouch: the young continues growing in the mother pouch. Which animal?', 'الكنغر', 'kangaroo', [['الكوالا', 'koala'], ['الومبت', 'wombat'], ['الأبوسوم', 'opossum']]],
+  ['رمز سياسي من عالم الطيور: جارح أبيض الرأس صار شعارا أمريكيا مشهورا. من هو؟', 'Political bird symbol: a white-headed raptor became a famous American emblem. Which bird?', 'النسر الأصلع', 'bald eagle', [['العقاب الذهبي', 'golden eagle'], ['الصقر الشاهين', 'peregrine falcon'], ['الشاهين الحر', 'saker falcon']]]
 ];
 
 const vehicleTrickyFacts = [
   ['مواصلات تحت الزحام: قضبان ومحطات داخل القاهرة الكبرى تنقل آلاف الركاب يوميا. ما هي؟', 'Transport under traffic: rails and stations move thousands across Greater Cairo. What is it?', 'مترو القاهرة', 'Cairo Metro', [['الترام', 'tram'], ['الأتوبيس', 'bus'], ['التوك توك', 'tuk-tuk']]],
-  ['رحلة سكك حديثة: قطار ركاب مميز دخل الخدمة في مصر بتصميم إسباني. ما اسمه؟', 'Modern rail clue: a distinctive passenger train in Egypt with Spanish design. What is it?', 'قطار تالجو في مصر', 'Talgo train in Egypt', [['مترو القاهرة', 'Cairo Metro'], ['الترام', 'tram'], ['السفينة', 'ship']]],
+  ['رحلة سكك حديثة: قطار ركاب مميز دخل الخدمة في مصر بتصميم إسباني. ما اسمه؟', 'Modern rail clue: a distinctive passenger train in Egypt with Spanish design. What is it?', 'قطار تالجو في مصر', 'Talgo train in Egypt', [['القطار الروسي في مصر', 'Russian train in Egypt'], ['قطار النوم', 'sleeping train'], ['قطار الضواحي', 'commuter train']]],
   ['ثلاث عجلات وزقاق ضيق: وسيلة عملية للمشاوير القصيرة في مناطق كثيرة. ما هي؟', 'Three wheels and narrow streets: a practical short-trip vehicle. What is it?', 'التوك توك', 'tuk-tuk', [['الدراجة النارية', 'motorcycle'], ['الدراجة', 'bicycle'], ['الأتوبيس', 'bus']]],
-  ['طاقة بشرية فقط: وسيلة تنقل ورياضة في نفس الوقت ولا تحتاج وقودا. ما هي؟', 'Human power only: both transport and sport without fuel. What is it?', 'الدراجة', 'bicycle', [['السيارة الكهربائية', 'electric car'], ['الدراجة النارية', 'motorcycle'], ['الترام', 'tram']]],
-  ['هدوء وانبعاثات أقل: مركبة طريق تعتمد على بطارية بدلا من البنزين. ما هي؟', 'Quiet and lower emissions: a road vehicle powered by a battery instead of petrol. What is it?', 'السيارة الكهربائية', 'electric car', [['الأتوبيس', 'bus'], ['التوك توك', 'tuk-tuk'], ['السفينة', 'ship']]],
-  ['قطار خفيف في الشارع: يسير على قضبان داخل المدينة غالبا. ما هو؟', 'Light rail in the street: it usually runs on tracks inside a city. What is it?', 'الترام', 'tram', [['قطار تالجو في مصر', 'Talgo train in Egypt'], ['الطائرة', 'airplane'], ['السيارة الكهربائية', 'electric car']]],
-  ['عبور البحر: وسيلة ضخمة تنقل الركاب أو البضائع فوق الماء. ما هي؟', 'Sea crossing: a large vehicle moving passengers or goods on water. What is it?', 'السفينة', 'ship', [['الطائرة', 'airplane'], ['الأتوبيس', 'bus'], ['الدراجة', 'bicycle']]],
-  ['شارع ومحطات وركاب كثيرون: وسيلة نقل جماعي مألوفة داخل المدن. ما هي؟', 'Road, stops, and many passengers: familiar urban public transport. What is it?', 'الأتوبيس', 'bus', [['التوك توك', 'tuk-tuk'], ['الدراجة النارية', 'motorcycle'], ['السفينة', 'ship']]],
+  ['طاقة بشرية فقط: وسيلة تنقل ورياضة في نفس الوقت ولا تحتاج وقودا. ما هي؟', 'Human power only: both transport and sport without fuel. What is it?', 'الدراجة', 'bicycle', [['السكوتر اليدوي', 'kick scooter'], ['الدراجة النارية', 'motorcycle'], ['الدراجة الكهربائية', 'e-bike']]],
+  ['هدوء وانبعاثات أقل: مركبة طريق تعتمد على بطارية بدلا من البنزين. ما هي؟', 'Quiet and lower emissions: a road vehicle powered by a battery instead of petrol. What is it?', 'السيارة الكهربائية', 'electric car', [['السيارة الهجينة', 'hybrid car'], ['سيارة ديزل', 'diesel car'], ['سيارة غاز طبيعي', 'natural-gas car']]],
+  ['قطار خفيف في الشارع: يسير على قضبان داخل المدينة غالبا. ما هو؟', 'Light rail in the street: it usually runs on tracks inside a city. What is it?', 'الترام', 'tram', [['مترو الأنفاق', 'metro'], ['قطار الضواحي', 'commuter train'], ['القطار الخفيف', 'light rail']]],
+  ['عبور البحر: وسيلة ضخمة تنقل الركاب أو البضائع فوق الماء. ما هي؟', 'Sea crossing: a large vehicle moving passengers or goods on water. What is it?', 'السفينة', 'ship', [['العبارة', 'ferry'], ['القارب', 'boat'], ['الناقلة', 'tanker']]],
+  ['شارع ومحطات وركاب كثيرون: وسيلة نقل جماعي مألوفة داخل المدن. ما هي؟', 'Road, stops, and many passengers: familiar urban public transport. What is it?', 'الأتوبيس', 'bus', [['الميكروباص', 'minibus'], ['الترام', 'tram'], ['مترو الأنفاق', 'metro']]],
   ['عجلتان ومحرك: أسرع من الدراجة وأخف من السيارة. ما هي؟', 'Two wheels and an engine: faster than a bicycle and lighter than a car. What is it?', 'الدراجة النارية', 'motorcycle', [['الدراجة', 'bicycle'], ['الترام', 'tram'], ['الأتوبيس', 'bus']]],
-  ['سفر فوق السحاب: وسيلة تقطع مسافات بعيدة في وقت قصير. ما هي؟', 'Above-cloud travel: it covers long distances quickly. What is it?', 'الطائرة', 'airplane', [['السفينة', 'ship'], ['قطار تالجو في مصر', 'Talgo train in Egypt'], ['مترو القاهرة', 'Cairo Metro']]]
+  ['سفر فوق السحاب: وسيلة تقطع مسافات بعيدة في وقت قصير. ما هي؟', 'Above-cloud travel: it covers long distances quickly. What is it?', 'الطائرة', 'airplane', [['المروحية', 'helicopter'], ['الطائرة الشراعية', 'glider'], ['المنطاد', 'hot-air balloon']]]
 ];
 
 const gameTrickyFacts = [
   ['لوحة بلا حظ: كل لاعب يرى نفس القطع، والذكاء في الخطة لا في الزهر. أي لعبة؟', 'Board without luck: both players see the same pieces and strategy matters more than dice. Which game?', 'الشطرنج', 'chess', [['الطاولة', 'backgammon'], ['الدومينو', 'dominoes'], ['مونوبولي (Monopoly)', 'Monopoly']]],
-  ['زهر وأقراص وحساب مخاطرة: لعبة قهاوي وبيوت قديمة. أي لعبة؟', 'Dice, checkers, and risk calculation: an old cafe-and-home game. Which game?', 'الطاولة', 'backgammon', [['الشطرنج', 'chess'], ['تتريس (Tetris)', 'Tetris'], ['باك مان (Pac-Man)', 'Pac-Man']]],
-  ['قطع مرقمة لا تحتاج شاشة: السر في مطابقة الأطراف. أي لعبة؟', 'Numbered tiles without a screen: the trick is matching ends. Which game?', 'الدومينو', 'dominoes', [['مونوبولي (Monopoly)', 'Monopoly'], ['الشطرنج', 'chess'], ['سوبر ماريو (Super Mario)', 'Super Mario']]],
-  ['عقارات وفلوس ورهن: لعبة تعلمك أن الإفلاس جزء من المتعة. أي لعبة؟', 'Properties, money, and mortgages: a game where bankruptcy is part of the fun. Which game?', 'مونوبولي (Monopoly)', 'Monopoly', [['الدومينو', 'dominoes'], ['تتريس (Tetris)', 'Tetris'], ['الطاولة', 'backgammon']]],
-  ['كتل تسقط بسرعة: المتعة في ترتيب الفوضى قبل أن تمتلئ الشاشة. أي لعبة؟', 'Falling blocks: the fun is organizing chaos before the screen fills. Which game?', 'تتريس (Tetris)', 'Tetris', [['باك مان (Pac-Man)', 'Pac-Man'], ['ماينكرافت (Minecraft)', 'Minecraft'], ['الشطرنج', 'chess']]],
-  ['متاهة ونقاط ومطاردة: لعبة أركيد تصنع توترا بأبسط شكل. أي لعبة؟', 'Maze, dots, and chase: an arcade game creating tension with simple rules. Which game?', 'باك مان (Pac-Man)', 'Pac-Man', [['سوبر ماريو (Super Mario)', 'Super Mario'], ['الدومينو', 'dominoes'], ['مونوبولي (Monopoly)', 'Monopoly']]],
-  ['عوالم مفتوحة ومكعبات: تبني وتنجو وتخترع قصتك بنفسك. أي لعبة؟', 'Open worlds and blocks: build, survive, and invent your own story. Which game?', 'ماينكرافت (Minecraft)', 'Minecraft', [['كرة القدم الإلكترونية فيفا (FIFA)', 'FIFA video game'], ['تتريس (Tetris)', 'Tetris'], ['الطاولة', 'backgammon']]],
-  ['سباك ومنصات وقفز: واحدة من أشهر شخصيات نينتندو. أي سلسلة؟', 'Plumber, platforms, and jumping: one of Nintendo most famous characters. Which series?', 'سوبر ماريو (Super Mario)', 'Super Mario', [['باك مان (Pac-Man)', 'Pac-Man'], ['ماينكرافت (Minecraft)', 'Minecraft'], ['الشطرنج', 'chess']]]
+  ['زهر وأقراص وحساب مخاطرة: لعبة قهاوي وبيوت قديمة. أي لعبة؟', 'Dice, checkers, and risk calculation: an old cafe-and-home game. Which game?', 'الطاولة', 'backgammon', [['المنقلة', 'mancala'], ['الداما', 'checkers'], ['الدومينو', 'dominoes']]],
+  ['قطع مرقمة لا تحتاج شاشة: السر في مطابقة الأطراف. أي لعبة؟', 'Numbered tiles without a screen: the trick is matching ends. Which game?', 'الدومينو', 'dominoes', [['الطاولة', 'backgammon'], ['المنقلة', 'mancala'], ['الداما', 'checkers']]],
+  ['عقارات وفلوس ورهن: لعبة تعلمك أن الإفلاس جزء من المتعة. أي لعبة؟', 'Properties, money, and mortgages: a game where bankruptcy is part of the fun. Which game?', 'مونوبولي (Monopoly)', 'Monopoly', [['لعبة الحياة (The Game of Life)', 'The Game of Life'], ['كاتان (Catan)', 'Catan'], ['ريسك (Risk)', 'Risk']]],
+  ['كتل تسقط بسرعة: المتعة في ترتيب الفوضى قبل أن تمتلئ الشاشة. أي لعبة؟', 'Falling blocks: the fun is organizing chaos before the screen fills. Which game?', 'تتريس (Tetris)', 'Tetris', [['دكتور ماريو', 'Dr. Mario'], ['بازل بابل', 'Puzzle Bobble'], ['بيجويلد', 'Bejeweled']]],
+  ['متاهة ونقاط ومطاردة: لعبة أركيد تصنع توترا بأبسط شكل. أي لعبة؟', 'Maze, dots, and chase: an arcade game creating tension with simple rules. Which game?', 'باك مان (Pac-Man)', 'Pac-Man', [['دونكي كونغ', 'Donkey Kong'], ['سبيس إنفيدرز', 'Space Invaders'], ['فروجَر', 'Frogger']]],
+  ['عوالم مفتوحة ومكعبات: تبني وتنجو وتخترع قصتك بنفسك. أي لعبة؟', 'Open worlds and blocks: build, survive, and invent your own story. Which game?', 'ماينكرافت (Minecraft)', 'Minecraft', [['تيراريا (Terraria)', 'Terraria'], ['روبلوكس (Roblox)', 'Roblox'], ['فورتنايت (Fortnite)', 'Fortnite']]],
+  ['سباك ومنصات وقفز: واحدة من أشهر شخصيات نينتندو. أي سلسلة؟', 'Plumber, platforms, and jumping: one of Nintendo most famous characters. Which series?', 'سوبر ماريو (Super Mario)', 'Super Mario', [['سونك (Sonic)', 'Sonic'], ['دونكي كونغ', 'Donkey Kong'], ['كيربي (Kirby)', 'Kirby']]]
 ];
 
 const religionTrickyFacts = [
@@ -782,12 +884,12 @@ const religionTrickyFacts = [
 ];
 
 const politicsTrickyFacts = [
-  ['بطاقة عالمية: منظمة تجمع دول العالم تقريبا وتتكلم كثيرا عن السلم الدولي. ما هي؟', 'Global card: which organization gathers nearly all states and focuses on peace?', 'الأمم المتحدة', 'United Nations', [['جامعة الدول العربية', 'League of Arab States'], ['الاتحاد الأفريقي', 'African Union'], ['البنك الدولي (World Bank)', 'World Bank']]],
-  ['ثقافة وتعليم وتراث: أي منظمة دولية تقف خلف مواقع التراث العالمي؟', 'Culture, education, and heritage: which organization is behind World Heritage sites?', 'اليونسكو (UNESCO)', 'UNESCO', [['منظمة الصحة العالمية (WHO)', 'WHO'], ['صندوق النقد الدولي (IMF)', 'IMF'], ['محكمة العدل الدولية', 'International Court of Justice']]],
-  ['صحة عالمية: مؤسسة نسمع اسمها كثيرا عند الأوبئة واللقاحات. ما هي؟', 'Global health: which body is often heard during epidemics and vaccines?', 'منظمة الصحة العالمية (WHO)', 'World Health Organization', [['البنك الدولي (World Bank)', 'World Bank'], ['مجلس النواب المصري', 'Egyptian House of Representatives'], ['منظمة التعاون الإسلامي', 'Organisation of Islamic Cooperation']]],
-  ['بيت التشريع: في مصر، المؤسسة التي تناقش القوانين وتمثل المواطنين هي أي جهة؟', 'Legislation house: in Egypt, which body debates laws and represents citizens?', 'مجلس النواب المصري', 'Egyptian House of Representatives', [['مجلس الوزراء المصري', 'Egyptian Cabinet'], ['محكمة العدل الدولية', 'International Court of Justice'], ['اليونسكو (UNESCO)', 'UNESCO']]],
+  ['بطاقة عالمية: منظمة تجمع دول العالم تقريبا وتتكلم كثيرا عن السلم الدولي. ما هي؟', 'Global card: which organization gathers nearly all states and focuses on peace?', 'الأمم المتحدة', 'United Nations', [['عصبة الأمم', 'League of Nations'], ['الاتحاد الأوروبي', 'European Union'], ['مجموعة العشرين', 'G20']]],
+  ['ثقافة وتعليم وتراث: أي منظمة دولية تقف خلف مواقع التراث العالمي؟', 'Culture, education, and heritage: which organization is behind World Heritage sites?', 'اليونسكو (UNESCO)', 'UNESCO', [['منظمة الصحة العالمية (WHO)', 'WHO'], ['منظمة العمل الدولية (ILO)', 'ILO'], ['منظمة الأغذية والزراعة (FAO)', 'FAO']]],
+  ['صحة عالمية: مؤسسة نسمع اسمها كثيرا عند الأوبئة واللقاحات. ما هي؟', 'Global health: which body is often heard during epidemics and vaccines?', 'منظمة الصحة العالمية (WHO)', 'World Health Organization', [['اليونيسف (UNICEF)', 'UNICEF'], ['الصليب الأحمر الدولي', 'International Red Cross'], ['أطباء بلا حدود', 'Doctors Without Borders']]],
+  ['بيت التشريع: في مصر، المؤسسة التي تناقش القوانين وتمثل المواطنين هي أي جهة؟', 'Legislation house: in Egypt, which body debates laws and represents citizens?', 'مجلس النواب المصري', 'Egyptian House of Representatives', [['مجلس الشيوخ المصري', 'Egyptian Senate'], ['مجلس الوزراء المصري', 'Egyptian Cabinet'], ['المحكمة الدستورية العليا', 'Supreme Constitutional Court']]],
   ['قارة واحدة وطاولة مشتركة: أي منظمة تجمع الدول الأفريقية سياسيا؟', 'One continent, shared table: which organization gathers African states politically?', 'الاتحاد الأفريقي', 'African Union', [['جامعة الدول العربية', 'League of Arab States'], ['الأمم المتحدة', 'United Nations'], ['صندوق النقد الدولي (IMF)', 'IMF']]],
-  ['نزاعات بين دول: المحكمة الدولية الأشهر في لاهاي تختص غالبا بأي اسم؟', 'State disputes: which international court in The Hague is the famous one?', 'محكمة العدل الدولية', 'International Court of Justice', [['مجلس الشيوخ المصري', 'Egyptian Senate'], ['البنك الدولي (World Bank)', 'World Bank'], ['منظمة الصحة العالمية (WHO)', 'WHO']]]
+  ['نزاعات بين دول: المحكمة الدولية الأشهر في لاهاي تختص غالبا بأي اسم؟', 'State disputes: which international court in The Hague is the famous one?', 'محكمة العدل الدولية', 'International Court of Justice', [['المحكمة الجنائية الدولية', 'International Criminal Court'], ['محكمة التحكيم الدائمة', 'Permanent Court of Arbitration'], ['المحكمة الأوروبية لحقوق الإنسان', 'European Court of Human Rights']]]
 ];
 
 const musicTrickyFacts = [
@@ -799,8 +901,74 @@ const musicTrickyFacts = [
   ['أغنية كسرت حدود التسعينات: «نور العين» ارتبطت بأي مطرب؟', '1990s hit clue: Nour El Ain is tied to which singer?', 'عمرو دياب', 'Amr Diab', [['علي الحجار', 'Ali El Haggar'], ['فريد الأطرش', 'Farid al-Atrash'], ['محمد عبد الوهاب', 'Mohamed Abdel Wahab']]]
 ];
 
-for (const [textAr, textEn, answerAr, answerEn, wrong] of generalFacts) {
-  addDirectQuestion('general-knowledge', 'Easy', 15, textAr, textEn, answerAr, answerEn, wrong);
+const closeChoiceQuestions = [
+  ['general-knowledge', 'Medium', 20, 'وصية رجل سويدي صنعت جوائز عالمية في العلم والأدب والسلام. من صاحب الوصية؟', 'A Swedish man will created global prizes in science, literature, and peace. Whose will was it?', 'ألفريد نوبل', 'Alfred Nobel', [['أندرو كارنيغي', 'Andrew Carnegie'], ['جون د. روكفلر', 'John D. Rockefeller'], ['غوستاف دالين', 'Gustaf Dalen']]],
+  ['general-knowledge', 'Medium', 20, 'تمثال أهدته دولة أوروبية للولايات المتحدة وصار رمزا لميناء نيويورك. أي معلم؟', 'A European gift to the United States became a New York Harbor symbol. Which landmark?', 'تمثال الحرية', 'Statue of Liberty', [['جبل رشمور', 'Mount Rushmore'], ['نصب واشنطن', 'Washington Monument'], ['بوابة الغرب', 'Gateway Arch']]],
+  ['general-knowledge', 'Medium', 20, 'جائزة أضيفت لاحقا لعائلة الجوائز الشهيرة، لكنها ليست من وصية البداية الأصلية. أي مجال؟', 'A later-added prize joined the famous award family, though it was not in the original will. Which field?', 'العلوم الاقتصادية', 'economic sciences', [['علوم الحاسوب', 'computer science'], ['علوم الأرض', 'earth sciences'], ['الرياضيات', 'mathematics']]],
+  ['religion-islamic', 'Medium', 20, 'صوت النداء الأول في الإسلام يرتبط بأي صحابي؟', 'The first call-to-prayer voice in Islam is linked to which companion?', 'بلال بن رباح', 'Bilal ibn Rabah', [['عبد الله بن أم مكتوم', 'Abdullah ibn Umm Maktum'], ['زيد بن ثابت', 'Zayd ibn Thabit'], ['مصعب بن عمير', 'Musab ibn Umayr']]],
+  ['religion-islamic', 'Medium', 20, 'توحيد المصاحف على رسم واحد في صدر الإسلام يرتبط بأي خليفة؟', 'Standardizing Quran manuscripts in early Islam is linked to which caliph?', 'عثمان بن عفان', 'Uthman ibn Affan', [['أبو بكر الصديق', 'Abu Bakr'], ['عمر بن الخطاب', 'Umar ibn Al-Khattab'], ['علي بن أبي طالب', 'Ali ibn Abi Talib']]],
+  ['religion-islamic', 'Medium', 20, 'غار قريب من مكة ارتبط ببداية الوحي لا بحادثة الهجرة. أي غار؟', 'A cave near Mecca linked to the first revelation, not the migration story. Which cave?', 'غار حراء', 'Cave Hira', [['غار ثور', 'Cave Thawr'], ['جبل عرفات', 'Mount Arafat'], ['وادي نخلة', 'Wadi Nakhla']]],
+  ['history', 'Medium', 20, 'تأميم الممر الملاحي المصري عام 1956 ارتبط باسم أي قائد سياسي؟', 'Nationalizing Egypt shipping canal in 1956 is linked to which political leader?', 'جمال عبد الناصر', 'Gamal Abdel Nasser', [['محمد نجيب', 'Mohamed Naguib'], ['أنور السادات', 'Anwar Sadat'], ['سعد زغلول', 'Saad Zaghloul']]],
+  ['history', 'Hard', 25, 'وثيقة 1215 التي حدت من سلطة الملك صارت رمزا مبكرا لفكرة القانون. في أي بلد؟', 'The 1215 document limiting royal power became an early symbol of rule of law. In which country?', 'إنجلترا', 'England', [['فرنسا', 'France'], ['إسبانيا', 'Spain'], ['البرتغال', 'Portugal']]],
+  ['history', 'Medium', 20, 'حملة أوروبية دخلت مصر عام 1798 وخلّفت أثرا علميا وسياسيا. من قائدها؟', 'A European campaign entered Egypt in 1798 and left scientific and political impact. Who led it?', 'نابليون بونابرت', 'Napoleon Bonaparte', [['هوراشيو نلسون', 'Horatio Nelson'], ['كليبر', 'Jean-Baptiste Kleber'], ['دو مينو', 'Jacques-Francois Menou']]],
+  ['geography', 'Medium', 20, 'مدينة إنكا عالية بين جبال الأنديز، وليست هرما ولا سورا. أي مكان؟', 'A high Inca city in the Andes, not a pyramid or a wall. Which place?', 'ماتشو بيتشو', 'Machu Picchu', [['تشيتشن إيتزا', 'Chichen Itza'], ['تيوتيهواكان', 'Teotihuacan'], ['تاج محل', 'Taj Mahal']]],
+  ['geography', 'Hard', 25, 'أعمق نقطة محيطية معروفة تقع غرب الهادئ، وغالبا تذكر مع الغوص الشديد. أي مكان؟', 'The deepest known oceanic point lies in the western Pacific and is tied to extreme dives. Which place?', 'خندق ماريانا', 'Mariana Trench', [['خندق تونغا', 'Tonga Trench'], ['خندق بورتوريكو', 'Puerto Rico Trench'], ['خندق جاوة', 'Java Trench']]],
+  ['geography', 'Medium', 20, 'ضريح رخامي أبيض في مدينة أغرا، وليس قصرا أوروبيا ولا مسجدا عثمانيا. أي معلم؟', 'A white marble mausoleum in Agra, not a European palace or an Ottoman mosque. Which landmark?', 'تاج محل', 'Taj Mahal', [['قصر الرياح', 'Hawa Mahal'], ['القلعة الحمراء في دلهي', 'Red Fort Delhi'], ['ضريح همايون', 'Humayun Tomb']]],
+  ['art', 'Medium', 20, 'تمثال نهضة مصر يقودك غالبا إلى أي فنان مصري؟', 'The Egypt Renaissance statue most likely points to which Egyptian artist?', 'محمود مختار', 'Mahmoud Mokhtar', [['آدم حنين', 'Adam Henein'], ['جمال السجيني', 'Gamal El Sagini'], ['صلاح عبد الكريم', 'Salah Abdel Kerim']]],
+  ['art', 'Medium', 20, 'لوحة «بنات بحري» تقودك لأي اسم من رواد الفن المصري؟', 'The painting Banat Bahari points to which Egyptian art pioneer?', 'محمود سعيد', 'Mahmoud Said', [['سيف وانلي', 'Seif Wanly'], ['حامد ندا', 'Hamed Nada'], ['عبد الهادي الجزار', 'Abdel Hadi El Gazzar']]],
+  ['art', 'Hard', 25, 'الفن الشعبي الرمزي في مصر الحديثة يرتبط بقوة بأي اسم من هذه الأسماء؟', 'Symbolic folk art in modern Egypt is strongly linked with which of these names?', 'عبد الهادي الجزار', 'Abdel Hadi El Gazzar', [['حامد ندا', 'Hamed Nada'], ['جاذبية سري', 'Gazbia Sirry'], ['تحية حليم', 'Tahia Halim']]],
+  ['film-tv', 'Medium', 20, 'فيلم عن عمارة شهيرة في وسط القاهرة أخرجه أي مخرج من جيل السينما الحديثة؟', 'A film about a famous downtown Cairo building was directed by which modern Egyptian filmmaker?', 'مروان حامد', 'Marwan Hamed', [['محمد دياب', 'Mohamed Diab'], ['كاملة أبو ذكري', 'Kamla Abu Zekry'], ['يسري نصر الله', 'Yousry Nasrallah']]],
+  ['film-tv', 'Medium', 20, 'عالم مسلسل «ليالي الحلمية» خرج من قلم أي كاتب مصري؟', 'The world of Layali El Helmeya came from which Egyptian writer?', 'أسامة أنور عكاشة', 'Osama Anwar Okasha', [['وحيد حامد', 'Wahid Hamed'], ['صالح مرسي', 'Saleh Morsi'], ['محفوظ عبد الرحمن', 'Mahfouz Abdel Rahman']]],
+  ['film-tv', 'Hard', 25, 'مسلسل الجاسوسية الشهير عن رأفت الهجان كتبه أي مؤلف؟', 'The famous espionage series about Raafat El Haggan was written by which author?', 'صالح مرسي', 'Saleh Morsi', [['وحيد حامد', 'Wahid Hamed'], ['أسامة أنور عكاشة', 'Osama Anwar Okasha'], ['محمد جلال عبد القوي', 'Mohamed Galal Abdel Kawy']]],
+  ['music', 'Medium', 20, 'قصيدة «الأطلال» في الذاكرة الطربية ترتبط تلحينا بأي موسيقار؟', 'The classic song Al Atlal is linked as a composition to which musician?', 'رياض السنباطي', 'Riad Al Sunbati', [['محمد عبد الوهاب', 'Mohamed Abdel Wahab'], ['بليغ حمدي', 'Baligh Hamdi'], ['محمد الموجي', 'Mohamed El Mougy']]],
+  ['music', 'Medium', 20, 'أغنية «سيرة الحب» تقودك غالبا إلى أي ملحن كبير؟', 'The song Siret El Hob most often points to which major composer?', 'بليغ حمدي', 'Baligh Hamdi', [['رياض السنباطي', 'Riad Al Sunbati'], ['محمد الموجي', 'Mohamed El Mougy'], ['كمال الطويل', 'Kamal El Tawil']]],
+  ['music', 'Medium', 20, 'صوت نوبي معاصر جعل «حدوتة مصرية» حاضرة في ذاكرة الغناء. من هو؟', 'A modern Nubian voice made Hadouta Masreya present in music memory. Who?', 'محمد منير', 'Mohamed Mounir', [['علي الحجار', 'Ali El Haggar'], ['محمد فوزي', 'Mohamed Fawzi'], ['عمرو دياب', 'Amr Diab']]],
+  ['books-literature', 'Medium', 20, 'الثلاثية القاهرية تقودك غالبا إلى أي كاتب؟', 'The Cairo Trilogy most likely points to which author?', 'نجيب محفوظ', 'Naguib Mahfouz', [['توفيق الحكيم', 'Tawfiq al-Hakim'], ['طه حسين', 'Taha Hussein'], ['يوسف إدريس', 'Yusuf Idris']]],
+  ['books-literature', 'Medium', 20, 'كتاب «الأيام» أقرب إلى السيرة الذاتية لأي أديب مصري؟', 'The Days is closest to the autobiography of which Egyptian writer?', 'طه حسين', 'Taha Hussein', [['توفيق الحكيم', 'Tawfiq al-Hakim'], ['نجيب محفوظ', 'Naguib Mahfouz'], ['إحسان عبد القدوس', 'Ihsan Abdel Quddous']]],
+  ['books-literature', 'Hard', 25, 'رواية «يوتوبيا» في الأدب المصري الحديث تقودك لأي اسم؟', 'The novel Utopia in modern Egyptian literature points to which name?', 'أحمد خالد توفيق', 'Ahmed Khaled Tawfik', [['أحمد مراد', 'Ahmed Mourad'], ['علاء الأسواني', 'Alaa Al Aswany'], ['إبراهيم عيسى', 'Ibrahim Eissa']]],
+  ['science-nature', 'Medium', 20, 'شفرة وراثية تحمل تعليمات الخلية، وليست عملة طاقة ولا غاز تنفس. ما هي؟', 'A genetic code molecule carrying cell instructions, not an energy currency or breathing gas. What is it?', 'DNA', 'DNA', [['RNA', 'RNA'], ['ATP', 'ATP'], ['ADP', 'ADP']]],
+  ['science-nature', 'Medium', 20, 'عملية يصنع فيها النبات غذاءه باستخدام الضوء. أي مصطلح؟', 'A process where plants make food using light. Which term?', 'البناء الضوئي', 'photosynthesis', [['التنفس الخلوي', 'cellular respiration'], ['النتح', 'transpiration'], ['الإنبات', 'germination']]],
+  ['science-nature', 'Medium', 20, 'كوكب عملاق غازي هو الأكبر في المجموعة الشمسية. أي كوكب؟', 'A gas giant that is the largest planet in the solar system. Which planet?', 'المشتري', 'Jupiter', [['زحل', 'Saturn'], ['أورانوس', 'Uranus'], ['نبتون', 'Neptune']]],
+  ['technology', 'Medium', 20, 'فكرة السحابة في التقنية تعني غالبا تشغيل مواردك على ماذا؟', 'The cloud idea in tech usually means running your resources on what?', 'خوادم عبر الإنترنت', 'internet servers', [['خادم محلي داخل المكتب', 'local office server'], ['قرص تخزين خارجي', 'external storage drive'], ['راوتر منزلي فقط', 'home router only']]],
+  ['technology', 'Medium', 20, 'GPS يحدد الموقع غالبا عبر إشارات من أي مصدر؟', 'GPS usually determines location through signals from which source?', 'الأقمار الصناعية', 'satellites', [['أبراج الهاتف فقط', 'cell towers only'], ['نقاط Wi-Fi فقط', 'Wi-Fi access points only'], ['منارات بلوتوث', 'Bluetooth beacons']]],
+  ['technology', 'Medium', 20, 'Open Source في البرمجة يعني أن الشيء المتاح عادة هو ماذا؟', 'In programming, open source usually means what is available?', 'الكود المصدري', 'source code', [['ملف التشغيل النهائي', 'compiled binary'], ['مفتاح API', 'API key'], ['قاعدة بيانات المستخدمين', 'user database']]],
+  ['politics', 'Medium', 20, 'منظمة عالمية تجمع معظم دول العالم وتعمل كمنصة دبلوماسية. ما هي؟', 'A global organization gathering most states and acting as a diplomatic platform. Which one?', 'الأمم المتحدة', 'United Nations', [['عصبة الأمم', 'League of Nations'], ['الاتحاد الأوروبي', 'European Union'], ['مجموعة العشرين', 'G20']]],
+  ['politics', 'Medium', 20, 'منظمة دولية معنية بالتربية والثقافة والتراث العالمي. ما هي؟', 'An international organization concerned with education, culture, and world heritage. Which one?', 'اليونسكو (UNESCO)', 'UNESCO', [['منظمة الصحة العالمية (WHO)', 'WHO'], ['منظمة العمل الدولية (ILO)', 'ILO'], ['منظمة الأغذية والزراعة (FAO)', 'FAO']]],
+  ['politics', 'Medium', 20, 'المنظمة القارية التي تجمع دول أفريقيا سياسيا هي أي جهة؟', 'The continental organization that politically gathers African states is which body?', 'الاتحاد الأفريقي', 'African Union', [['جامعة الدول العربية', 'League of Arab States'], ['الاتحاد الأوروبي', 'European Union'], ['منظمة التعاون الإسلامي', 'Organisation of Islamic Cooperation']]],
+  ['animals', 'Medium', 20, 'حيوان بحري يستخدم الصدى والصوت للتواصل والصيد، وليس أكبر حيوان في البحر. من هو؟', 'A sea animal using echoes and sound for communication and hunting, not the largest sea animal. Which one?', 'الدلفين', 'dolphin', [['الحوت الأزرق', 'blue whale'], ['الأوركا', 'orca'], ['خنزير البحر', 'porpoise']]],
+  ['animals', 'Medium', 20, 'طائر جارح أبيض الرأس صار رمزا سياسيا مشهورا في أمريكا. من هو؟', 'A white-headed raptor became a famous American political symbol. Which bird?', 'النسر الأصلع', 'bald eagle', [['العقاب الذهبي', 'golden eagle'], ['الصقر الشاهين', 'peregrine falcon'], ['الشاهين الحر', 'saker falcon']]],
+  ['animals', 'Medium', 20, 'زاحف ضخم قرب المياه العذبة، فكه سلاحه الأشهر في النيل. من هو؟', 'A large freshwater-side reptile whose jaw is its famous weapon in the Nile. Which one?', 'التمساح النيلي', 'Nile crocodile', [['القاطور الأمريكي', 'American alligator'], ['تمساح المياه المالحة', 'saltwater crocodile'], ['الورل النيلي', 'Nile monitor']]],
+  ['vehicles', 'Medium', 20, 'وسيلة تعمل على قضبان داخل المدينة وتختلف عن القطار الطويل بين المحافظات. ما هي؟', 'A vehicle running on city tracks, different from long-distance trains. What is it?', 'الترام', 'tram', [['مترو الأنفاق', 'metro'], ['قطار الضواحي', 'commuter train'], ['قطار تالجو', 'Talgo train']]],
+  ['vehicles', 'Medium', 20, 'وسيلة بثلاث عجلات للمشاوير القصيرة داخل الشوارع الضيقة. ما هي؟', 'A three-wheeled vehicle for short trips in narrow streets. What is it?', 'التوك توك', 'tuk-tuk', [['الدراجة النارية', 'motorcycle'], ['الميكروباص', 'minibus'], ['السكوتر', 'scooter']]],
+  ['vehicles', 'Medium', 20, 'مركبة تعتمد على بطارية ومحرك كهربائي لا على البنزين مباشرة. ما هي؟', 'A vehicle relying on a battery and electric motor rather than petrol directly. What is it?', 'السيارة الكهربائية', 'electric car', [['السيارة الهجينة', 'hybrid car'], ['سيارة ديزل', 'diesel car'], ['سيارة غاز طبيعي', 'natural-gas car']]],
+  ['games', 'Medium', 20, 'لعبة لوحية بلا زهر، كل لاعب يرى نفس القطع والفارق في الخطة. أي لعبة؟', 'A board game without dice where both players see the same pieces and strategy makes the difference. Which game?', 'الشطرنج', 'chess', [['الداما', 'checkers'], ['جو (Go)', 'Go'], ['ريفرسي', 'Reversi']]],
+  ['games', 'Medium', 20, 'لعبة أركيد قديمة: متاهة ونقاط ومطاردة مستمرة. أي لعبة؟', 'Old arcade game: maze, dots, and constant chase. Which game?', 'باك مان (Pac-Man)', 'Pac-Man', [['سبيس إنفيدرز', 'Space Invaders'], ['دونكي كونغ', 'Donkey Kong'], ['فروجَر', 'Frogger']]],
+  ['games', 'Medium', 20, 'كتل متساقطة تحتاج ترتيبها قبل امتلاء الشاشة. أي لعبة؟', 'Falling blocks that must be arranged before the screen fills. Which game?', 'تتريس (Tetris)', 'Tetris', [['بازل بابل', 'Puzzle Bobble'], ['بيجويلد', 'Bejeweled'], ['دكتور ماريو', 'Dr. Mario']]],
+  ['politics', 'Medium', 20, 'هيئة دولية قديمة سبقت الأمم المتحدة وفشلت في منع الحرب العالمية الثانية. ما هي؟', 'An older international body preceded the UN and failed to prevent World War II. Which one?', 'عصبة الأمم', 'League of Nations', [['الأمم المتحدة', 'United Nations'], ['مجلس الأمن', 'UN Security Council'], ['محكمة العدل الدولية', 'International Court of Justice']]],
+  ['politics', 'Medium', 20, 'داخل الأمم المتحدة، الجهاز الذي يصدر قرارات ملزمة بشأن السلم والأمن غالبا هو أي جهة؟', 'Within the UN, which body most often issues binding decisions on peace and security?', 'مجلس الأمن', 'UN Security Council', [['الجمعية العامة', 'General Assembly'], ['المجلس الاقتصادي والاجتماعي', 'ECOSOC'], ['الأمانة العامة', 'Secretariat']]],
+  ['politics', 'Hard', 25, 'محكمة تعنى بمسؤولية الأفراد عن جرائم دولية، وليست نزاعات الدول القانونية. أي محكمة؟', 'A court focused on individual responsibility for international crimes, not legal disputes between states. Which court?', 'المحكمة الجنائية الدولية', 'International Criminal Court', [['محكمة العدل الدولية', 'International Court of Justice'], ['محكمة التحكيم الدائمة', 'Permanent Court of Arbitration'], ['المحكمة الأوروبية لحقوق الإنسان', 'European Court of Human Rights']]],
+  ['politics', 'Medium', 20, 'منظمة إقليمية مقرها القاهرة وتجمع الدول العربية سياسيا. ما هي؟', 'A regional organization based in Cairo that gathers Arab states politically. Which one?', 'جامعة الدول العربية', 'League of Arab States', [['الاتحاد الأفريقي', 'African Union'], ['منظمة التعاون الإسلامي', 'Organisation of Islamic Cooperation'], ['مجلس التعاون الخليجي', 'Gulf Cooperation Council']]],
+  ['politics', 'Medium', 20, 'مؤسسة مالية دولية مقرها واشنطن ترتبط بالقروض وبرامج الاستقرار المالي. ما هي؟', 'A Washington-based financial institution linked with loans and financial stability programs. Which one?', 'صندوق النقد الدولي (IMF)', 'International Monetary Fund', [['البنك الدولي (World Bank)', 'World Bank'], ['بنك التسويات الدولية', 'Bank for International Settlements'], ['منظمة التجارة العالمية', 'World Trade Organization']]],
+  ['politics', 'Medium', 20, 'مؤسسة مالية دولية مقرها واشنطن تركيزها الأشهر تمويل التنمية. ما هي؟', 'A Washington-based financial institution best known for development financing. Which one?', 'البنك الدولي (World Bank)', 'World Bank', [['صندوق النقد الدولي (IMF)', 'International Monetary Fund'], ['بنك التنمية الأفريقي', 'African Development Bank'], ['بنك الاستثمار الأوروبي', 'European Investment Bank']]],
+  ['politics', 'Medium', 20, 'غرفة برلمانية ثانية في مصر، وليست الحكومة التنفيذية. أي مؤسسة؟', 'A second parliamentary chamber in Egypt, not the executive government. Which institution?', 'مجلس الشيوخ المصري', 'Egyptian Senate', [['مجلس النواب المصري', 'Egyptian House of Representatives'], ['مجلس الوزراء المصري', 'Egyptian Cabinet'], ['المحكمة الدستورية العليا', 'Supreme Constitutional Court']]],
+  ['animals', 'Medium', 20, 'أكبر حيوان معروف، لكنه يتغذى على كائنات صغيرة جدا في البحر. من هو؟', 'The largest known animal, yet it feeds on tiny sea organisms. Which one?', 'الحوت الأزرق', 'blue whale', [['حوت العنبر', 'sperm whale'], ['الحوت الأحدب', 'humpback whale'], ['قرش الحوت', 'whale shark']]],
+  ['animals', 'Medium', 20, 'حيوان جرابي مشهور بالقفز، وصغيره يكمل نموه في جراب الأم. من هو؟', 'A marsupial famous for jumping whose young grows in the mother pouch. Which one?', 'الكنغر', 'kangaroo', [['الولب', 'wallaby'], ['الكوالا', 'koala'], ['الومبت', 'wombat']]],
+  ['animals', 'Medium', 20, 'طائر يعيش قرب الماشية والحقول ويلتقط الحشرات حولها. من هو؟', 'A bird seen near cattle and fields catching insects around them. Which one?', 'أبو قردان', 'cattle egret', [['مالك الحزين', 'heron'], ['البلشون الأبيض', 'great egret'], ['اللقلق', 'stork']]],
+  ['animals', 'Hard', 25, 'ثديي بحري ذكي يستخدم الصوت والصدى، لكنه ليس حوتا ضخما. من هو؟', 'An intelligent marine mammal using sound and echo, but not a huge whale. Which one?', 'الدلفين', 'dolphin', [['خنزير البحر', 'porpoise'], ['الأوركا', 'orca'], ['حوت بيلوغا', 'beluga whale']]],
+  ['animals', 'Medium', 20, 'دب أبيض وأسود غذاؤه الأشهر الخيزران. من هو؟', 'A black-and-white bear whose famous food is bamboo. Which one?', 'الباندا العملاقة', 'giant panda', [['الدب الأسود الآسيوي', 'Asian black bear'], ['الباندا الحمراء', 'red panda'], ['دب الشمس', 'sun bear']]],
+  ['animals', 'Medium', 20, 'حشرة اجتماعية تجمع الرحيق وتساعد في تلقيح النباتات. من هي؟', 'A social insect that gathers nectar and helps pollinate plants. Which one?', 'النحلة', 'bee', [['الدبور', 'wasp'], ['النملة', 'ant'], ['الفراشة', 'butterfly']]],
+  ['animals', 'Medium', 20, 'مفترس إفريقي كبير يلقب كثيرا بملك الغابة رغم ارتباطه بالسافانا. من هو؟', 'A large African predator often called king of the jungle despite being tied to savanna. Which one?', 'الأسد', 'lion', [['الفهد', 'cheetah'], ['النمر', 'leopard'], ['الضبع', 'hyena']]],
+  ['vehicles', 'Medium', 20, 'وسيلة نقل تحت الأرض أو على مسارات معزولة داخل المدن الكبيرة. ما هي؟', 'An urban transport system underground or on separated tracks in big cities. What is it?', 'مترو الأنفاق', 'metro', [['الترام', 'tram'], ['قطار الضواحي', 'commuter train'], ['القطار الخفيف', 'light rail']]],
+  ['vehicles', 'Medium', 20, 'وسيلة ركاب كبيرة تسير على الطرق ولها محطات متكررة داخل المدينة. ما هي؟', 'A large passenger vehicle on roads with repeated city stops. What is it?', 'الأتوبيس', 'bus', [['الميكروباص', 'minibus'], ['الترام', 'tram'], ['الحافلة السريعة', 'BRT bus']]],
+  ['vehicles', 'Medium', 20, 'قطار مميز للمسافات بين المدن في مصر، ارتبط باسم تالجو. ما هو؟', 'A distinctive intercity train in Egypt associated with the Talgo name. What is it?', 'قطار تالجو في مصر', 'Talgo train in Egypt', [['قطار النوم', 'sleeping train'], ['القطار الروسي', 'Russian train'], ['قطار الضواحي', 'commuter train']]],
+  ['vehicles', 'Medium', 20, 'وسيلة بحرية تنقل ركابا أو بضائع فوق الماء لمسافات طويلة. ما هي؟', 'A sea vehicle carrying passengers or goods over water for long distances. What is it?', 'السفينة', 'ship', [['العبارة', 'ferry'], ['القارب', 'boat'], ['الناقلة', 'tanker']]],
+  ['vehicles', 'Medium', 20, 'وسيلة جوية بمحرك وجناحين ثابتين للمسافات الطويلة. ما هي؟', 'A powered aircraft with fixed wings for long distances. What is it?', 'الطائرة', 'airplane', [['المروحية', 'helicopter'], ['الطائرة الشراعية', 'glider'], ['المنطاد', 'hot-air balloon']]],
+  ['vehicles', 'Medium', 20, 'مركبة صغيرة بعجلتين ومحرك، أخف من السيارة وأسرع من الدراجة العادية. ما هي؟', 'A small two-wheeled motor vehicle, lighter than a car and faster than a bicycle. What is it?', 'الدراجة النارية', 'motorcycle', [['السكوتر', 'scooter'], ['الدراجة الكهربائية', 'e-bike'], ['الدراجة', 'bicycle']]],
+  ['vehicles', 'Medium', 20, 'وسيلة خفيفة داخل المدن تسير على قضبان في الشارع غالبا. ما هي؟', 'A light urban vehicle often running on street tracks. What is it?', 'الترام', 'tram', [['مترو الأنفاق', 'metro'], ['القطار الخفيف', 'light rail'], ['قطار الضواحي', 'commuter train']]]
+];
+
+for (const [categorySlug, difficulty, timeLimitSec, textAr, textEn, answerAr, answerEn, wrong] of closeChoiceQuestions) {
+  addDirectQuestion(categorySlug, difficulty, timeLimitSec, textAr, textEn, answerAr, answerEn, wrong);
 }
 
 for (const [textAr, textEn, answerAr, answerEn, wrong] of globalGeneralFacts) {
@@ -829,16 +997,13 @@ addFieldQuestions('geography', egyptPlaces, [
 ]);
 
 addFieldQuestions('geography', globalPlaces, [
-  { arField: 'locationAr', enField: 'locationEn', difficulty: 'Easy', timeLimitSec: 15, variants: [
-    { ar: (r) => `جولة حول العالم: لو عايز تشوف ${r.nameAr}، هتحجز ناحية فين؟`, en: (r) => `World tour: where would you go to see ${r.nameEn}?` }
-  ] },
   { arField: 'nameAr', enField: 'nameEn', difficulty: 'Medium', timeLimitSec: 20, variants: [
     { ar: (r) => `بوست كارت عالمي: أي مكان ينطبق عليه وصف «${r.knownForAr}»؟`, en: (r) => `Global postcard: which place matches ${r.knownForEn}?` }
   ] }
 ]);
 
 addFieldQuestions('history', egyptHistoryEvents, [
-  { arField: 'yearAr', enField: 'yearEn', difficulty: 'Medium', timeLimitSec: 20, variants: [
+  { arField: 'yearAr', enField: 'yearEn', difficulty: 'Medium', timeLimitSec: 20, poolRadius: 3, variants: [
     { ar: (r) => `رحلة زمنية: حدث «${r.nameAr}» هتحطه عند أي سنة أو فترة؟`, en: (r) => `Time-trip clue: which year or period fits ${r.nameEn}?` }
   ] },
   { arField: 'keyAr', enField: 'keyEn', difficulty: 'Medium', timeLimitSec: 20, variants: [
@@ -853,7 +1018,7 @@ addFieldQuestions('film-tv', egyptFilms, [
   { arField: 'starAr', enField: 'starEn', difficulty: 'Easy', timeLimitSec: 15, variants: [
     { ar: (r) => `على الأفيش: أي نجم هتربطه غالبا بفيلم «${r.nameAr}»؟`, en: (r) => `On the poster: which star would you link with ${r.nameEn}?` }
   ] },
-  { arField: 'yearAr', enField: 'yearEn', difficulty: 'Hard', timeLimitSec: 25, variants: [
+  { arField: 'yearAr', enField: 'yearEn', difficulty: 'Hard', timeLimitSec: 25, poolRadius: 4, variants: [
     { ar: (r) => `تحدي الذاكرة السينمائية: «${r.nameAr}» خرج للنور سنة كام؟`, en: (r) => `Cinema memory challenge: which year brought ${r.nameEn} to screens?` }
   ] }
 ]);
@@ -904,9 +1069,6 @@ addFieldQuestions('sports', footballPlayers, [
   { arField: 'nameAr', enField: 'nameEn', difficulty: 'Medium', timeLimitSec: 20, variants: [
     { ar: (r) => `مين اللاعب؟ ${r.clueAr}.`, en: (r) => `Name the player: ${r.clueEn}.` }
   ] },
-  { arField: 'associatedAr', enField: 'associatedEn', difficulty: 'Medium', timeLimitSec: 20, variants: [
-    { ar: (r) => `بطاقة لاعب ناقصة: ${r.nameAr} غالبا هتوصله بأي محطة كروية؟`, en: (r) => `Missing player card: which football stop best links to ${r.nameEn}?` }
-  ] },
   { arField: 'roleAr', enField: 'roleEn', difficulty: 'Medium', timeLimitSec: 20, variants: [
     { ar: (r) => `لو بتكوّن فريق أحلام، ${r.nameAr} تحطه غالبا في أي دور؟`, en: (r) => `If building a dream team, which role fits ${r.nameEn}?` }
   ] },
@@ -915,17 +1077,26 @@ addFieldQuestions('sports', footballPlayers, [
   ] }
 ]);
 
+for (const [textAr, textEn, answerAr, answerEn, wrong] of footballPlayerCareerQuestions) {
+  addDirectQuestion('sports', 'Medium', 20, textAr, textEn, answerAr, answerEn, wrong);
+}
+
+for (const [textAr, textEn, answerAr, answerEn, wrong] of footballDeepCutQuestions) {
+  addDirectQuestion('sports', 'Hard', 25, textAr, textEn, answerAr, answerEn, wrong);
+}
+
 addFieldQuestions('sports', footballTournaments, [
   { arField: 'nameAr', enField: 'nameEn', difficulty: 'Medium', timeLimitSec: 20, variants: [
     { ar: (r) => `بطاقة بطولة كروية: ${r.identityAr}. أي بطولة نقصد؟`, en: (r) => `Football tournament card: ${r.identityEn}. Which tournament is it?` }
-  ] },
-  { arField: 'scopeAr', enField: 'scopeEn', difficulty: 'Medium', timeLimitSec: 20, variants: [
-    { ar: (r) => `افهم البطولة من غير حفظ: ${r.nameAr} تخص غالبا أي نوع فرق؟`, en: (r) => `Understand the tournament: which team type fits ${r.nameEn}?` }
   ] },
   { arField: 'memoryAr', enField: 'memoryEn', difficulty: 'Medium', timeLimitSec: 20, variants: [
     { ar: (r) => `معلومة تحفظ البطولة: أي جملة تميّز ${r.nameAr}؟`, en: (r) => `Tournament memory hook: which sentence marks ${r.nameEn}?` }
   ] }
 ]);
+
+for (const [textAr, textEn, answerAr, answerEn, wrong] of footballTournamentClueQuestions) {
+  addDirectQuestion('sports', 'Medium', 20, textAr, textEn, answerAr, answerEn, wrong);
+}
 
 addFieldQuestions('science-nature', scienceRecords, [
   { arField: 'symbolAr', enField: 'symbolEn', difficulty: 'Easy', timeLimitSec: 15, variants: [
@@ -976,24 +1147,6 @@ for (const [textAr, textEn, answerAr, answerEn, wrong] of musicTrickyFacts) {
 addFieldQuestions('politics', politicsRecords, [
   { arField: 'headquartersAr', enField: 'headquartersEn', difficulty: 'Medium', timeLimitSec: 20, variants: [
     { ar: (r) => `خريطة مؤسسات: لو هتزور مقر ${r.nameAr}، هتسافر لفين؟`, en: (r) => `Institutions map: where would you travel to visit ${r.nameEn} headquarters?` }
-  ] },
-  { arField: 'purposeAr', enField: 'purposeEn', difficulty: 'Medium', timeLimitSec: 20, variants: [
-    { ar: (r) => `بطاقة تعريف مختصرة: ${r.nameAr} شغله الأساسي في أي مجال؟`, en: (r) => `Short ID card: which field is central to ${r.nameEn}?` }
-  ] }
-]);
-
-addFieldQuestions('animals', animalRecords, [
-  { arField: 'featureAr', enField: 'featureEn', difficulty: 'Easy', timeLimitSec: 15, variants: [
-    { ar: (r) => `كارت معلومة سريع: شهرة ${r.nameAr} جاية من إيه؟`, en: (r) => `Quick fact card: what gives the ${r.nameEn} its fame?` }
-  ] }
-]);
-
-addFieldQuestions('vehicles', vehicleRecords, [
-  { arField: 'typeAr', enField: 'typeEn', difficulty: 'Easy', timeLimitSec: 15, variants: [
-    { ar: (r) => `في جراج خيالي: بطاقة ${r.nameAr} تتحط تحت أي نوع من وسائل النقل؟`, en: (r) => `In an imaginary garage: which vehicle type fits ${r.nameEn}?` }
-  ] },
-  { arField: 'useAr', enField: 'useEn', difficulty: 'Easy', timeLimitSec: 15, variants: [
-    { ar: (r) => `لقطة مواصلات: ${r.nameAr} نستخدمه غالبا في إيه؟`, en: (r) => `Transport snapshot: what is ${r.nameEn} mainly used for?` }
   ] }
 ]);
 
@@ -1118,30 +1271,6 @@ addFieldQuestions('science-nature', scienceRecords, [
 addFieldQuestions('technology', techRecords, [
   { arField: 'nameAr', enField: 'nameEn', difficulty: 'Medium', timeLimitSec: 20, variants: [
     { ar: (r) => `أداة في جيبك الرقمي: أي تقنية أو منتج يخدم فكرة ${r.useAr}؟`, en: (r) => `Digital pocket tool: which technology or product serves ${r.useEn}?` }
-  ] }
-]);
-
-addFieldQuestions('politics', politicsRecords, [
-  { arField: 'nameAr', enField: 'nameEn', difficulty: 'Medium', timeLimitSec: 20, variants: [
-    { ar: (r) => `مجال العمل هو ${r.purposeAr}. أي مؤسسة أو منظمة تنطبق عليها البطاقة؟`, en: (r) => `The work field is ${r.purposeEn}. Which institution or organization fits the card?` }
-  ] }
-]);
-
-addFieldQuestions('animals', animalRecords, [
-  { arField: 'nameAr', enField: 'nameEn', difficulty: 'Easy', timeLimitSec: 15, variants: [
-    { ar: (r) => `الوصف يقول: ${r.featureAr}. أي حيوان تختاره بسرعة؟`, en: (r) => `The clue says ${r.featureEn}. Which animal would you pick quickly?` }
-  ] }
-]);
-
-addFieldQuestions('vehicles', vehicleRecords, [
-  { arField: 'nameAr', enField: 'nameEn', difficulty: 'Easy', timeLimitSec: 15, variants: [
-    { ar: (r) => `مهمة تنقل: لو المطلوب ${r.useAr}، أي وسيلة أقرب للاختيار؟`, en: (r) => `Transport mission: if you need ${r.useEn}, which vehicle is the closest choice?` }
-  ] }
-]);
-
-addFieldQuestions('games', gameRecords, [
-  { arField: 'nameAr', enField: 'nameEn', difficulty: 'Medium', timeLimitSec: 20, variants: [
-    { ar: (r) => `على الترابيزة أو الشاشة: العلامة هي ${r.knownForAr}. أي لعبة نقصد؟`, en: (r) => `On the table or screen: the marker is ${r.knownForEn}. Which game is it?` }
   ] }
 ]);
 
