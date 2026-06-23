@@ -7,6 +7,8 @@ The local Arabic question bank is stored in `questions.ar.json` and is loaded by
 - Normal database seeding does not fetch questions from the internet.
 - The checked-in JSON is the source of truth for startup seeding.
 - The bank uses a curated static model: facts are checked from Wikipedia, Wikidata, official sites, and reputable references, then rewritten as original Arabic prompts.
+- The production bank target is at least 5,000 active Arabic questions, with at least 700 football questions and at least 250 questions per category.
+- Game question selection avoids questions seen by any current room player during the last 90 days whenever enough fresh questions are available, then falls back to the oldest seen questions if necessary.
 - Sources are documentation and audit metadata only. `DbSeeder` does not read per-question `source` values today.
 - Sports is football-only in this version: Egyptian football, global football players, clubs, national teams, and football competitions.
 - Non-football sports prompts are rejected from `sports`, including tennis, basketball, Olympics, Formula 1, cricket, rugby, handball, NFL, and similar topics.
@@ -78,6 +80,12 @@ node -e "const fs=require('fs'); const bank=JSON.parse(fs.readFileSync('src/Sabq
 ```
 
 The generator also rejects duplicate slugs, duplicate Arabic question text, missing category questions, banned filler phrases, correct answers inside question text, obvious clue/answer pairs, and non-football sports prompts.
+
+For the full bank gate, run:
+
+```powershell
+node scripts\validate-question-bank.mjs
+```
 
 ## Monthly Refresh Job
 

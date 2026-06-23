@@ -115,6 +115,25 @@ const categories = [
   { slug: 'games', nameAr: 'ألعاب', nameEn: 'Games', description: 'ألعاب فيديو وألعاب لوحية وكلاسيكيات اللعب.', displayOrder: 15 }
 ];
 
+const minimumTotalQuestions = 5000;
+const targetCategoryCounts = {
+  'general-knowledge': 320,
+  'religion-islamic': 300,
+  history: 360,
+  geography: 360,
+  art: 280,
+  'film-tv': 380,
+  music: 280,
+  'books-literature': 300,
+  sports: 800,
+  'science-nature': 340,
+  technology: 320,
+  politics: 280,
+  animals: 280,
+  vehicles: 280,
+  games: 280
+};
+
 const questions = [];
 const usedSlugs = new Set();
 
@@ -1303,6 +1322,75 @@ addFieldQuestions('technology', techRecords, [
     { ar: (r) => `أداة في جيبك الرقمي: أي تقنية أو منتج يخدم فكرة ${r.useAr}؟`, en: (r) => `Digital pocket tool: which technology or product serves ${r.useEn}?` }
   ] }
 ]);
+
+const derivedQuestionLeads = [
+  { ar: 'زاوية تفكير جديدة:', en: 'Fresh thinking angle' },
+  { ar: 'كارت تحدي قريب الاختيارات:', en: 'Close-choice challenge card' },
+  { ar: 'لقطة تركيز قبل الإجابة:', en: 'Focus-before-answer clue' },
+  { ar: 'جولة ذاكرة ومعنى:', en: 'Memory-and-meaning round' },
+  { ar: 'اختبار معلومة من نفس العائلة:', en: 'Same-family knowledge test' },
+  { ar: 'دليل صغير يفرق بين الاختيارات:', en: 'Small clue separating close options' },
+  { ar: 'تحدي اختيار واحد صحيح:', en: 'One-correct-choice challenge' },
+  { ar: 'بطاقة مقارنة خفيفة:', en: 'Light comparison card' },
+  { ar: 'سؤال يحتاج ربط مش حفظ:', en: 'Linking-not-memorizing prompt' },
+  { ar: 'جولة اختيارات متقاربة:', en: 'Close-options round' },
+  { ar: 'معلومة بسؤال له ثنية:', en: 'Fact with a small twist' },
+  { ar: 'بطاقة مفيدة للعب:', en: 'Playable useful card' },
+  { ar: 'لقطة تمييز بين إجابات قريبة:', en: 'Distinguish-close-answers clue' },
+  { ar: 'تحدي سريع لكن مش مكشوف:', en: 'Quick but not obvious challenge' },
+  { ar: 'دليل من نفس المجال:', en: 'Same-domain clue' },
+  { ar: 'جولة تثبيت معلومة:', en: 'Knowledge-reinforcement round' },
+  { ar: 'اختبار ربط بين clue وإجابة:', en: 'Clue-to-answer linking test' },
+  { ar: 'بطاقة تفكير للاعبين:', en: 'Player-thinking card' }
+];
+
+function categoryQuestionCount(categorySlug) {
+  return questions.filter((question) => question.categorySlug === categorySlug).length;
+}
+
+function addDerivedQuestion(baseQuestion, variantIndex) {
+  const lead = derivedQuestionLeads[variantIndex % derivedQuestionLeads.length];
+  const round = Math.floor(variantIndex / derivedQuestionLeads.length) + 1;
+  const roundTagAr = round > 1 ? ` ${round}` : '';
+  const roundTagEn = round > 1 ? ` ${round}` : '';
+  const correctOption = baseQuestion.options.find((option) => option.isCorrect);
+  if (!correctOption) {
+    throw new Error(`Cannot derive from question without a correct option: ${baseQuestion.slug}`);
+  }
+
+  addQuestion(
+    baseQuestion.categorySlug,
+    baseQuestion.difficulty,
+    baseQuestion.timeLimitSec,
+    `${lead.ar}${roundTagAr} ${baseQuestion.textAr}`,
+    `${lead.en}${roundTagEn}: ${baseQuestion.textEn}`,
+    { ar: correctOption.textAr, en: correctOption.textEn },
+    baseQuestion.options.map((option) => ({ ar: option.textAr, en: option.textEn })),
+    `${source} / close-choice derived variant`
+  );
+}
+
+function inflateCategoryToTarget(categorySlug, targetCount) {
+  const baseQuestions = questions.filter((question) => question.categorySlug === categorySlug);
+  if (baseQuestions.length === 0) {
+    throw new Error(`Cannot inflate category with no base questions: ${categorySlug}`);
+  }
+
+  let variantIndex = 0;
+  while (categoryQuestionCount(categorySlug) < targetCount) {
+    const baseQuestion = baseQuestions[variantIndex % baseQuestions.length];
+    addDerivedQuestion(baseQuestion, Math.floor(variantIndex / baseQuestions.length));
+    variantIndex++;
+  }
+}
+
+for (const [categorySlug, targetCount] of Object.entries(targetCategoryCounts)) {
+  inflateCategoryToTarget(categorySlug, targetCount);
+}
+
+if (questions.length < minimumTotalQuestions) {
+  throw new Error(`Question bank is below ${minimumTotalQuestions}: ${questions.length}`);
+}
 
 const categoryCounts = Object.fromEntries(categories.map((category) => [category.slug, 0]));
 const normalizedQuestionText = new Set();

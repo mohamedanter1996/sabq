@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Sabq.Domain.Entities;
 using Sabq.Domain.Enums;
 using Sabq.Infrastructure.Data;
@@ -10,15 +11,45 @@ namespace Sabq.Application.Services;
 
 public class GameService
 {
+    private const int DefaultRepeatCooldownDays = 90;
+    private const int MaxPerQuestionTypePerGame = 3;
+    private static readonly string[] DerivedQuestionLeadPrefixes =
+    [
+        "زاوية تفكير جديدة",
+        "كارت تحدي قريب الاختيارات",
+        "لقطة تركيز قبل الإجابة",
+        "جولة ذاكرة ومعنى",
+        "اختبار معلومة من نفس العائلة",
+        "دليل صغير يفرق بين الاختيارات",
+        "تحدي اختيار واحد صحيح",
+        "بطاقة مقارنة خفيفة",
+        "سؤال يحتاج ربط مش حفظ",
+        "جولة اختيارات متقاربة",
+        "معلومة بسؤال له ثنية",
+        "بطاقة مفيدة للعب",
+        "لقطة تمييز بين إجابات قريبة",
+        "تحدي سريع لكن مش مكشوف",
+        "دليل من نفس المجال",
+        "جولة تثبيت معلومة",
+        "اختبار ربط بين clue وإجابة",
+        "بطاقة تفكير للاعبين"
+    ];
+
     private readonly SabqDbContext _context;
     private readonly IRoomStore _roomStore;
+    private readonly int _repeatCooldownDays;
     private readonly Dictionary<string, SemaphoreSlim> _roomLocks = new();
     private readonly SemaphoreSlim _lockCreationLock = new(1, 1);
 
-    public GameService(SabqDbContext context, IRoomStore roomStore)
+    public GameService(SabqDbContext context, IRoomStore roomStore, IConfiguration? configuration = null)
     {
         _context = context;
         _roomStore = roomStore;
+        _repeatCooldownDays = int.TryParse(configuration?["QuestionSelection:RepeatCooldownDays"], out var configuredRepeatCooldownDays)
+            ? configuredRepeatCooldownDays
+            : DefaultRepeatCooldownDays;
+        if (_repeatCooldownDays <= 0)
+            _repeatCooldownDays = DefaultRepeatCooldownDays;
     }
 
     public async Task<List<QuestionDto>> StartGameAsync(string roomCode, Guid hostPlayerId)
@@ -39,49 +70,27 @@ public class GameService
         if (settings == null)
             throw new InvalidOperationException("Invalid room settings");
 
-        // Select random questions with type limits per game
-        // Fetch more questions than needed to apply type filtering
-        var allQuestions = await _context.Questions
+        var candidateQuestions = await _context.Questions
             .Include(q => q.Options)
             .Where(q => q.IsActive &&
                         settings.CategoryIds.Contains(q.CategoryId) &&
                         settings.Difficulties.Contains(q.Difficulty))
             .OrderBy(_ => Guid.NewGuid())
-            .Take(settings.QuestionCount * 5) // Fetch 5x to have variety for filtering
             .ToListAsync();
 
-        // Apply type limits per game (max 3 of each type)
-        const int maxPerType = 3;
-        var surahOrderCount = 0;
-        var surahAyatCount = 0;
-        var surahComparisonCount = 0;
-        
-        var questions = new List<Question>();
-        foreach (var q in allQuestions)
-        {
-            if (questions.Count >= settings.QuestionCount) break;
-            
-            var text = q.TextAr ?? "";
-            
-            // Check type and apply limits
-            if (text.Contains("السورة رقم") && text.Contains("في القرآن"))
-            {
-                if (surahOrderCount >= maxPerType) continue;
-                surahOrderCount++;
-            }
-            else if (text.Contains("عدد آيات سورة"))
-            {
-                if (surahAyatCount >= maxPerType) continue;
-                surahAyatCount++;
-            }
-            else if (text.Contains("أيهما أطول"))
-            {
-                if (surahComparisonCount >= maxPerType) continue;
-                surahComparisonCount++;
-            }
-            
-            questions.Add(q);
-        }
+        var roomPlayerIds = snapshot.Players.Keys.ToList();
+        var lastSeenQuestionFamilyDates = await GetLastSeenQuestionFamilyDatesAsync(roomPlayerIds);
+        var recentCutoffUtc = DateTime.UtcNow.AddDays(-_repeatCooldownDays);
+        var recentlySeenQuestionFamilyKeys = lastSeenQuestionFamilyDates
+            .Where(item => item.Value >= recentCutoffUtc)
+            .Select(item => item.Key)
+            .ToHashSet();
+
+        var questions = SelectQuestionsForRoom(
+            candidateQuestions,
+            settings.QuestionCount,
+            recentlySeenQuestionFamilyKeys,
+            lastSeenQuestionFamilyDates);
 
         if (questions.Count == 0)
             throw new InvalidOperationException("No questions available for selected criteria");
@@ -121,6 +130,145 @@ public class GameService
                 IsCorrect = null // Don't send correct answer
             }).ToList()
         }).ToList();
+    }
+
+    private async Task<Dictionary<string, DateTime>> GetLastSeenQuestionFamilyDatesAsync(IReadOnlyCollection<Guid> playerIds)
+    {
+        if (playerIds.Count == 0)
+            return new Dictionary<string, DateTime>();
+
+        var seenQuestions = await (
+            from roomPlayer in _context.GameRoomPlayers.AsNoTracking()
+            join roomQuestion in _context.GameRoomQuestions.AsNoTracking()
+                on roomPlayer.RoomId equals roomQuestion.RoomId
+            join room in _context.GameRooms.AsNoTracking()
+                on roomPlayer.RoomId equals room.Id
+            join question in _context.Questions.AsNoTracking()
+                on roomQuestion.QuestionId equals question.Id
+            where playerIds.Contains(roomPlayer.PlayerId)
+            select new
+            {
+                question.TextAr,
+                SeenAtUtc = room.CreatedAt
+            })
+            .ToListAsync();
+
+        return seenQuestions
+            .GroupBy(item => GetQuestionFamilyKey(item.TextAr ?? string.Empty))
+            .ToDictionary(
+                group => group.Key,
+                group => group.Max(item => item.SeenAtUtc));
+    }
+
+    private static List<Question> SelectQuestionsForRoom(
+        IReadOnlyList<Question> candidateQuestions,
+        int requestedQuestionCount,
+        ISet<string> recentlySeenQuestionFamilyKeys,
+        IReadOnlyDictionary<string, DateTime> lastSeenQuestionFamilyDates)
+    {
+        var selected = new List<Question>();
+        var selectedIds = new HashSet<Guid>();
+        var selectedFamilyKeys = new HashSet<string>();
+        var typeLimits = new QuestionTypeLimitState();
+
+        AddCandidates(candidateQuestions.Where(q => !recentlySeenQuestionFamilyKeys.Contains(GetQuestionFamilyKey(q.TextAr ?? string.Empty))));
+
+        if (selected.Count < requestedQuestionCount)
+        {
+            AddCandidates(candidateQuestions
+                .Where(q => recentlySeenQuestionFamilyKeys.Contains(GetQuestionFamilyKey(q.TextAr ?? string.Empty)))
+                .OrderBy(q => lastSeenQuestionFamilyDates.TryGetValue(GetQuestionFamilyKey(q.TextAr ?? string.Empty), out var lastSeenAtUtc)
+                    ? lastSeenAtUtc
+                    : DateTime.MinValue));
+        }
+
+        return selected;
+
+        void AddCandidates(IEnumerable<Question> candidates)
+        {
+            foreach (var question in candidates)
+            {
+                if (selected.Count >= requestedQuestionCount)
+                    break;
+
+                if (!selectedIds.Add(question.Id))
+                    continue;
+
+                if (!selectedFamilyKeys.Add(GetQuestionFamilyKey(question.TextAr ?? string.Empty)))
+                    continue;
+
+                if (!typeLimits.TryAdd(question.TextAr ?? string.Empty))
+                    continue;
+
+                selected.Add(question);
+            }
+        }
+    }
+
+    private static string GetQuestionFamilyKey(string questionTextAr)
+    {
+        var normalized = NormalizeQuestionText(questionTextAr);
+
+        foreach (var prefix in DerivedQuestionLeadPrefixes)
+        {
+            if (!normalized.StartsWith(prefix, StringComparison.Ordinal))
+                continue;
+
+            var remainder = normalized[prefix.Length..].TrimStart();
+            while (remainder.Length > 0 && char.IsDigit(remainder[0]))
+            {
+                remainder = remainder[1..].TrimStart();
+            }
+
+            if (remainder.StartsWith(':'))
+                return NormalizeQuestionText(remainder[1..]);
+        }
+
+        return normalized;
+    }
+
+    private static string NormalizeQuestionText(string questionTextAr)
+    {
+        return string.Join(' ', questionTextAr.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries)).Trim();
+    }
+
+    private sealed class QuestionTypeLimitState
+    {
+        private int _surahOrderCount;
+        private int _surahAyatCount;
+        private int _surahComparisonCount;
+
+        public bool TryAdd(string questionTextAr)
+        {
+            if (questionTextAr.Contains("السورة رقم") && questionTextAr.Contains("في القرآن"))
+            {
+                if (_surahOrderCount >= MaxPerQuestionTypePerGame)
+                    return false;
+
+                _surahOrderCount++;
+                return true;
+            }
+
+            if (questionTextAr.Contains("عدد آيات سورة"))
+            {
+                if (_surahAyatCount >= MaxPerQuestionTypePerGame)
+                    return false;
+
+                _surahAyatCount++;
+                return true;
+            }
+
+            if (questionTextAr.Contains("أيهما أطول"))
+            {
+                if (_surahComparisonCount >= MaxPerQuestionTypePerGame)
+                    return false;
+
+                _surahComparisonCount++;
+                return true;
+            }
+
+            return true;
+        }
     }
 
     public async Task<QuestionDto?> GetNextQuestionAsync(string roomCode)

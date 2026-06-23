@@ -36,12 +36,19 @@ public class DbSeederTests
             .Where(q => q.IsActive)
             .CountAsync(q => q.TextAr.Contains("اختر الإجابة الصحيحة المرتبطة"));
 
-        Assert.InRange(activeQuestionCount, 700, 1500);
+        Assert.True(activeQuestionCount >= 5000, $"Expected at least 5000 active questions, found {activeQuestionCount}");
         Assert.Equal(15, activeCategorySlugs.Count);
         Assert.Contains("general-knowledge", activeCategorySlugs);
         Assert.Contains("religion-islamic", activeCategorySlugs);
         Assert.Contains("art", activeCategorySlugs);
         Assert.Contains("technology", activeCategorySlugs);
+        Assert.True(await context.Questions.CountAsync(q => q.IsActive && q.Category.Slug == "sports") >= 700);
+        Assert.All(
+            await context.Categories
+                .Where(c => c.IsActive)
+                .Select(c => c.Questions.Count(q => q.IsActive))
+                .ToListAsync(),
+            count => Assert.True(count >= 250, $"Expected each category to have at least 250 questions, found {count}"));
         Assert.Equal(0, invalidQuestionCount);
         Assert.Equal(0, bannedFillerQuestionCount);
     }
