@@ -6,6 +6,38 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const outputPath = join(__dirname, '..', 'src', 'Sabq.Infrastructure', 'Data', 'QuestionBank', 'questions.ar.json');
 
 const source = 'Curated Egypt-first factual bank / Wikidata-compatible open facts';
+const directQuestionFrames = {
+  'general-knowledge': {
+    ar: 'معلومة سريعة تنفع في القعدة: ',
+    en: 'Quick useful table fact: '
+  },
+  'religion-islamic': {
+    ar: 'معرفة هادئة بلا جدل: ',
+    en: 'Calm non-disputed knowledge: '
+  },
+  sports: {
+    ar: 'لقطة رياضية سريعة: ',
+    en: 'Quick sports moment: '
+  }
+};
+const bannedQuestionPhrases = [
+  'اختر الإجابة الصحيحة المرتبطة',
+  'بماذا يشتهر',
+  'بماذا تشتهر',
+  'ما الاستخدام الأشهر',
+  'ما نوع لعبة',
+  'ما نوع ',
+  'في أي عام صدر',
+  'في أي عام أو فترة حدث',
+  'من أخرج فيلم',
+  'من كتب مسلسل',
+  'من مؤلف',
+  'في أي مجال فني اشتهر',
+  'ما المجال الرئيسي لعمل',
+  'أين يعيش',
+  'أين يقع مقر',
+  'ما الرمز أو الوصف المختصر'
+];
 
 const categories = [
   { slug: 'general-knowledge', nameAr: 'معلومات عامة', nameEn: 'General Knowledge', description: 'أسئلة مصرية وعربية وعالمية واضحة في الثقافة العامة.', displayOrder: 1 },
@@ -82,10 +114,32 @@ function pickOptions(correct, pool, seed) {
     }));
 }
 
-function addQuestion(categorySlug, difficulty, timeLimitSec, textAr, textEn, correct, pool, questionSource = source) {
-  if (textAr.includes('اختر الإجابة الصحيحة المرتبطة')) {
-    throw new Error(`Banned filler phrase in question: ${textAr}`);
+function assertQuestionVoice(textAr) {
+  const normalized = textAr.replace(/\s+/g, ' ').trim();
+  const bannedPhrase = bannedQuestionPhrases.find((phrase) => normalized.includes(phrase));
+  if (bannedPhrase) {
+    throw new Error(`Boring question phrase "${bannedPhrase}" in question: ${textAr}`);
   }
+
+  if (normalized.length < 18) {
+    throw new Error(`Question is too short to feel playable: ${textAr}`);
+  }
+}
+
+function frameDirectQuestion(categorySlug, textAr, textEn) {
+  const frame = directQuestionFrames[categorySlug];
+  if (!frame) {
+    return { textAr, textEn };
+  }
+
+  return {
+    textAr: `${frame.ar}${textAr}`,
+    textEn: `${frame.en}${textEn}`
+  };
+}
+
+function addQuestion(categorySlug, difficulty, timeLimitSec, textAr, textEn, correct, pool, questionSource = source) {
+  assertQuestionVoice(textAr);
 
   const baseSlug = `${categorySlug}-${slugify(textEn)}`;
   let slug = baseSlug;
@@ -100,12 +154,13 @@ function addQuestion(categorySlug, difficulty, timeLimitSec, textAr, textEn, cor
 }
 
 function addDirectQuestion(categorySlug, difficulty, timeLimitSec, textAr, textEn, answerAr, answerEn, wrongOptions, questionSource = source) {
+  const framed = frameDirectQuestion(categorySlug, textAr, textEn);
   addQuestion(
     categorySlug,
     difficulty,
     timeLimitSec,
-    textAr,
-    textEn,
+    framed.textAr,
+    framed.textEn,
     { ar: answerAr, en: answerEn },
     [{ ar: answerAr, en: answerEn }, ...wrongOptions.map(([ar, en]) => ({ ar, en }))],
     questionSource
@@ -463,136 +518,136 @@ for (const [textAr, textEn, answerAr, answerEn, wrong] of religionQuestions) {
 
 addFieldQuestions('geography', egyptPlaces, [
   { arField: 'governorateAr', enField: 'governorateEn', difficulty: 'Easy', timeLimitSec: 15, variants: [
-    { ar: (r) => `في أي محافظة أو نطاق تقع ${r.nameAr}؟`, en: (r) => `In which governorate or area is ${r.nameEn}?` }
+    { ar: (r) => `خريطة في دقيقة: لو عايز تزور ${r.nameAr}، هتدور عليه فين؟`, en: (r) => `Map sprint: if you want to visit ${r.nameEn}, where should you look?` }
   ] },
   { arField: 'knownForAr', enField: 'knownForEn', difficulty: 'Medium', timeLimitSec: 20, variants: [
-    { ar: (r) => `بماذا تشتهر ${r.nameAr}؟`, en: (r) => `What is ${r.nameEn} known for?` }
+    { ar: (r) => `لقطة سياحية: ${r.nameAr} معروف للزوار بإيه؟`, en: (r) => `Travel snapshot: what do visitors know ${r.nameEn} for?` }
   ] }
 ]);
 
 addFieldQuestions('history', egyptHistoryEvents, [
   { arField: 'yearAr', enField: 'yearEn', difficulty: 'Medium', timeLimitSec: 20, variants: [
-    { ar: (r) => `في أي عام أو فترة حدث «${r.nameAr}»؟`, en: (r) => `In which year or period did ${r.nameEn} happen?` }
+    { ar: (r) => `رحلة زمنية: حدث «${r.nameAr}» هتحطه عند أي سنة أو فترة؟`, en: (r) => `Time-trip clue: which year or period fits ${r.nameEn}?` }
   ] },
   { arField: 'keyAr', enField: 'keyEn', difficulty: 'Medium', timeLimitSec: 20, variants: [
-    { ar: (r) => `من الشخصية أو الجهة الأشهر ارتباطا بحدث «${r.nameAr}»؟`, en: (r) => `Who or what is strongly associated with ${r.nameEn}?` }
+    { ar: (r) => `بطاقة حدث ناقصة: «${r.nameAr}» محتاجة الاسم أو الجهة الأبرز. تختار مين؟`, en: (r) => `Missing event card: which name or group completes ${r.nameEn}?` }
   ] }
 ]);
 
 addFieldQuestions('film-tv', egyptFilms, [
   { arField: 'directorAr', enField: 'directorEn', difficulty: 'Medium', timeLimitSec: 20, variants: [
-    { ar: (r) => `من أخرج فيلم «${r.nameAr}»؟`, en: (r) => `Who directed ${r.nameEn}?` }
+    { ar: (r) => `في سهرة سينما: لو الفيلم هو «${r.nameAr}»، مين كان وراء الكاميرا؟`, en: (r) => `Movie-night clue: who was behind the camera for ${r.nameEn}?` }
   ] },
   { arField: 'starAr', enField: 'starEn', difficulty: 'Easy', timeLimitSec: 15, variants: [
-    { ar: (r) => `أي نجم ارتبط بفيلم «${r.nameAr}»؟`, en: (r) => `Which star is associated with ${r.nameEn}?` }
+    { ar: (r) => `على الأفيش: أي نجم هتربطه غالبا بفيلم «${r.nameAr}»؟`, en: (r) => `On the poster: which star would you link with ${r.nameEn}?` }
   ] },
   { arField: 'yearAr', enField: 'yearEn', difficulty: 'Hard', timeLimitSec: 25, variants: [
-    { ar: (r) => `في أي عام صدر فيلم «${r.nameAr}»؟`, en: (r) => `In which year was ${r.nameEn} released?` }
+    { ar: (r) => `تحدي الذاكرة السينمائية: «${r.nameAr}» خرج للنور سنة كام؟`, en: (r) => `Cinema memory challenge: which year brought ${r.nameEn} to screens?` }
   ] }
 ]);
 
 addFieldQuestions('film-tv', egyptSeries, [
   { arField: 'writerAr', enField: 'writerEn', difficulty: 'Medium', timeLimitSec: 20, variants: [
-    { ar: (r) => `من كتب مسلسل «${r.nameAr}»؟`, en: (r) => `Who wrote ${r.nameEn}?` }
+    { ar: (r) => `وراء الحكاية: مين كتب عالم مسلسل «${r.nameAr}»؟`, en: (r) => `Behind the story: who wrote the world of ${r.nameEn}?` }
   ] },
   { arField: 'starAr', enField: 'starEn', difficulty: 'Easy', timeLimitSec: 15, variants: [
-    { ar: (r) => `أي ممثل ارتبط بمسلسل «${r.nameAr}»؟`, en: (r) => `Which actor is associated with ${r.nameEn}?` }
+    { ar: (r) => `لو جت سيرة مسلسل «${r.nameAr}»، أي ممثل ييجي في بالك؟`, en: (r) => `When ${r.nameEn} comes up, which actor comes to mind?` }
   ] }
 ]);
 
 addFieldQuestions('books-literature', egyptBooks, [
   { arField: 'authorAr', enField: 'authorEn', difficulty: 'Easy', timeLimitSec: 15, variants: [
-    { ar: (r) => `من مؤلف «${r.nameAr}»؟`, en: (r) => `Who wrote ${r.nameEn}?` }
+    { ar: (r) => `على رف الكتب: مين صاحب «${r.nameAr}»؟`, en: (r) => `On the bookshelf: whose work is ${r.nameEn}?` }
   ] },
   { arField: 'typeAr', enField: 'typeEn', difficulty: 'Medium', timeLimitSec: 20, variants: [
-    { ar: (r) => `ما النوع الأدبي الأقرب لعمل «${r.nameAr}»؟`, en: (r) => `What literary type best fits ${r.nameEn}?` }
+    { ar: (r) => `أمين مكتبة بيسألك: تحط «${r.nameAr}» تحت أي نوع؟`, en: (r) => `A librarian asks: which shelf type fits ${r.nameEn}?` }
   ] }
 ]);
 
 addFieldQuestions('music', egyptMusic, [
   { arField: 'workAr', enField: 'workEn', difficulty: 'Easy', timeLimitSec: 15, variants: [
-    { ar: (r) => `أي عمل غنائي ارتبط بـ ${r.nameAr}؟`, en: (r) => `Which work is associated with ${r.nameEn}?` }
+    { ar: (r) => `من ذاكرة الطرب: أي عمل غنائي يلمع مع اسم ${r.nameAr}؟`, en: (r) => `From musical memory: which work shines with ${r.nameEn}?` }
   ] }
 ]);
 
 addFieldQuestions('art', egyptArtists, [
   { arField: 'workAr', enField: 'workEn', difficulty: 'Medium', timeLimitSec: 20, variants: [
-    { ar: (r) => `أي عمل أو اتجاه ارتبط بالفنان ${r.nameAr}؟`, en: (r) => `Which work or style is associated with ${r.nameEn}?` }
+    { ar: (r) => `داخل معرض مصري: أي عمل أو اتجاه يوديك إلى اسم ${r.nameAr}؟`, en: (r) => `Inside an Egyptian gallery: which work or style points to ${r.nameEn}?` }
   ] },
   { arField: 'fieldAr', enField: 'fieldEn', difficulty: 'Easy', timeLimitSec: 15, variants: [
-    { ar: (r) => `في أي مجال فني اشتهر ${r.nameAr}؟`, en: (r) => `In which art field is ${r.nameEn} known?` }
+    { ar: (r) => `لو هتقدّم ${r.nameAr} في معرض، تختار له أي مجال فني؟`, en: (r) => `If you introduce ${r.nameEn} in a gallery, which art field fits?` }
   ] }
 ]);
 
 addFieldQuestions('sports', egyptSports, [
   { arField: 'cityAr', enField: 'cityEn', difficulty: 'Easy', timeLimitSec: 15, variants: [
-    { ar: (r) => `أي مدينة أو محافظة يرتبط بها ${r.nameAr}؟`, en: (r) => `Which city or governorate is ${r.nameEn} associated with?` }
+    { ar: (r) => `خريطة الدوري: ${r.nameAr} بيشدك ناحية أي مدينة أو محافظة؟`, en: (r) => `League map: which city or governorate does ${r.nameEn} point to?` }
   ] },
   { arField: 'stadiumAr', enField: 'stadiumEn', difficulty: 'Medium', timeLimitSec: 20, variants: [
-    { ar: (r) => `أي ملعب يرتبط غالبا بمباريات ${r.nameAr}؟`, en: (r) => `Which stadium is commonly associated with ${r.nameEn}?` }
+    { ar: (r) => `يوم ماتش: لو ${r.nameAr} بيلعب على أرضه غالبا، أي ملعب تتوقعه؟`, en: (r) => `Match day: if ${r.nameEn} plays at home, which stadium do you expect?` }
   ] }
 ]);
 
 addFieldQuestions('sports', egyptSportsPeople, [
   { arField: 'sportAr', enField: 'sportEn', difficulty: 'Easy', timeLimitSec: 15, variants: [
-    { ar: (r) => `في أي رياضة اشتهر ${r.nameAr}؟`, en: (r) => `Which sport is ${r.nameEn} known for?` }
+    { ar: (r) => `بطاقة بطل مصري: ${r.nameAr} اسمه اتلمع في أي رياضة؟`, en: (r) => `Egyptian champion card: which sport made ${r.nameEn} stand out?` }
   ] },
   { arField: 'knownForAr', enField: 'knownForEn', difficulty: 'Medium', timeLimitSec: 20, variants: [
-    { ar: (r) => `بماذا يرتبط اسم ${r.nameAr} رياضيا؟`, en: (r) => `What is ${r.nameEn} associated with in sport?` }
+    { ar: (r) => `في نقاش رياضي سريع: اسم ${r.nameAr} مرتبط بإيه أكتر؟`, en: (r) => `Quick sports debate: what is ${r.nameEn} most linked with?` }
   ] }
 ]);
 
 addFieldQuestions('science-nature', scienceRecords, [
   { arField: 'symbolAr', enField: 'symbolEn', difficulty: 'Easy', timeLimitSec: 15, variants: [
-    { ar: (r) => `ما الرمز أو الوصف المختصر المرتبط بـ ${r.nameAr}؟`, en: (r) => `What symbol or short description is associated with ${r.nameEn}?` }
+    { ar: (r) => `بطاقة معمل صغيرة: لو العنصر أو الكوكب هو ${r.nameAr}، إيه العلامة اللي تميزه؟`, en: (r) => `Tiny lab card: which marker identifies ${r.nameEn}?` }
   ] },
   { arField: 'featureAr', enField: 'featureEn', difficulty: 'Medium', timeLimitSec: 20, variants: [
-    { ar: (r) => `بماذا يشتهر ${r.nameAr} علميا؟`, en: (r) => `What is ${r.nameEn} known for scientifically?` }
+    { ar: (r) => `معلومة تنفع في دقيقة: ${r.nameAr} يهمنا غالبا بسبب إيه؟`, en: (r) => `One-minute science: why does ${r.nameEn} usually matter?` }
   ] }
 ]);
 
 addFieldQuestions('technology', techRecords, [
   { arField: 'creatorAr', enField: 'creatorEn', difficulty: 'Medium', timeLimitSec: 20, variants: [
-    { ar: (r) => `من أنشأ أو طور ${r.nameAr}؟`, en: (r) => `Who created or developed ${r.nameEn}?` }
+    { ar: (r) => `كواليس التقنية: مين الاسم أو الجهة المرتبطة ببداية ${r.nameAr}؟`, en: (r) => `Tech backstory: which name or group is linked to the start of ${r.nameEn}?` }
   ] },
   { arField: 'useAr', enField: 'useEn', difficulty: 'Easy', timeLimitSec: 15, variants: [
-    { ar: (r) => `ما الاستخدام الأشهر لـ ${r.nameAr}؟`, en: (r) => `What is ${r.nameEn} best known for?` }
+    { ar: (r) => `لو صاحبك قال ${r.nameAr}، تتوقع يستخدمه غالبا في إيه؟`, en: (r) => `If a friend mentions ${r.nameEn}, what would they mostly use it for?` }
   ] }
 ]);
 
 addFieldQuestions('politics', politicsRecords, [
   { arField: 'headquartersAr', enField: 'headquartersEn', difficulty: 'Medium', timeLimitSec: 20, variants: [
-    { ar: (r) => `أين يقع مقر ${r.nameAr}؟`, en: (r) => `Where is ${r.nameEn} headquartered?` }
+    { ar: (r) => `خريطة مؤسسات: لو هتزور مقر ${r.nameAr}، هتسافر لفين؟`, en: (r) => `Institutions map: where would you travel to visit ${r.nameEn} headquarters?` }
   ] },
   { arField: 'purposeAr', enField: 'purposeEn', difficulty: 'Medium', timeLimitSec: 20, variants: [
-    { ar: (r) => `ما المجال الرئيسي لعمل ${r.nameAr}؟`, en: (r) => `What is the main field of ${r.nameEn}?` }
+    { ar: (r) => `بطاقة تعريف مختصرة: ${r.nameAr} شغله الأساسي في أي مجال؟`, en: (r) => `Short ID card: which field is central to ${r.nameEn}?` }
   ] }
 ]);
 
 addFieldQuestions('animals', animalRecords, [
   { arField: 'habitatAr', enField: 'habitatEn', difficulty: 'Easy', timeLimitSec: 15, variants: [
-    { ar: (r) => `أين يعيش ${r.nameAr} غالبا؟`, en: (r) => `Where does the ${r.nameEn} usually live?` }
+    { ar: (r) => `رحلة برية: لو بتدور على ${r.nameAr} في بيئته، هتفتش فين؟`, en: (r) => `Wildlife trip: where would you look for the ${r.nameEn}?` }
   ] },
   { arField: 'featureAr', enField: 'featureEn', difficulty: 'Easy', timeLimitSec: 15, variants: [
-    { ar: (r) => `بماذا يشتهر ${r.nameAr}؟`, en: (r) => `What is the ${r.nameEn} known for?` }
+    { ar: (r) => `كارت معلومة سريع: شهرة ${r.nameAr} جاية من إيه؟`, en: (r) => `Quick fact card: what gives the ${r.nameEn} its fame?` }
   ] }
 ]);
 
 addFieldQuestions('vehicles', vehicleRecords, [
   { arField: 'typeAr', enField: 'typeEn', difficulty: 'Easy', timeLimitSec: 15, variants: [
-    { ar: (r) => `ما نوع ${r.nameAr}؟`, en: (r) => `What type of vehicle is ${r.nameEn}?` }
+    { ar: (r) => `في جراج خيالي: بطاقة ${r.nameAr} تتحط تحت أي نوع من وسائل النقل؟`, en: (r) => `In an imaginary garage: which vehicle type fits ${r.nameEn}?` }
   ] },
   { arField: 'useAr', enField: 'useEn', difficulty: 'Easy', timeLimitSec: 15, variants: [
-    { ar: (r) => `ما الاستخدام الأشهر لـ ${r.nameAr}؟`, en: (r) => `What is ${r.nameEn} mainly used for?` }
+    { ar: (r) => `لقطة مواصلات: ${r.nameAr} نستخدمه غالبا في إيه؟`, en: (r) => `Transport snapshot: what is ${r.nameEn} mainly used for?` }
   ] }
 ]);
 
 addFieldQuestions('games', gameRecords, [
   { arField: 'typeAr', enField: 'typeEn', difficulty: 'Easy', timeLimitSec: 15, variants: [
-    { ar: (r) => `ما نوع لعبة ${r.nameAr}؟`, en: (r) => `What type of game is ${r.nameEn}?` }
+    { ar: (r) => `في قعدة لعب: ${r.nameAr} تتحسب من أي نوع ألعاب؟`, en: (r) => `In a game night: which game type is ${r.nameEn}?` }
   ] },
   { arField: 'knownForAr', enField: 'knownForEn', difficulty: 'Medium', timeLimitSec: 20, variants: [
-    { ar: (r) => `بماذا تشتهر لعبة ${r.nameAr}؟`, en: (r) => `What is ${r.nameEn} known for?` }
+    { ar: (r) => `لو حد قال ${r.nameAr}، إيه العلامة اللي تميز اللعبة دي؟`, en: (r) => `If someone says ${r.nameEn}, which play marker makes it stand out?` }
   ] }
 ]);
 
@@ -647,28 +702,28 @@ for (const [textAr, textEn, answerAr, answerEn, wrong] of moreReligionQuestions)
 
 addFieldQuestions('geography', egyptPlaces, [
   { arField: 'nameAr', enField: 'nameEn', difficulty: 'Medium', timeLimitSec: 20, variants: [
-    { ar: (r) => `أي معلم مصري يشتهر بأنه ${r.knownForAr}؟`, en: (r) => `Which Egyptian place is known as ${r.knownForEn}?` }
+    { ar: (r) => `دليل سفر سريع: أي معلم مصري تختاره لو المطلوب ${r.knownForAr}؟`, en: (r) => `Quick travel guide: which Egyptian place fits ${r.knownForEn}?` }
   ] }
 ]);
 
 addFieldQuestions('history', egyptHistoryEvents, [
   { arField: 'nameAr', enField: 'nameEn', difficulty: 'Medium', timeLimitSec: 20, variants: [
-    { ar: (r) => `أي حدث مصري ارتبط بـ ${r.keyAr} في عام أو فترة ${r.yearAr}؟`, en: (r) => `Which Egyptian event is linked to ${r.keyEn} in ${r.yearEn}?` }
+    { ar: (r) => `مؤشران في بطاقة واحدة: ${r.keyAr} + ${r.yearAr}. أي حدث مصري ده؟`, en: (r) => `Two clues on one card: ${r.keyEn} plus ${r.yearEn}. Which Egyptian event is it?` }
   ] }
 ]);
 
 addFieldQuestions('art', egyptArtists, [
   { arField: 'nameAr', enField: 'nameEn', difficulty: 'Medium', timeLimitSec: 20, variants: [
-    { ar: (r) => `أي فنان مصري ارتبط بعمل أو اتجاه «${r.workAr}»؟`, en: (r) => `Which Egyptian artist is associated with ${r.workEn}?` }
+    { ar: (r) => `شايف عمل أو اتجاه «${r.workAr}» على بطاقة المعرض؛ أي فنان مصري وراه؟`, en: (r) => `A gallery card says ${r.workEn}; which Egyptian artist is behind it?` }
   ] },
   { arField: 'fieldAr', enField: 'fieldEn', difficulty: 'Easy', timeLimitSec: 15, variants: [
-    { ar: (r) => `ما المجال الفني الأقرب لعمل ${r.nameAr}؟`, en: (r) => `Which art field best fits ${r.nameEn}?` }
+    { ar: (r) => `لو بتشرح ${r.nameAr} لصاحبك، هتقول مجاله الفني الأقرب إيه؟`, en: (r) => `If you explain ${r.nameEn} to a friend, which art field fits best?` }
   ] }
 ]);
 
 addFieldQuestions('music', egyptMusic, [
   { arField: 'nameAr', enField: 'nameEn', difficulty: 'Easy', timeLimitSec: 15, variants: [
-    { ar: (r) => `من الفنان أو الملحن المرتبط بعمل «${r.workAr}»؟`, en: (r) => `Which artist or composer is associated with ${r.workEn}?` }
+    { ar: (r) => `المقطع اتشهر باسم «${r.workAr}»؛ مين الفنان أو الملحن الأقرب له؟`, en: (r) => `The work is ${r.workEn}; which artist or composer fits it?` }
   ] }
 ]);
 
@@ -691,37 +746,37 @@ for (const [textAr, textEn, answerAr, answerEn, wrong] of sportsDirectQuestions)
 
 addFieldQuestions('science-nature', scienceRecords, [
   { arField: 'nameAr', enField: 'nameEn', difficulty: 'Medium', timeLimitSec: 20, variants: [
-    { ar: (r) => `أي عنصر أو كوكب يرتبط بالرمز أو الوصف المختصر: ${r.symbolAr}؟`, en: (r) => `Which element or planet is linked to this symbol or short description: ${r.symbolEn}?` }
+    { ar: (r) => `لغز معمل وفلك: الرمز أو الوصف «${r.symbolAr}» يخص أي عنصر أو كوكب؟`, en: (r) => `Lab-and-space clue: which element or planet matches ${r.symbolEn}?` }
   ] }
 ]);
 
 addFieldQuestions('technology', techRecords, [
   { arField: 'nameAr', enField: 'nameEn', difficulty: 'Medium', timeLimitSec: 20, variants: [
-    { ar: (r) => `أي تقنية أو منتج يستخدم غالبا في ${r.useAr}؟`, en: (r) => `Which technology or product is mainly used for ${r.useEn}?` }
+    { ar: (r) => `أداة في جيبك الرقمي: أي تقنية أو منتج يخدم فكرة ${r.useAr}؟`, en: (r) => `Digital pocket tool: which technology or product serves ${r.useEn}?` }
   ] }
 ]);
 
 addFieldQuestions('politics', politicsRecords, [
   { arField: 'nameAr', enField: 'nameEn', difficulty: 'Medium', timeLimitSec: 20, variants: [
-    { ar: (r) => `أي مؤسسة أو منظمة مجالها الرئيسي ${r.purposeAr}؟`, en: (r) => `Which institution or organization mainly works in ${r.purposeEn}?` }
+    { ar: (r) => `مجال العمل هو ${r.purposeAr}. أي مؤسسة أو منظمة تنطبق عليها البطاقة؟`, en: (r) => `The work field is ${r.purposeEn}. Which institution or organization fits the card?` }
   ] }
 ]);
 
 addFieldQuestions('animals', animalRecords, [
   { arField: 'nameAr', enField: 'nameEn', difficulty: 'Easy', timeLimitSec: 15, variants: [
-    { ar: (r) => `أي حيوان يشتهر بـ ${r.featureAr}؟`, en: (r) => `Which animal is known for ${r.featureEn}?` }
+    { ar: (r) => `الوصف يقول: ${r.featureAr}. أي حيوان تختاره بسرعة؟`, en: (r) => `The clue says ${r.featureEn}. Which animal would you pick quickly?` }
   ] }
 ]);
 
 addFieldQuestions('vehicles', vehicleRecords, [
   { arField: 'nameAr', enField: 'nameEn', difficulty: 'Easy', timeLimitSec: 15, variants: [
-    { ar: (r) => `أي وسيلة نقل تستخدم غالبا في ${r.useAr}؟`, en: (r) => `Which vehicle is mainly used for ${r.useEn}?` }
+    { ar: (r) => `مهمة تنقل: لو المطلوب ${r.useAr}، أي وسيلة أقرب للاختيار؟`, en: (r) => `Transport mission: if you need ${r.useEn}, which vehicle is the closest choice?` }
   ] }
 ]);
 
 addFieldQuestions('games', gameRecords, [
   { arField: 'nameAr', enField: 'nameEn', difficulty: 'Medium', timeLimitSec: 20, variants: [
-    { ar: (r) => `أي لعبة تشتهر بـ ${r.knownForAr}؟`, en: (r) => `Which game is known for ${r.knownForEn}?` }
+    { ar: (r) => `على الترابيزة أو الشاشة: العلامة هي ${r.knownForAr}. أي لعبة نقصد؟`, en: (r) => `On the table or screen: the marker is ${r.knownForEn}. Which game is it?` }
   ] }
 ]);
 
