@@ -16,6 +16,8 @@ The local Arabic question bank is stored in `questions.ar.json` and is loaded by
 - Filler prompts such as "اختر الإجابة الصحيحة المرتبطة بـ..." are rejected by the generator and must not appear in the bank.
 - Dry repeated stems such as "بماذا يشتهر", "ما الاستخدام الأشهر", "ما نوع", and plain year/author templates are rejected when produced from generated field templates.
 - Sports tournament prompts that ask the player to infer a basic team type from the tournament name, such as "تخص غالبا أي نوع فرق؟", are rejected as too obvious.
+- Direct classification prompts such as "تحت أي نوع؟" or "تتحسب من أي نوع ألعاب؟" are rejected unless they are rewritten into a clue-based question with close same-family options.
+- Memorization-only prompts such as "ما اسم أول...", "ما اسم أطول...", "ما اسم أشهر...", "كل كام سنة؟", and very basic ritual/date questions are removed when they feel answerable without thinking.
 - Prompts are rejected when the correct answer appears literally inside the Arabic question text.
 - Over-obvious clue/answer pairs are rejected, such as asking about "الفيل الأفريقي" with "أفريقيا" as the answer.
 - Distractors should match the answer type: player with players, tournament with tournaments, country with countries, animal trait with animal traits, and organization with organizations.

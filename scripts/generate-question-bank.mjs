@@ -6,20 +6,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const outputPath = join(__dirname, '..', 'src', 'Sabq.Infrastructure', 'Data', 'QuestionBank', 'questions.ar.json');
 
 const source = 'Curated static factual bank / Wikipedia, Wikidata, and official-source checks';
-const directQuestionFrames = {
-  'general-knowledge': {
-    ar: 'معلومة سريعة تنفع في القعدة: ',
-    en: 'Quick useful table fact: '
-  },
-  'religion-islamic': {
-    ar: 'معرفة هادئة بلا جدل: ',
-    en: 'Calm non-disputed knowledge: '
-  },
-  sports: {
-    ar: 'لقطة رياضية سريعة: ',
-    en: 'Quick sports moment: '
-  }
-};
+const directQuestionFrames = {};
 const bannedQuestionPhrases = [
   'اختر الإجابة الصحيحة المرتبطة',
   'بماذا يشتهر',
@@ -38,7 +25,20 @@ const bannedQuestionPhrases = [
   'أين يقع مقر',
   'ما الرمز أو الوصف المختصر',
   'تخص غالبا أي نوع فرق',
-  'أي نوع فرق'
+  'أي نوع فرق',
+  'تحت أي نوع',
+  'تتحسب من أي نوع',
+  'أي نوع ألعاب',
+  'معلومة سريعة تنفع',
+  'معرفة هادئة بلا جدل',
+  'سهلة الحفظ',
+  'ما اسم أول',
+  'ما اسم أطول',
+  'ما اسم أشهر',
+  'ما القبلة التي',
+  'في أي شهر يصوم',
+  'من هو خاتم الأنبياء',
+  'كل كام سنة'
 ];
 const sportsForbiddenTerms = [
   'الإسكواش',
@@ -964,7 +964,57 @@ const closeChoiceQuestions = [
   ['vehicles', 'Medium', 20, 'وسيلة بحرية تنقل ركابا أو بضائع فوق الماء لمسافات طويلة. ما هي؟', 'A sea vehicle carrying passengers or goods over water for long distances. What is it?', 'السفينة', 'ship', [['العبارة', 'ferry'], ['القارب', 'boat'], ['الناقلة', 'tanker']]],
   ['vehicles', 'Medium', 20, 'وسيلة جوية بمحرك وجناحين ثابتين للمسافات الطويلة. ما هي؟', 'A powered aircraft with fixed wings for long distances. What is it?', 'الطائرة', 'airplane', [['المروحية', 'helicopter'], ['الطائرة الشراعية', 'glider'], ['المنطاد', 'hot-air balloon']]],
   ['vehicles', 'Medium', 20, 'مركبة صغيرة بعجلتين ومحرك، أخف من السيارة وأسرع من الدراجة العادية. ما هي؟', 'A small two-wheeled motor vehicle, lighter than a car and faster than a bicycle. What is it?', 'الدراجة النارية', 'motorcycle', [['السكوتر', 'scooter'], ['الدراجة الكهربائية', 'e-bike'], ['الدراجة', 'bicycle']]],
-  ['vehicles', 'Medium', 20, 'وسيلة خفيفة داخل المدن تسير على قضبان في الشارع غالبا. ما هي؟', 'A light urban vehicle often running on street tracks. What is it?', 'الترام', 'tram', [['مترو الأنفاق', 'metro'], ['القطار الخفيف', 'light rail'], ['قطار الضواحي', 'commuter train']]]
+  ['vehicles', 'Medium', 20, 'وسيلة خفيفة داخل المدن تسير على قضبان في الشارع غالبا. ما هي؟', 'A light urban vehicle often running on street tracks. What is it?', 'الترام', 'tram', [['مترو الأنفاق', 'metro'], ['القطار الخفيف', 'light rail'], ['قطار الضواحي', 'commuter train']]],
+  ['general-knowledge', 'Medium', 20, 'لوحة بثلاث كتابات ساعدت على قراءة الهيروغليفية بعد قرون من الغموض. أي أثر؟', 'A slab with three scripts helped decode hieroglyphs after centuries. Which artifact?', 'حجر رشيد', 'Rosetta Stone', [['لوحة نارمر', 'Narmer Palette'], ['مسلة كليوباترا', 'Cleopatra Needle'], ['قناع توت عنخ آمون', 'Tutankhamun mask']]],
+  ['general-knowledge', 'Medium', 20, 'مدينة عند الطرف الشمالي للممر الملاحي بين البحرين، اسمها يظهر كثيرا في أخبار القناة. أي مدينة؟', 'A city at the northern end of the canal route between the two seas. Which city?', 'بورسعيد', 'Port Said', [['السويس', 'Suez'], ['الإسماعيلية', 'Ismailia'], ['دمياط', 'Damietta']]],
+  ['general-knowledge', 'Medium', 20, 'واحة سيوة إداريا أقرب لمحافظة ساحلية غربية لا لمحافظات الصعيد. أي محافظة؟', 'Siwa Oasis administratively belongs to a western coastal governorate, not Upper Egypt. Which one?', 'مطروح', 'Matrouh', [['الفيوم', 'Fayoum'], ['الوادي الجديد', 'New Valley'], ['شمال سيناء', 'North Sinai']]],
+  ['general-knowledge', 'Medium', 20, 'معابد منحوتة جنوب أسوان أنقذتها حملة دولية من الغرق بعد بناء السد العالي. أي معلم؟', 'Rock-cut temples south of Aswan were moved by an international rescue campaign. Which monument?', 'معبد أبو سمبل', 'Abu Simbel Temples', [['معبد فيلة', 'Philae Temple'], ['معبد الكرنك', 'Karnak Temple'], ['الدير البحري', 'Deir el-Bahari']]],
+  ['general-knowledge', 'Medium', 20, 'أعلى نقطة جبلية في مصر ليست في وادي النيل بل في جنوب سيناء. أي قمة؟', 'Egypt highest mountain point is in South Sinai, not the Nile Valley. Which peak?', 'جبل سانت كاترين', 'Mount Catherine', [['جبل موسى', 'Mount Sinai'], ['جبل علبة', 'Gebel Elba'], ['جبل المقطم', 'Mokattam Mountain']]],
+  ['general-knowledge', 'Medium', 20, 'ممر ملاحي اختصر طريق التجارة بين المتوسط والأحمر وجعل مدن القناة على الخريطة. أي ممر؟', 'A shipping route shortened trade between the Mediterranean and Red Sea. Which route?', 'قناة السويس', 'Suez Canal', [['قناة بنما', 'Panama Canal'], ['مضيق باب المندب', 'Bab el-Mandeb Strait'], ['مضيق هرمز', 'Strait of Hormuz']]],
+  ['general-knowledge', 'Medium', 20, 'مبنى في ميدان التحرير يحفظ ذاكرة الآثار الفرعونية قبل انتقال جزء كبير منها لمتاحف أحدث. أي مكان؟', 'A Tahrir Square building preserved pharaonic antiquities before many moved to newer museums. Which place?', 'المتحف المصري بالتحرير', 'Egyptian Museum in Tahrir', [['المتحف القومي للحضارة المصرية', 'National Museum of Egyptian Civilization'], ['المتحف اليوناني الروماني', 'Greco-Roman Museum'], ['متحف الفن الإسلامي', 'Museum of Islamic Art']]],
+  ['general-knowledge', 'Medium', 20, 'شارع فاطمي طويل في القاهرة الإسلامية، تمشي فيه فتلاقي طبقات من العمارة المملوكية والفاطمية. أي شارع؟', 'A long Fatimid-era street in Islamic Cairo layered with medieval architecture. Which street?', 'شارع المعز', 'Al-Muizz Street', [['شارع الغورية', 'Al-Ghuriya Street'], ['شارع الخيامية', 'Khayamiya Street'], ['شارع الأزهر', 'Al-Azhar Street']]],
+  ['general-knowledge', 'Medium', 20, 'مدينة مصرية تحمل في ذاكرتها مكتبة قديمة شهيرة ومكتبة حديثة أعادت الاسم للواجهة. أي مدينة؟', 'An Egyptian city remembered for an ancient library and a modern one reviving the name. Which city?', 'الإسكندرية', 'Alexandria', [['القاهرة', 'Cairo'], ['المنصورة', 'Mansoura'], ['بورسعيد', 'Port Said']]],
+  ['general-knowledge', 'Medium', 20, 'بقعة قرب شرم الشيخ تشتهر بالشعاب والتيارات والغوص أكثر من الآثار البرية. أي محمية؟', 'A spot near Sharm El Sheikh known for reefs, currents, and diving more than land ruins. Which reserve?', 'محمية رأس محمد', 'Ras Muhammad National Park', [['محمية نبق', 'Nabq Protectorate'], ['وادي الريان', 'Wadi El Rayan'], ['محمية سانت كاترين', 'St. Katherine Protectorate']]],
+  ['general-knowledge', 'Medium', 20, 'هدية فرنسية صارت علامة استقبال في ميناء نيويورك، وتمثل حرية لا انتصارا عسكريا. أي معلم؟', 'A French gift became a welcome symbol in New York Harbor, representing liberty rather than military victory. Which landmark?', 'تمثال الحرية', 'Statue of Liberty', [['نصب واشنطن', 'Washington Monument'], ['جبل رشمور', 'Mount Rushmore'], ['بوابة الغرب', 'Gateway Arch']]],
+  ['general-knowledge', 'Medium', 20, 'قناة بنما لا تجمع بحرين متجاورين؛ هي تقصر الطريق بين أي محيطين؟', 'The Panama Canal does not join adjacent seas; it shortens travel between which oceans?', 'الأطلسي والهادئ', 'Atlantic and Pacific', [['الهندي والهادئ', 'Indian and Pacific'], ['الأطلسي والهندي', 'Atlantic and Indian'], ['الأطلسي والمتجمد الشمالي', 'Atlantic and Arctic']]],
+  ['general-knowledge', 'Hard', 25, 'أعمق نقطة محيطية معروفة تقع في غرب الهادئ وترتبط بسجلات الغوص الشديد. أي مكان؟', 'The deepest known oceanic point lies in the western Pacific and is tied to extreme dives. Which place?', 'خندق ماريانا', 'Mariana Trench', [['خندق تونغا', 'Tonga Trench'], ['خندق جاوة', 'Java Trench'], ['خندق بورتوريكو', 'Puerto Rico Trench']]],
+  ['general-knowledge', 'Medium', 20, 'ناطحة سحاب في دبي صارت مرجعا عند الحديث عن الارتفاع القياسي للمباني. أي مبنى؟', 'A Dubai skyscraper became the reference point for record building height. Which building?', 'برج خليفة', 'Burj Khalifa', [['برج العرب', 'Burj Al Arab'], ['أبراج الإمارات', 'Emirates Towers'], ['برج جدة', 'Jeddah Tower']]],
+  ['general-knowledge', 'Medium', 20, 'غابة مطيرة هائلة في أمريكا الجنوبية، أهميتها أكبر من كونها مجرد مساحة خضراء. أي منطقة؟', 'A vast South American rainforest whose importance goes far beyond green area. Which region?', 'غابات الأمازون', 'Amazon Rainforest', [['غابات الكونغو', 'Congo Rainforest'], ['غابات بورنيو', 'Borneo Rainforest'], ['غابات فالديفيا', 'Valdivian Rainforest']]],
+  ['general-knowledge', 'Medium', 20, 'حفلات جوائز نوبل تقام غالبا في تاريخ مرتبط برحيل صاحب الوصية. أي تاريخ؟', 'Nobel ceremonies are usually held on a date tied to the death of the prize founder. Which date?', '10 ديسمبر', '10 December', [['21 أكتوبر', '21 October'], ['27 نوفمبر', '27 November'], ['1 يناير', '1 January']]],
+  ['general-knowledge', 'Medium', 20, 'مهمة فضائية جمعت بين هبوط بشري وقول شهير عن خطوة صغيرة وقفزة كبيرة. أي مهمة؟', 'A space mission combined a human landing with a famous small-step quote. Which mission?', 'أبولو 11', 'Apollo 11', [['أبولو 8', 'Apollo 8'], ['أبولو 13', 'Apollo 13'], ['فوياجر 1', 'Voyager 1']]],
+  ['general-knowledge', 'Medium', 20, 'أكبر محيط على الأرض ليس الذي يفصل أوروبا عن أمريكا فقط، بل يمتد بين آسيا والأمريكتين. أي محيط؟', 'Earth largest ocean is not merely the one between Europe and America; it spans Asia and the Americas. Which ocean?', 'المحيط الهادئ', 'Pacific Ocean', [['المحيط الأطلسي', 'Atlantic Ocean'], ['المحيط الهندي', 'Indian Ocean'], ['المحيط المتجمد الشمالي', 'Arctic Ocean']]],
+  ['religion-islamic', 'Medium', 20, 'حدث كبير صار نقطة البداية في التقويم الإسلامي، وليس مولد النبي ولا فتح مكة. أي حدث؟', 'A major event became the starting point of the Islamic calendar, not the Prophet birth or the conquest of Mecca. Which event?', 'الهجرة النبوية', 'the Hijra', [['فتح مكة', 'Conquest of Mecca'], ['غزوة بدر', 'Battle of Badr'], ['عام الفيل', 'Year of the Elephant']]],
+  ['religion-islamic', 'Medium', 20, 'غار قريب من مكة ارتبط ببداية الوحي، بينما غار آخر ارتبط برحلة الهجرة. أي غار؟', 'A cave near Mecca is tied to the first revelation, while another is tied to the migration journey. Which cave?', 'غار حراء', 'Cave Hira', [['غار ثور', 'Cave Thawr'], ['جبل عرفات', 'Mount Arafat'], ['وادي نخلة', 'Wadi Nakhla']]],
+  ['religion-islamic', 'Medium', 20, 'في السيرة، مكان الاختباء أثناء طريق الهجرة ليس هو مكان نزول الوحي. أي غار؟', 'In the seerah, the hiding place on the migration route was not the first-revelation cave. Which cave?', 'غار ثور', 'Cave Thawr', [['غار حراء', 'Cave Hira'], ['جبل أحد', 'Mount Uhud'], ['وادي بدر', 'Badr Valley']]],
+  ['religion-islamic', 'Medium', 20, 'شهر يأتي بعد صيام رمضان ويرتبط أوله بالعيد الصغير في الوجدان الشعبي. أي شهر؟', 'A month follows Ramadan fasting and begins with the smaller Eid in popular memory. Which month?', 'شوال', 'Shawwal', [['شعبان', 'Shaaban'], ['رجب', 'Rajab'], ['ذو القعدة', 'Dhu al-Qadah']]],
+  ['religion-islamic', 'Medium', 20, 'شهر يسبق رمضان مباشرة، ويكثر ذكره مع الاستعداد للصيام. أي شهر؟', 'A month directly precedes Ramadan and is often mentioned with preparation for fasting. Which month?', 'شعبان', 'Shaaban', [['رجب', 'Rajab'], ['شوال', 'Shawwal'], ['محرم', 'Muharram']]],
+  ['religion-islamic', 'Medium', 20, 'شهر في آخر السنة الهجرية ترتبط به المناسك الكبرى لا صيام رمضان. أي شهر؟', 'A late Hijri-year month linked to the major pilgrimage rites, not Ramadan fasting. Which month?', 'ذو الحجة', 'Dhu al-Hijjah', [['ذو القعدة', 'Dhu al-Qadah'], ['محرم', 'Muharram'], ['رجب', 'Rajab']]],
+  ['religion-islamic', 'Medium', 20, 'صحابي حبشي ارتبط صوته بالأذان الأول، والاختيارات كلها من جيل الصحابة. من هو؟', 'An Abyssinian companion is linked to the first call to prayer; all options are companions. Who was it?', 'بلال بن رباح', 'Bilal ibn Rabah', [['عبد الله بن أم مكتوم', 'Abdullah ibn Umm Maktum'], ['مصعب بن عمير', 'Musab ibn Umayr'], ['زيد بن ثابت', 'Zayd ibn Thabit']]],
+  ['religion-islamic', 'Medium', 20, 'توحيد المصاحف على رسم واحد في صدر الإسلام يرتبط بخليفة من الراشدين. من هو؟', 'Standardizing Quran manuscripts in early Islam is linked to one Rashidun caliph. Who was it?', 'عثمان بن عفان', 'Uthman ibn Affan', [['أبو بكر الصديق', 'Abu Bakr'], ['عمر بن الخطاب', 'Umar ibn Al-Khattab'], ['علي بن أبي طالب', 'Ali ibn Abi Talib']]],
+  ['religion-islamic', 'Medium', 20, 'كتاب حديث وفقه مبكر ارتبط بالإمام مالك، وليس من كتب الصحاح الستة بالمعنى الشائع. أي كتاب؟', 'An early hadith-and-law work is linked to Imam Malik and is not usually counted among the six canonical books. Which work?', 'الموطأ', 'Al-Muwatta', [['صحيح البخاري', 'Sahih al-Bukhari'], ['سنن أبي داود', 'Sunan Abi Dawud'], ['صحيح مسلم', 'Sahih Muslim']]],
+  ['religion-islamic', 'Medium', 20, 'جامع قاهري تحول اسمه إلى مؤسسة علمية عالمية في التعليم الشرعي. أي جامع؟', 'A Cairo mosque lent its name to a global Islamic learning institution. Which mosque?', 'جامع الأزهر', 'Al-Azhar Mosque', [['جامع عمرو بن العاص', 'Amr ibn al-As Mosque'], ['جامع ابن طولون', 'Ibn Tulun Mosque'], ['جامع الحاكم', 'Al-Hakim Mosque']]],
+  ['religion-islamic', 'Medium', 20, 'مسجد ارتبط ببداية المجتمع في المدينة، قبل أن يصير المسجد النبوي مركزا أكبر. أي مسجد؟', 'A mosque is tied to the early community in Medina before the Prophet Mosque became the larger center. Which mosque?', 'مسجد قباء', 'Quba Mosque', [['المسجد النبوي', 'Prophet Mosque'], ['المسجد الحرام', 'Al-Masjid Al-Haram'], ['مسجد القبلتين', 'Masjid al-Qiblatayn']]],
+  ['religion-islamic', 'Medium', 20, 'ركن الحج الذي يحدث في اليوم التاسع، ولو فات ضاع الحج بمعناه الفقهي الأشهر. ما هو؟', 'A Hajj rite on the ninth day; missing it invalidates Hajj in the well-known legal phrasing. What is it?', 'الوقوف بعرفة', 'Standing at Arafat', [['طواف الإفاضة', 'Tawaf al-Ifadah'], ['السعي بين الصفا والمروة', 'Sa’i'], ['رمي الجمرات', 'Stoning the Jamarat']]],
+  ['religion-islamic', 'Medium', 20, 'مدينة كانت تعرف بيثرب ثم صار اسمها مرتبطا بالهجرة وبالمسجد النبوي. أي مدينة؟', 'A city once known as Yathrib became tied to the migration and the Prophet Mosque. Which city?', 'المدينة المنورة', 'Medina', [['مكة', 'Mecca'], ['الطائف', 'Taif'], ['خيبر', 'Khaybar']]],
+  ['religion-islamic', 'Medium', 20, 'معركة مبكرة قرب آبار معروفة صارت فاصلة في ذاكرة السيرة. أي معركة؟', 'An early battle near well-known wells became pivotal in seerah memory. Which battle?', 'بدر', 'Badr', [['أحد', 'Uhud'], ['الخندق', 'Al-Khandaq'], ['حنين', 'Hunayn']]],
+  ['religion-islamic', 'Medium', 20, 'فتح مصر في العصر الراشدي يرتبط بقائد صار اسمه أيضا على جامع قديم في القاهرة. من هو؟', 'The Muslim conquest of Egypt is linked to a commander whose name is also on an old Cairo mosque. Who was it?', 'عمرو بن العاص', 'Amr ibn al-As', [['خالد بن الوليد', 'Khalid ibn al-Walid'], ['سعد بن أبي وقاص', 'Saad ibn Abi Waqqas'], ['طارق بن زياد', 'Tariq ibn Ziyad']]],
+  ['religion-islamic', 'Medium', 20, 'سيدة من بيت تجاري في مكة كانت أول سند للرسالة في بدايتها. من هي؟', 'A woman from a Meccan trading household was the earliest support in the beginning of the message. Who was she?', 'خديجة بنت خويلد', 'Khadija bint Khuwaylid', [['عائشة بنت أبي بكر', 'Aisha bint Abi Bakr'], ['حفصة بنت عمر', 'Hafsa bint Umar'], ['أم سلمة', 'Umm Salama']]],
+  ['religion-islamic', 'Medium', 20, 'لقب الصديق ومرحلة الخلافة الأولى يجتمعان في أي شخصية؟', 'The Siddiq title and the first caliphate period meet in which figure?', 'أبو بكر الصديق', 'Abu Bakr Al-Siddiq', [['عمر بن الخطاب', 'Umar ibn Al-Khattab'], ['عثمان بن عفان', 'Uthman ibn Affan'], ['علي بن أبي طالب', 'Ali ibn Abi Talib']]],
+  ['religion-islamic', 'Medium', 20, 'في التراث الشائع، عبارة قلب القرآن تذهب غالبا إلى أي سورة؟', 'In common tradition, the phrase heart of the Quran most often points to which surah?', 'يس', 'Ya-Sin', [['الكهف', 'Al-Kahf'], ['الملك', 'Al-Mulk'], ['الرحمن', 'Ar-Rahman']]],
+  ['books-literature', 'Medium', 20, 'حكاية عائلة قاهرية على ثلاثة أجزاء تقودك لأي عمل محفوظي؟', 'A Cairo family story in three parts points to which Mahfouz work?', 'الثلاثية', 'The Cairo Trilogy', [['زقاق المدق', 'Midaq Alley'], ['اللص والكلاب', 'The Thief and the Dogs'], ['أولاد حارتنا', 'Children of Gebelawi']]],
+  ['books-literature', 'Medium', 20, 'سيرة ذاتية عن طفولة ووعي وكفاح تعليمي، وصاحبها لقب بعميد الأدب العربي. أي عمل؟', 'An autobiography about childhood, awareness, and education by the Dean of Arabic Literature. Which work?', 'الأيام', 'The Days', [['دعاء الكروان', 'The Nightingale Prayer'], ['حديث عيسى بن هشام', 'Hadith Issa Ibn Hisham'], ['عودة الروح', 'Return of the Spirit']]],
+  ['books-literature', 'Medium', 20, 'بناية في وسط القاهرة تكشف طبقات اجتماعية وسياسية في رواية معاصرة. أي عمل؟', 'A downtown Cairo building reveals social and political layers in a modern novel. Which work?', 'عمارة يعقوبيان', 'The Yacoubian Building', [['شيكاجو', 'Chicago'], ['واحة الغروب', 'Sunset Oasis'], ['تراب الماس', 'Diamond Dust']]],
+  ['books-literature', 'Medium', 20, 'عالم نفسي وغموض وجريمة في رواية مصرية حديثة قبل أن تصبح فيلما مشهورا. أي عمل؟', 'Psychology, mystery, and crime in a modern Egyptian novel later made into a famous film. Which work?', 'الفيل الأزرق', 'The Blue Elephant', [['تراب الماس', 'Diamond Dust'], ['يوتوبيا', 'Utopia'], ['عمارة يعقوبيان', 'The Yacoubian Building']]],
+  ['books-literature', 'Medium', 20, 'مسرحية عن أناس يستيقظون بعد زمن طويل فتختلط الأسطورة بالسؤال الفلسفي. أي عمل؟', 'A play about people waking after a long time, mixing legend with philosophical questions. Which work?', 'أهل الكهف', 'The People of the Cave', [['عودة الروح', 'Return of the Spirit'], ['أرض النفاق', 'The Land of Hypocrisy'], ['حديث عيسى بن هشام', 'Hadith Issa Ibn Hisham']]],
+  ['books-literature', 'Medium', 20, 'حارة قاهرية وشخصيات شعبية في رواية من عالم نجيب محفوظ المبكر. أي عمل؟', 'A Cairo alley and popular characters in one of Naguib Mahfouz early worlds. Which work?', 'زقاق المدق', 'Midaq Alley', [['الثلاثية', 'The Cairo Trilogy'], ['اللص والكلاب', 'The Thief and the Dogs'], ['الحرام', 'The Sin']]],
+  ['books-literature', 'Hard', 25, 'مدينة منعزلة للأغنياء وفقر خارج الأسوار في ديستوبيا مصرية حديثة. أي رواية؟', 'A gated enclave for the rich and poverty outside the walls in a modern Egyptian dystopia. Which novel?', 'يوتوبيا', 'Utopia', [['الفيل الأزرق', 'The Blue Elephant'], ['تراب الماس', 'Diamond Dust'], ['شيكاجو', 'Chicago']]],
+  ['games', 'Medium', 20, 'محاكاة كرة قدم مرخصة: متعة اختيار الفرق والتشكيلات أقرب لأي لعبة؟', 'Licensed football simulation with teams and lineups. Which game fits?', 'كرة القدم الإلكترونية فيفا (FIFA)', 'FIFA video game', [['برو إفولوشن سوكر (PES)', 'Pro Evolution Soccer'], ['فوتبول مانجر', 'Football Manager'], ['روكيت ليغ', 'Rocket League']]],
+  ['games', 'Medium', 20, 'مكعبات وبقاء وصناعة أدوات: اللعبة تتركك تبني القصة بدل أن تعطيك طريقا واحدا. أي لعبة؟', 'Blocks, survival, and crafting: the game lets you build the story instead of following one path. Which game?', 'ماينكرافت (Minecraft)', 'Minecraft', [['تيراريا (Terraria)', 'Terraria'], ['روبلوكس (Roblox)', 'Roblox'], ['ستارديو فالي', 'Stardew Valley']]],
+  ['games', 'Medium', 20, 'بيع وشراء ورهن وإفلاس على لوحة واحدة؛ المتعة هنا مالية أكثر من كونها حركة. أي لعبة؟', 'Buying, selling, mortgages, and bankruptcy on one board; the fun is financial rather than action-based. Which game?', 'مونوبولي (Monopoly)', 'Monopoly', [['لعبة الحياة (The Game of Life)', 'The Game of Life'], ['كاتان (Catan)', 'Catan'], ['ريسك (Risk)', 'Risk']]],
+  ['games', 'Medium', 20, 'سباك ومنصات وقفز وعالم نينتندو؛ clue صغير لكنه يحتاج ذاكرة ألعاب. أي سلسلة؟', 'Plumber, platforms, jumping, and Nintendo world. Which series?', 'سوبر ماريو (Super Mario)', 'Super Mario', [['سونك (Sonic)', 'Sonic'], ['كيربي (Kirby)', 'Kirby'], ['دونكي كونغ', 'Donkey Kong']]],
+  ['games', 'Medium', 20, 'زهر وأقراص وحساب مخاطرة في قعدات قديمة؛ ليست شطرنجا ولا دومينو. أي لعبة؟', 'Dice, checkers, and risk calculation in old gatherings; not chess or dominoes. Which game?', 'الطاولة', 'backgammon', [['الداما', 'checkers'], ['المنقلة', 'mancala'], ['الشطرنج', 'chess']]],
+  ['games', 'Medium', 20, 'قطع مرقمة على الأطراف؛ المكسب يحتاج عين على الرقم المفتوح لا على لوحة ثابتة. أي لعبة؟', 'Numbered tiles at the ends; winning needs watching open numbers, not a fixed board. Which game?', 'الدومينو', 'dominoes', [['الطاولة', 'backgammon'], ['الداما', 'checkers'], ['المنقلة', 'mancala']]],
+  ['games', 'Medium', 20, 'ملك ووزير وقلعتان على لوحة 8 في 8؛ الحظ خارج الحساب تقريبا. أي لعبة؟', 'King, queen, and rooks on an 8 by 8 board; luck is almost out of the equation. Which game?', 'الشطرنج', 'chess', [['الداما', 'checkers'], ['جو (Go)', 'Go'], ['ريفرسي', 'Reversi']]]
 ];
 
 for (const [categorySlug, difficulty, timeLimitSec, textAr, textEn, answerAr, answerEn, wrong] of closeChoiceQuestions) {
@@ -973,10 +1023,6 @@ for (const [categorySlug, difficulty, timeLimitSec, textAr, textEn, answerAr, an
 
 for (const [textAr, textEn, answerAr, answerEn, wrong] of globalGeneralFacts) {
   addDirectQuestion('general-knowledge', 'Medium', 20, textAr, textEn, answerAr, answerEn, wrong);
-}
-
-for (const [textAr, textEn, answerAr, answerEn, wrong] of religionQuestions) {
-  addDirectQuestion('religion-islamic', 'Easy', 15, textAr, textEn, answerAr, answerEn, wrong);
 }
 
 for (const [textAr, textEn, answerAr, answerEn, wrong] of religionTrickyFacts) {
@@ -1035,9 +1081,6 @@ addFieldQuestions('film-tv', egyptSeries, [
 addFieldQuestions('books-literature', egyptBooks, [
   { arField: 'authorAr', enField: 'authorEn', difficulty: 'Easy', timeLimitSec: 15, variants: [
     { ar: (r) => `على رف الكتب: مين صاحب «${r.nameAr}»؟`, en: (r) => `On the bookshelf: whose work is ${r.nameEn}?` }
-  ] },
-  { arField: 'typeAr', enField: 'typeEn', difficulty: 'Medium', timeLimitSec: 20, variants: [
-    { ar: (r) => `أمين مكتبة بيسألك: تحط «${r.nameAr}» تحت أي نوع؟`, en: (r) => `A librarian asks: which shelf type fits ${r.nameEn}?` }
   ] }
 ]);
 
@@ -1151,9 +1194,6 @@ addFieldQuestions('politics', politicsRecords, [
 ]);
 
 addFieldQuestions('games', gameRecords, [
-  { arField: 'typeAr', enField: 'typeEn', difficulty: 'Easy', timeLimitSec: 15, variants: [
-    { ar: (r) => `في قعدة لعب: ${r.nameAr} تتحسب من أي نوع ألعاب؟`, en: (r) => `In a game night: which game type is ${r.nameEn}?` }
-  ] },
   { arField: 'knownForAr', enField: 'knownForEn', difficulty: 'Medium', timeLimitSec: 20, variants: [
     { ar: (r) => `لو حد قال ${r.nameAr}، إيه العلامة اللي تميز اللعبة دي؟`, en: (r) => `If someone says ${r.nameEn}, which play marker makes it stand out?` }
   ] }
@@ -1185,10 +1225,6 @@ moreGeneralFacts.push(
   ['أي محافظة مصرية تشتهر بمعابد أبو سمبل؟', 'Which Egyptian governorate is famous for Abu Simbel temples?', 'أسوان', 'Aswan', [['الأقصر', 'Luxor'], ['قنا', 'Qena'], ['المنيا', 'Minya']]]
 );
 
-for (const [textAr, textEn, answerAr, answerEn, wrong] of moreGeneralFacts) {
-  addDirectQuestion('general-knowledge', 'Easy', 15, textAr, textEn, answerAr, answerEn, wrong);
-}
-
 const moreReligionQuestions = [
   ['ما اسم السورة التي تبدأ بـ «قل هو الله أحد»؟', 'Which surah begins with Say He is Allah One?', 'الإخلاص', 'Al-Ikhlas', [['الفلق', 'Al-Falaq'], ['الناس', 'An-Nas'], ['الفاتحة', 'Al-Fatiha']]],
   ['ما اسم السورة التي تقرأ كثيرا يوم الجمعة في التراث الإسلامي؟', 'Which surah is commonly read on Friday in Islamic tradition?', 'الكهف', 'Al-Kahf', [['يس', 'Ya-Sin'], ['الملك', 'Al-Mulk'], ['الرحمن', 'Ar-Rahman']]],
@@ -1203,10 +1239,6 @@ const moreReligionQuestions = [
   ['ما اسم أول شهر في التقويم الهجري؟', 'What is the first month of the Hijri calendar?', 'محرم', 'Muharram', [['رمضان', 'Ramadan'], ['شوال', 'Shawwal'], ['رجب', 'Rajab']]],
   ['ما اسم الشهر الذي يؤدي فيه المسلمون الحج؟', 'In which Hijri month is Hajj performed?', 'ذو الحجة', 'Dhu al-Hijjah', [['رمضان', 'Ramadan'], ['شعبان', 'Shaaban'], ['صفر', 'Safar']]]
 ];
-
-for (const [textAr, textEn, answerAr, answerEn, wrong] of moreReligionQuestions) {
-  addDirectQuestion('religion-islamic', 'Easy', 15, textAr, textEn, answerAr, answerEn, wrong);
-}
 
 addFieldQuestions('geography', egyptPlaces, [
   { arField: 'nameAr', enField: 'nameEn', difficulty: 'Medium', timeLimitSec: 20, variants: [
@@ -1239,11 +1271,9 @@ const sportsDirectQuestions = [
   ['أي ناد مصري يلقب غالبا بالمارد الأحمر؟', 'Which Egyptian club is commonly nicknamed the Red Giant?', 'النادي الأهلي', 'Al Ahly SC', [['نادي الزمالك', 'Zamalek SC'], ['الإسماعيلي', 'Ismaily SC'], ['الاتحاد السكندري', 'Al Ittihad Alexandria']]],
   ['أي ناد مصري يلقب غالبا بالفارس الأبيض؟', 'Which Egyptian club is commonly nicknamed the White Knight?', 'نادي الزمالك', 'Zamalek SC', [['النادي الأهلي', 'Al Ahly SC'], ['المصري البورسعيدي', 'Al Masry SC'], ['سموحة', 'Smouha SC']]],
   ['اللون الأخضر وجماهير مدينة ساحلية على القناة: أي ناد مصري في الصورة؟', 'Green shirts and a canal coastal city crowd: which Egyptian club fits?', 'النادي المصري البورسعيدي', 'Al Masry SC', [['نادي الإسماعيلي', 'Ismaily SC'], ['الاتحاد السكندري', 'Al Ittihad Alexandria'], ['نادي الزمالك', 'Zamalek SC']]],
-  ['لقطة حراسة: مركز عصام الحضري الشهير كان فين داخل الملعب؟', 'Goalkeeping clue: which position made Essam El Hadary famous?', 'حراسة المرمى', 'goalkeeping', [['قلب الدفاع', 'center back'], ['رأس الحربة', 'striker'], ['الجناح الأيسر', 'left winger']]],
   ['أي منتخب ارتبط باسم حسام حسن كلاعب تاريخي؟', 'Which national team is Hossam Hassan historically associated with?', 'منتخب مصر', 'Egypt national team', [['منتخب المغرب', 'Morocco national team'], ['منتخب تونس', 'Tunisia national team'], ['منتخب الجزائر', 'Algeria national team']]],
   ['أي ناد إنجليزي ارتبط باسم محمد صلاح عالميا؟', 'Which English club is Mohamed Salah globally associated with?', 'ليفربول (Liverpool)', 'Liverpool', [['تشيلسي (Chelsea)', 'Chelsea'], ['آرسنال (Arsenal)', 'Arsenal'], ['مانشستر سيتي (Manchester City)', 'Manchester City']]],
   ['حكاية أول مونديال: أي بلد استضاف أول كأس عالم وفاز به عام 1930؟', 'First World Cup story: which country hosted and won the first tournament in 1930?', 'أوروجواي', 'Uruguay', [['إيطاليا', 'Italy'], ['البرازيل', 'Brazil'], ['فرنسا', 'France']]],
-  ['معلومة مونديالية سهلة الحفظ: كأس العالم للمنتخبات يقام غالبا كل كام سنة؟', 'Easy World Cup memory hook: how often is the national-team World Cup usually held?', 'كل أربع سنوات', 'every four years', [['كل سنة', 'every year'], ['كل سنتين', 'every two years'], ['كل عشر سنوات', 'every ten years']]],
   ['قصة كأس أفريقيا: أول نسخة من كأس الأمم الأفريقية بدأت في أي عقد؟', 'Africa Cup story: the first AFCON began in which decade?', 'الخمسينيات', '1950s', [['الثلاثينيات', '1930s'], ['السبعينيات', '1970s'], ['التسعينيات', '1990s']]],
   ['ليالي أوروبا: أي بطولة أندية أوروبية بدأت باسم كأس الأندية الأوروبية البطلة؟', 'European nights: which club competition began as the European Champion Clubs Cup?', 'دوري أبطال أوروبا', 'UEFA Champions League', [['الدوري الأوروبي', 'Europa League'], ['كأس العالم للأندية', 'Club World Cup'], ['كأس أمم أوروبا', 'UEFA Euro']]],
   ['نهائي القرن محليا: لما تسمع ديربي القاهرة، أي ناديين غالبا في الصورة؟', 'Local derby clue: which two clubs usually define the Cairo derby?', 'الأهلي والزمالك', 'Al Ahly and Zamalek', [['الإسماعيلي والمصري', 'Ismaily and Al Masry'], ['الاتحاد وسموحة', 'Al Ittihad and Smouha'], ['إنبي والمقاولون', 'ENPPI and Al Mokawloon']]],
