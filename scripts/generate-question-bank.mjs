@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const outputPath = join(__dirname, '..', 'src', 'Sabq.Infrastructure', 'Data', 'QuestionBank', 'questions.ar.json');
 
-const source = 'Curated Egypt-first factual bank / Wikidata-compatible open facts';
+const source = 'Curated static factual bank / Wikipedia, Wikidata, and official-source checks';
 const directQuestionFrames = {
   'general-knowledge': {
     ar: 'معلومة سريعة تنفع في القعدة: ',
@@ -38,6 +38,62 @@ const bannedQuestionPhrases = [
   'أين يقع مقر',
   'ما الرمز أو الوصف المختصر'
 ];
+const sportsForbiddenTerms = [
+  'الإسكواش',
+  'التنس',
+  'ويمبلدون',
+  'رولان جاروس',
+  'الدراجات',
+  'فورمولا',
+  'الكريكيت',
+  'الرجبي',
+  'كرة السلة',
+  'NBA',
+  'كرة اليد',
+  'السوبر بول',
+  'NFL',
+  'الأولمبية',
+  'البارالمبية',
+  'التايكوندو',
+  'الكاراتيه',
+  'المصارعة',
+  'السلاح',
+  'السباحة',
+  'الجودو',
+  'ألعاب القوى'
+];
+const sportsForbiddenEnglishTerms = [
+  'squash',
+  'tennis',
+  'wimbledon',
+  'roland garros',
+  'cycling',
+  'formula',
+  'cricket',
+  'rugby',
+  'basketball',
+  'nba',
+  'handball',
+  'super bowl',
+  'nfl',
+  'olympic',
+  'paralympic',
+  'taekwondo',
+  'karate',
+  'wrestling',
+  'fencing',
+  'swimming',
+  'judo',
+  'athletics'
+];
+const obviousAnswerPairs = [
+  ['الفيل الأفريقي', 'أفريقيا'],
+  ['التمساح النيلي', 'نهر النيل'],
+  ['النسر الأصلع', 'أمريكا الشمالية'],
+  ['الباندا العملاقة', 'الصين'],
+  ['الكنغر', 'أستراليا'],
+  ['الصحراء الكبرى', 'شمال أفريقيا']
+];
 
 const categories = [
   { slug: 'general-knowledge', nameAr: 'معلومات عامة', nameEn: 'General Knowledge', description: 'أسئلة مصرية وعربية وعالمية واضحة في الثقافة العامة.', displayOrder: 1 },
@@ -48,7 +104,7 @@ const categories = [
   { slug: 'film-tv', nameAr: 'أفلام وتلفزيون', nameEn: 'Film and Television', description: 'أفلام ومسلسلات ومخرجون ونجوم من مصر أولا.', displayOrder: 6 },
   { slug: 'music', nameAr: 'موسيقى', nameEn: 'Music', description: 'موسيقى ومطربون وملحنون مصريون وعرب.', displayOrder: 7 },
   { slug: 'books-literature', nameAr: 'كتب وأدب', nameEn: 'Books and Literature', description: 'أعمال أدبية وروائيون وشعراء من مصر والعالم العربي.', displayOrder: 8 },
-  { slug: 'sports', nameAr: 'رياضة', nameEn: 'Sports', description: 'كرة مصرية ورياضات وبطولات محلية وعالمية.', displayOrder: 9 },
+  { slug: 'sports', nameAr: 'رياضة', nameEn: 'Sports', description: 'كرة قدم مصرية وعالمية: لاعبين وأندية ومنتخبات وبطولات.', displayOrder: 9 },
   { slug: 'science-nature', nameAr: 'علوم وطبيعة', nameEn: 'Science and Nature', description: 'علوم وطبيعة وكيمياء وفلك بأسئلة مباشرة.', displayOrder: 10 },
   { slug: 'technology', nameAr: 'تكنولوجيا', nameEn: 'Technology', description: 'برمجة واختراعات وشركات تقنية مع أسماء أصلية عند الحاجة.', displayOrder: 11 },
   { slug: 'politics', nameAr: 'سياسة', nameEn: 'Politics', description: 'مؤسسات مصرية ومنظمات دولية ومفاهيم سياسية عامة.', displayOrder: 12 },
@@ -114,6 +170,39 @@ function pickOptions(correct, pool, seed) {
     }));
 }
 
+function normalizeForQuality(value) {
+  return value
+    .replace(/[\u064B-\u065F\u0670]/g, '')
+    .replace(/[ـ"'""'`]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLowerCase();
+}
+
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function includesEnglishForbiddenTerm(text, term) {
+  const normalizedText = normalizeForQuality(text);
+  const normalizedTerm = normalizeForQuality(term);
+  return new RegExp(`(^|[^a-z0-9])${escapeRegExp(normalizedTerm)}([^a-z0-9]|$)`, 'i').test(normalizedText);
+}
+
+function answerAppearsInQuestionText(textAr, correct) {
+  const normalizedAnswer = normalizeForQuality(correct.ar);
+  return normalizedAnswer.length >= 4 && normalizeForQuality(textAr).includes(normalizedAnswer);
+}
+
+function findObviousAnswerPair(textAr, correct) {
+  const normalizedText = normalizeForQuality(textAr);
+  const normalizedAnswer = normalizeForQuality(correct.ar);
+  return obviousAnswerPairs.find(([subject, answer]) =>
+    normalizedText.includes(normalizeForQuality(subject)) &&
+    normalizedAnswer.includes(normalizeForQuality(answer))
+  );
+}
+
 function assertQuestionVoice(textAr) {
   const normalized = textAr.replace(/\s+/g, ' ').trim();
   const bannedPhrase = bannedQuestionPhrases.find((phrase) => normalized.includes(phrase));
@@ -123,6 +212,31 @@ function assertQuestionVoice(textAr) {
 
   if (normalized.length < 18) {
     throw new Error(`Question is too short to feel playable: ${textAr}`);
+  }
+}
+
+function assertQuestionQuality(categorySlug, textAr, textEn, correct, options) {
+  if (answerAppearsInQuestionText(textAr, correct)) {
+    throw new Error(`Answer appears in question text: ${textAr} -> ${correct.ar}`);
+  }
+
+  const obviousPair = findObviousAnswerPair(textAr, correct);
+  if (obviousPair) {
+    throw new Error(`Obvious answer pair "${obviousPair.join(' / ')}" in question: ${textAr}`);
+  }
+
+  if (categorySlug === 'sports') {
+    const haystack = normalizeForQuality(`${textAr} ${options.map((option) => option.textAr).join(' ')}`);
+    const forbiddenTerm = sportsForbiddenTerms.find((term) => haystack.includes(normalizeForQuality(term)));
+    if (forbiddenTerm) {
+      throw new Error(`Non-football sports term "${forbiddenTerm}" in sports question: ${textAr}`);
+    }
+
+    const englishHaystack = `${textEn} ${options.map((option) => option.textEn).join(' ')}`;
+    const forbiddenEnglishTerm = sportsForbiddenEnglishTerms.find((term) => includesEnglishForbiddenTerm(englishHaystack, term));
+    if (forbiddenEnglishTerm) {
+      throw new Error(`Non-football sports term "${forbiddenEnglishTerm}" in sports question: ${textEn}`);
+    }
   }
 }
 
@@ -154,6 +268,7 @@ function addQuestion(categorySlug, difficulty, timeLimitSec, textAr, textEn, cor
   usedSlugs.add(slug);
 
   const options = pickOptions(correct, pool, slug);
+  assertQuestionQuality(categorySlug, textAr, textEn, correct, options);
   questions.push({ slug, categorySlug, difficulty, timeLimitSec, textAr, textEn, options, source: questionSource });
 }
 
@@ -181,12 +296,18 @@ function addFieldQuestions(categorySlug, records, specs, questionSource = source
       const correct = { ar: record[spec.arField], en: record[spec.enField] };
       const pool = fieldPool(records, spec.arField, spec.enField);
       for (const variant of spec.variants) {
+        const textAr = variant.ar(record);
+        const textEn = variant.en(record);
+        if (answerAppearsInQuestionText(textAr, correct) || findObviousAnswerPair(textAr, correct)) {
+          continue;
+        }
+
         addQuestion(
           categorySlug,
           spec.difficulty,
           spec.timeLimitSec,
-          variant.ar(record),
-          variant.en(record),
+          textAr,
+          textEn,
           correct,
           pool,
           questionSource
@@ -364,43 +485,65 @@ const egyptSports = [
   ['سموحة', 'Smouha SC', 'الإسكندرية', 'Alexandria', 'الأزرق', 'blue', 'استاد الإسكندرية', 'Alexandria Stadium']
 ].map(([nameAr, nameEn, cityAr, cityEn, colorAr, colorEn, stadiumAr, stadiumEn]) => ({ nameAr, nameEn, cityAr, cityEn, colorAr, colorEn, stadiumAr, stadiumEn }));
 
-const egyptSportsPeople = [
-  ['محمد صلاح', 'Mohamed Salah', 'كرة القدم', 'football', 'ليفربول (Liverpool)', 'Liverpool'],
-  ['محمود الخطيب', 'Mahmoud El Khatib', 'كرة القدم', 'football', 'الأهلي', 'Al Ahly'],
-  ['حسام حسن', 'Hossam Hassan', 'كرة القدم', 'football', 'منتخب مصر', 'Egypt national team'],
-  ['عصام الحضري', 'Essam El Hadary', 'كرة القدم', 'football', 'حراسة المرمى', 'goalkeeping'],
-  ['أحمد حسن', 'Ahmed Hassan', 'كرة القدم', 'football', 'منتخب مصر', 'Egypt national team'],
-  ['محمد أبو تريكة', 'Mohamed Aboutrika', 'كرة القدم', 'football', 'الأهلي', 'Al Ahly'],
-  ['نور الشربيني', 'Nour El Sherbini', 'الإسكواش', 'squash', 'مصر', 'Egypt'],
-  ['رامي عاشور', 'Ramy Ashour', 'الإسكواش', 'squash', 'مصر', 'Egypt'],
-  ['هداية ملاك', 'Hedaya Malak', 'التايكوندو', 'taekwondo', 'مصر', 'Egypt'],
-  ['فريال أشرف', 'Feryal Abdelaziz', 'الكاراتيه', 'karate', 'مصر', 'Egypt'],
-  ['كرم جابر', 'Karam Gaber', 'المصارعة', 'wrestling', 'مصر', 'Egypt'],
-  ['علاء أبو القاسم', 'Alaaeldin Abouelkassem', 'السلاح', 'fencing', 'مصر', 'Egypt']
-].map(([nameAr, nameEn, sportAr, sportEn, knownForAr, knownForEn]) => ({ nameAr, nameEn, sportAr, sportEn, knownForAr, knownForEn }));
+const footballPlayers = [
+  ['محمد صلاح', 'Mohamed Salah', 'جناح أيمن', 'right winger', 'ليفربول (Liverpool)', 'Liverpool', 'منتخب مصر', 'Egypt', 'نجم مصري صار أيقونة في أنفيلد وسرعته على الطرف تخوف أي دفاع', 'Egyptian star who became an Anfield icon with frightening wing speed'],
+  ['محمد أبو تريكة', 'Mohamed Aboutrika', 'صانع ألعاب', 'playmaker', 'الأهلي', 'Al Ahly', 'منتخب مصر', 'Egypt', 'صاحب اللمسة الهادية في الأهلي وواحد من رموز جيل 2006 و2008 القاري', 'calm Al Ahly playmaker and symbol of Egypt 2006 and 2008 era'],
+  ['محمود الخطيب', 'Mahmoud El Khatib', 'مهاجم', 'forward', 'الأهلي', 'Al Ahly', 'منتخب مصر', 'Egypt', 'لقبه بيبو وفاز بالكرة الذهبية الأفريقية في الثمانينيات', 'Bibo won the African footballer award in the 1980s'],
+  ['حسام حسن', 'Hossam Hassan', 'مهاجم', 'forward', 'منتخب مصر', 'Egypt national team', 'منتخب مصر', 'Egypt', 'هداف مصري تاريخي عرف بطول النفس والحضور داخل الصندوق', 'historic Egyptian scorer known for longevity and box presence'],
+  ['إبراهيم حسن', 'Ibrahim Hassan', 'ظهير أيمن', 'right back', 'منتخب مصر', 'Egypt national team', 'منتخب مصر', 'Egypt', 'توأم حسام وصاحب طرف أيمن لا يهدأ في منتخب مصر', 'Hossam twin and tireless right-sided Egyptian player'],
+  ['عصام الحضري', 'Essam El Hadary', 'حارس مرمى', 'goalkeeper', 'الأهلي', 'Al Ahly', 'منتخب مصر', 'Egypt', 'حارس السد العالي الذي ارتبط بتصديات كأس أفريقيا', 'High Dam goalkeeper linked with Africa Cup saves'],
+  ['أحمد حسن', 'Ahmed Hassan', 'وسط ملعب', 'midfielder', 'منتخب مصر', 'Egypt national team', 'منتخب مصر', 'Egypt', 'قائد مصري تاريخي اشتهر بكثرة مبارياته الدولية', 'historic Egyptian captain famous for international appearances'],
+  ['أحمد حسام ميدو', 'Mido', 'مهاجم', 'forward', 'أياكس (Ajax)', 'Ajax', 'منتخب مصر', 'Egypt', 'مهاجم مصري بدأ رحلته الأوروبية مبكرا وظهر في أياكس وتوتنهام', 'Egyptian striker with an early European career at Ajax and Tottenham'],
+  ['محمود حسن تريزيجيه', 'Trezeguet', 'جناح', 'winger', 'طرابزون سبور', 'Trabzonspor', 'منتخب مصر', 'Egypt', 'جناح مصري اسمه مستعار من نجم فرنسي بسبب الشبه في البدايات', 'Egyptian winger nicknamed after a French star'],
+  ['أحمد سيد زيزو', 'Zizo', 'جناح', 'winger', 'الزمالك', 'Zamalek', 'منتخب مصر', 'Egypt', 'لاعب زملكاوي ارتبط بالكرات الثابتة والهدوء تحت الضغط', 'Zamalek player linked with set pieces and calm under pressure'],
+  ['إمام عاشور', 'Emam Ashour', 'وسط ملعب', 'midfielder', 'الأهلي', 'Al Ahly', 'منتخب مصر', 'Egypt', 'وسط مصري طاقته عالية وتنقل بين قطبي الكرة المصرية', 'energetic Egyptian midfielder who played for both Cairo giants'],
+  ['محمد الشناوي', 'Mohamed El Shenawy', 'حارس مرمى', 'goalkeeper', 'الأهلي', 'Al Ahly', 'منتخب مصر', 'Egypt', 'حارس أهلاوي قاد الخط الخلفي في بطولات قارية حديثة', 'Al Ahly goalkeeper leading the back line in recent continental runs'],
+  ['علي معلول', 'Ali Maaloul', 'ظهير أيسر', 'left back', 'الأهلي', 'Al Ahly', 'منتخب تونس', 'Tunisia', 'ظهير تونسي صار من مفاتيح لعب الأهلي بيسراه وعرضياته', 'Tunisian left back who became an Al Ahly crossing weapon'],
+  ['شيكابالا', 'Shikabala', 'جناح', 'winger', 'الزمالك', 'Zamalek', 'منتخب مصر', 'Egypt', 'قائد زملكاوي اشتهر بيسراه والمهارة في المساحات الضيقة', 'Zamalek captain known for left-footed skill in tight spaces'],
+  ['ليونيل ميسي', 'Lionel Messi', 'صانع ألعاب', 'playmaker', 'برشلونة (Barcelona)', 'Barcelona', 'منتخب الأرجنتين', 'Argentina', 'يساري أرجنتيني جمع بين مراوغات برشلونة ولقب العالم في 2022', 'Argentine left-footer combining Barcelona dribbles with the 2022 world title'],
+  ['كريستيانو رونالدو', 'Cristiano Ronaldo', 'مهاجم', 'forward', 'ريال مدريد (Real Madrid)', 'Real Madrid', 'منتخب البرتغال', 'Portugal', 'هداف برتغالي اشتهر بالقفزات العالية وأرقام دوري الأبطال', 'Portuguese scorer known for huge leaps and Champions League records'],
+  ['بيليه', 'Pele', 'مهاجم', 'forward', 'سانتوس (Santos)', 'Santos', 'منتخب البرازيل', 'Brazil', 'برازيلي ارتبط بثلاث كؤوس عالم ولقب الملك', 'Brazilian linked with three World Cups and the King nickname'],
+  ['دييغو مارادونا', 'Diego Maradona', 'صانع ألعاب', 'playmaker', 'نابولي (Napoli)', 'Napoli', 'منتخب الأرجنتين', 'Argentina', 'رقم 10 أرجنتيني صنع أسطورة 1986 ولمع في نابولي', 'Argentine number 10 who made 1986 legendary and shone at Napoli'],
+  ['زين الدين زيدان', 'Zinedine Zidane', 'صانع ألعاب', 'playmaker', 'ريال مدريد (Real Madrid)', 'Real Madrid', 'منتخب فرنسا', 'France', 'فرنسي بلمسة حريرية ورأسية شهيرة في نهائي 1998', 'French playmaker with silky touch and a famous 1998 final header'],
+  ['رونالدينيو', 'Ronaldinho', 'صانع ألعاب', 'playmaker', 'برشلونة (Barcelona)', 'Barcelona', 'منتخب البرازيل', 'Brazil', 'ابتسامة برازيلية صنعت متعة برشلونة والمهارات الاستعراضية', 'Brazilian smile behind Barcelona flair and showmanship'],
+  ['كيليان مبابي', 'Kylian Mbappe', 'مهاجم', 'forward', 'باريس سان جيرمان (PSG)', 'Paris Saint-Germain', 'منتخب فرنسا', 'France', 'سرعة فرنسية انفجرت عالميا في مونديال 2018', 'French speed that exploded globally at the 2018 World Cup'],
+  ['إيرلينغ هالاند', 'Erling Haaland', 'مهاجم', 'forward', 'مانشستر سيتي (Manchester City)', 'Manchester City', 'منتخب النرويج', 'Norway', 'مهاجم نرويجي طويل يحول أنصاف الفرص إلى أهداف', 'tall Norwegian striker turning half chances into goals'],
+  ['لوكا مودريتش', 'Luka Modric', 'وسط ملعب', 'midfielder', 'ريال مدريد (Real Madrid)', 'Real Madrid', 'منتخب كرواتيا', 'Croatia', 'مايسترو كرواتي قاد بلاده لنهائي 2018 وفاز بالكرة الذهبية', 'Croatian maestro who reached the 2018 final and won the Ballon d Or'],
+  ['أندريس إنييستا', 'Andres Iniesta', 'وسط ملعب', 'midfielder', 'برشلونة (Barcelona)', 'Barcelona', 'منتخب إسبانيا', 'Spain', 'صاحب هدف نهائي 2010 ولمسة برشلونة الناعمة', 'scorer of the 2010 final goal and Barcelona smooth passer'],
+  ['تشافي هيرنانديز', 'Xavi Hernandez', 'وسط ملعب', 'midfielder', 'برشلونة (Barcelona)', 'Barcelona', 'منتخب إسبانيا', 'Spain', 'عقل التيكي تاكا الذي كان يوزع الإيقاع من الوسط', 'tiki-taka brain controlling tempo from midfield'],
+  ['جيانلويجي بوفون', 'Gianluigi Buffon', 'حارس مرمى', 'goalkeeper', 'يوفنتوس (Juventus)', 'Juventus', 'منتخب إيطاليا', 'Italy', 'حارس إيطالي طويل العمر رفع كأس العالم 2006', 'long-lasting Italian goalkeeper who lifted the 2006 World Cup'],
+  ['روبرتو كارلوس', 'Roberto Carlos', 'ظهير أيسر', 'left back', 'ريال مدريد (Real Madrid)', 'Real Madrid', 'منتخب البرازيل', 'Brazil', 'ظهير برازيلي اشتهر بتسديدات يسارية منحنية وقوية', 'Brazilian left back famous for powerful curling shots'],
+  ['باولو مالديني', 'Paolo Maldini', 'مدافع', 'defender', 'ميلان (Milan)', 'AC Milan', 'منتخب إيطاليا', 'Italy', 'مدافع ميلاني صار رمزا للوفاء والتمركز الهادئ', 'Milan defender symbolising loyalty and calm positioning'],
+  ['نيمار', 'Neymar', 'جناح', 'winger', 'برشلونة (Barcelona)', 'Barcelona', 'منتخب البرازيل', 'Brazil', 'برازيلي مهاري جمع بين الشارع والسرعة في الطرف', 'Brazilian dribbler mixing street skill and wing speed'],
+  ['محمد زيدان', 'Mohamed Zidan', 'مهاجم', 'forward', 'بوروسيا دورتموند (Borussia Dortmund)', 'Borussia Dortmund', 'منتخب مصر', 'Egypt', 'مهاجم مصري لمع في ألمانيا وساهم في أمم أفريقيا', 'Egyptian forward who shone in Germany and African titles'],
+  ['رياض محرز', 'Riyad Mahrez', 'جناح', 'winger', 'مانشستر سيتي (Manchester City)', 'Manchester City', 'منتخب الجزائر', 'Algeria', 'يساري جزائري جمع بين لقب إنجلترا وحلم أفريقيا', 'Algerian left-footer with English titles and African glory'],
+  ['أشرف حكيمي', 'Achraf Hakimi', 'ظهير أيمن', 'right back', 'باريس سان جيرمان (PSG)', 'Paris Saint-Germain', 'منتخب المغرب', 'Morocco', 'ظهير مغربي سريع كان من وجوه إنجاز 2022', 'fast Moroccan fullback linked with the 2022 run'],
+  ['جورج ويا', 'George Weah', 'مهاجم', 'forward', 'ميلان (Milan)', 'AC Milan', 'منتخب ليبيريا', 'Liberia', 'أفريقي فاز بالكرة الذهبية ثم أصبح رئيسا لبلده', 'African Ballon d Or winner who later became president'],
+  ['ديدييه دروغبا', 'Didier Drogba', 'مهاجم', 'forward', 'تشيلسي (Chelsea)', 'Chelsea', 'منتخب كوت ديفوار', 'Ivory Coast', 'مهاجم إيفواري ارتبط بالحسم الأوروبي لتشيلسي', 'Ivorian striker linked with Chelsea European clutch moments'],
+  ['صامويل إيتو', 'Samuel Eto o', 'مهاجم', 'forward', 'برشلونة (Barcelona)', 'Barcelona', 'منتخب الكاميرون', 'Cameroon', 'مهاجم كاميروني جمع ألقابا أوروبية مع برشلونة وإنتر', 'Cameroonian striker with European titles at Barcelona and Inter'],
+  ['فرانز بيكنباور', 'Franz Beckenbauer', 'مدافع', 'defender', 'بايرن ميونخ (Bayern Munich)', 'Bayern Munich', 'منتخب ألمانيا', 'Germany', 'ألماني لقب بالقيصر وغيّر صورة المدافع القائد', 'German Kaiser who reshaped the leader-defender image']
+].map(([nameAr, nameEn, roleAr, roleEn, associatedAr, associatedEn, nationalTeamAr, nationalTeamEn, clueAr, clueEn]) => ({ nameAr, nameEn, roleAr, roleEn, associatedAr, associatedEn, nationalTeamAr, nationalTeamEn, clueAr, clueEn }));
 
-const worldSportsTournaments = [
-  ['كأس العالم لكرة القدم', 'FIFA World Cup', 'كرة القدم', 'football', 'أكبر مسرح للمنتخبات كل أربع سنوات', 'biggest national-team stage every four years', 'أول نسخة أقيمت في أوروجواي عام 1930', 'first edition was held in Uruguay in 1930'],
-  ['كأس العالم للسيدات', 'FIFA Women World Cup', 'كرة القدم', 'football', 'نسخة المنتخبات النسائية من المونديال', 'women national-team version of the World Cup', 'انطلقت أول نسخة عام 1991', 'first edition started in 1991'],
-  ['كأس الأمم الأفريقية', 'Africa Cup of Nations', 'كرة القدم', 'football', 'بطولة تجمع منتخبات أفريقيا', 'tournament for African national teams', 'انطلقت أول نسخة عام 1957', 'first edition started in 1957'],
-  ['دوري أبطال أوروبا', 'UEFA Champions League', 'كرة القدم', 'football', 'ليالي الأندية الأوروبية الكبرى', 'big European club nights', 'بدأت باسم كأس الأندية الأوروبية البطلة', 'started as the European Champion Clubs Cup'],
-  ['كوبا أمريكا', 'Copa America', 'كرة القدم', 'football', 'بطولة منتخبات أمريكا الجنوبية التاريخية', 'historic South American national-team tournament', 'من أقدم بطولات المنتخبات القارية', 'one of the oldest continental national-team tournaments'],
-  ['كأس آسيا', 'AFC Asian Cup', 'كرة القدم', 'football', 'بطولة منتخبات القارة الآسيوية', 'Asian national-team tournament', 'انطلقت أول نسخة عام 1956', 'first edition started in 1956'],
-  ['كأس العالم للأندية', 'FIFA Club World Cup', 'كرة القدم', 'football', 'أندية أبطال القارات في بطولة واحدة', 'continental club champions in one tournament', 'يجمع أبطال الأندية من قارات مختلفة', 'brings club champions from different continents together'],
-  ['الألعاب الأولمبية الحديثة', 'Modern Olympic Games', 'رياضات متعددة', 'multi-sport', 'حدث عالمي يجمع رياضات كثيرة تحت الحلقات الخمس', 'global event with many sports under the five rings', 'أول نسخة حديثة كانت في أثينا عام 1896', 'first modern edition was in Athens in 1896'],
-  ['الألعاب البارالمبية', 'Paralympic Games', 'رياضات متعددة', 'multi-sport', 'حدث عالمي للرياضيين ذوي الإعاقة', 'global event for athletes with disabilities', 'أول ألعاب بارالمبية رسمية كانت في روما عام 1960', 'first official Paralympic Games were in Rome in 1960'],
-  ['ويمبلدون', 'Wimbledon', 'التنس', 'tennis', 'بطولة تنس عريقة على الملاعب العشبية', 'historic tennis tournament on grass courts', 'تشتهر بالملاعب العشبية والتقاليد البيضاء', 'known for grass courts and white-clothing traditions'],
-  ['رولان جاروس', 'Roland-Garros', 'التنس', 'tennis', 'بطولة تنس فرنسية على الملاعب الترابية', 'French tennis tournament on clay courts', 'تقام في باريس على ملاعب ترابية', 'played in Paris on clay courts'],
-  ['سباق فرنسا للدراجات', 'Tour de France', 'الدراجات', 'cycling', 'رحلة طويلة وقميص أصفر حول فرنسا', 'long race and yellow jersey around France', 'القميص الأصفر يميز متصدر الترتيب العام', 'yellow jersey marks the general classification leader'],
-  ['جائزة موناكو الكبرى', 'Monaco Grand Prix', 'فورمولا 1', 'Formula 1', 'سيارات فورمولا 1 في شوارع ضيقة قرب الميناء', 'Formula 1 cars on narrow streets near the harbour', 'تقام على حلبة شوارع داخل موناكو', 'held on a street circuit inside Monaco'],
-  ['كأس العالم للكريكيت', 'Cricket World Cup', 'الكريكيت', 'cricket', 'بطولة عالمية في لعبة المضرب والويكيت', 'global tournament for bat-and-wicket cricket', 'أول نسخة أقيمت في إنجلترا عام 1975', 'first edition was held in England in 1975'],
-  ['كأس العالم للرجبي', 'Rugby World Cup', 'الرجبي', 'rugby', 'بطولة عالمية للعبة الكرة البيضاوية', 'global tournament for the oval-ball game', 'أول نسخة كانت عام 1987', 'first edition was in 1987'],
-  ['كأس العالم لكرة السلة', 'FIBA Basketball World Cup', 'كرة السلة', 'basketball', 'بطولة منتخبات كرة السلة عالميا', 'global national-team basketball tournament', 'بدأت في الأرجنتين عام 1950', 'started in Argentina in 1950'],
-  ['نهائيات NBA', 'NBA Finals', 'كرة السلة', 'basketball', 'سلسلة حسم لقب دوري السلة الأمريكي', 'series deciding the American basketball league title', 'الفائز يحصل على كأس لاري أوبراين', 'winner receives the Larry O Brien Trophy'],
-  ['بطولة العالم لكرة اليد', 'World Men Handball Championship', 'كرة اليد', 'handball', 'بطولة للعبة السريعة ذات السبعة لاعبين', 'tournament for the fast seven-player game', 'أول بطولة للرجال أقيمت عام 1938', 'first men tournament was held in 1938'],
-  ['السوبر بول', 'Super Bowl', 'كرة القدم الأمريكية', 'American football', 'نهائي كبير يجمع الرياضة والعرض الموسيقي', 'big final mixing sport and halftime show', 'يحسم بطل دوري NFL', 'decides the NFL champion'],
-  ['بطولة العالم لألعاب القوى', 'World Athletics Championships', 'ألعاب القوى', 'athletics', 'مضمار وميدان وميداليات خارج الأولمبياد', 'track, field, and medals outside the Olympics', 'بطولة عالمية للعدو والرمي والقفز', 'global championship for running, throwing, and jumping']
-].map(([nameAr, nameEn, sportAr, sportEn, identityAr, identityEn, memoryAr, memoryEn]) => ({ nameAr, nameEn, sportAr, sportEn, identityAr, identityEn, memoryAr, memoryEn }));
+const footballTournaments = [
+  ['كأس العالم لكرة القدم', 'FIFA World Cup', 'منتخبات العالم', 'world national teams', 'أكبر مسرح للمنتخبات كل أربع سنوات', 'biggest national-team stage every four years', 'أول نسخة أقيمت في أوروجواي عام 1930', 'first edition was held in Uruguay in 1930'],
+  ['كأس العالم للسيدات', 'FIFA Women World Cup', 'منتخبات السيدات', 'women national teams', 'نسخة المونديال التي صنعت مساحة أكبر لكرة السيدات', 'World Cup version that expanded women football', 'انطلقت أول نسخة عام 1991', 'first edition started in 1991'],
+  ['كأس الأمم الأفريقية', 'Africa Cup of Nations', 'منتخبات أفريقيا', 'African national teams', 'بطولة قارية يعرفها جمهور مصر بالقمصان الحمراء والذكريات الذهبية', 'African tournament tied to Egyptian golden memories', 'انطلقت أول نسخة عام 1957', 'first edition started in 1957'],
+  ['دوري أبطال أوروبا', 'UEFA Champions League', 'أندية أوروبا', 'European clubs', 'ليالي الأندية الأوروبية الكبرى والنشيد الشهير قبل البداية', 'big European club nights and the famous anthem', 'بدأت باسم كأس الأندية الأوروبية البطلة', 'started as the European Champion Clubs Cup'],
+  ['الدوري الأوروبي', 'UEFA Europa League', 'أندية أوروبا', 'European clubs', 'بطولة أوروبية تأتي بعد دوري الأبطال في سلم الأندية', 'European club tournament below the Champions League tier', 'كانت تعرف سابقا بكأس الاتحاد الأوروبي', 'was formerly known as the UEFA Cup'],
+  ['كوبا أمريكا', 'Copa America', 'منتخبات أمريكا الجنوبية', 'South American national teams', 'بطولة تجمع البرازيل والأرجنتين وأوروجواي في ذاكرة واحدة', 'tournament bringing Brazil, Argentina, and Uruguay together', 'من أقدم بطولات المنتخبات القارية', 'one of the oldest continental national-team tournaments'],
+  ['كأس أمم أوروبا', 'UEFA Euro', 'منتخبات أوروبا', 'European national teams', 'بطولة قارية تضع منتخبات أوروبا في صيف كروي واحد', 'continental tournament for European national teams', 'أول نسخة أقيمت عام 1960', 'first edition was held in 1960'],
+  ['كأس آسيا', 'AFC Asian Cup', 'منتخبات آسيا', 'Asian national teams', 'بطولة قارية تجمع منتخبات شرق وغرب آسيا', 'continental tournament for East and West Asian national teams', 'انطلقت أول نسخة عام 1956', 'first edition started in 1956'],
+  ['كأس العالم للأندية', 'FIFA Club World Cup', 'أبطال الأندية القارية', 'continental club champions', 'أندية أبطال القارات في بطولة واحدة', 'continental club champions in one tournament', 'يجمع أبطال الأندية من قارات مختلفة', 'brings club champions from different continents together'],
+  ['دوري أبطال أفريقيا', 'CAF Champions League', 'أندية أفريقيا', 'African clubs', 'رحلة أندية القارة نحو اللقب الأفريقي الأكبر', 'African clubs route to the biggest continental title', 'الأهلي والزمالك من أشهر أسمائه المصرية', 'Al Ahly and Zamalek are among its famous Egyptian names'],
+  ['كأس الكونفدرالية الأفريقية', 'CAF Confederation Cup', 'أندية أفريقيا', 'African clubs', 'بطولة أفريقية للأندية تأتي بعد دوري الأبطال في الأهمية', 'African club tournament below the Champions League tier', 'تجمع أندية من مشوار قاري طويل بنظام خروج ومجموعات', 'mixes knockout and group-stage continental runs'],
+  ['الدوري المصري الممتاز', 'Egyptian Premier League', 'أندية مصر', 'Egyptian clubs', 'المسابقة المحلية التي تشعل تنافس الأهلي والزمالك وباقي الأندية', 'domestic league behind the Al Ahly and Zamalek rivalry', 'انطلقت نسخته الأولى موسم 1948-1949', 'first season began in 1948-1949'],
+  ['الدوري الإنجليزي الممتاز', 'Premier League', 'أندية إنجلترا', 'English clubs', 'دوري سريع الإيقاع ارتبط عالميا بالبث والجماهير الصاخبة', 'fast-paced league known globally for broadcast and atmosphere', 'بدأ باسمه الحالي عام 1992', 'started under its current name in 1992'],
+  ['الدوري الإسباني', 'LaLiga', 'أندية إسبانيا', 'Spanish clubs', 'المسرح الطويل لكلاسيكو ريال مدريد وبرشلونة', 'long-running stage for Real Madrid and Barcelona clasicos', 'ريال مدريد وبرشلونة أبرز قوتيه تاريخيا', 'Real Madrid and Barcelona are its historic giants'],
+  ['الدوري الإيطالي', 'Serie A', 'أندية إيطاليا', 'Italian clubs', 'دوري اشتهر تاريخيا بالمدافعين والتكتيك الصارم', 'league historically known for defenders and strict tactics', 'ميلان وإنتر ويوفنتوس من أشهر رموزه', 'Milan, Inter, and Juventus are among its icons'],
+  ['الدوري الألماني', 'Bundesliga', 'أندية ألمانيا', 'German clubs', 'دوري معروف بالمدرجات الكبيرة والضغط العالي', 'league known for large crowds and high pressing', 'بايرن ميونخ أكثر أسمائه حضورا في العقود الأخيرة', 'Bayern Munich has dominated recent decades'],
+  ['الدوري الفرنسي', 'Ligue 1', 'أندية فرنسا', 'French clubs', 'دوري خرج منه نجوم شباب كثر قبل الانتقال لأوروبا الكبرى', 'league that produced many young stars before bigger moves', 'باريس سان جيرمان أبرز قوة حديثة فيه', 'Paris Saint-Germain is its modern powerhouse'],
+  ['كأس مصر', 'Egypt Cup', 'أندية مصر', 'Egyptian clubs', 'بطولة خروج مغلوب تعطي فرصة للمفاجآت المحلية', 'knockout cup that creates local upsets', 'أقدم من الدوري المصري الممتاز', 'older than the Egyptian Premier League']
+].map(([nameAr, nameEn, scopeAr, scopeEn, identityAr, identityEn, memoryAr, memoryEn]) => ({ nameAr, nameEn, scopeAr, scopeEn, identityAr, identityEn, memoryAr, memoryEn }));
 
 const egyptArtists = [
   ['محمود مختار', 'Mahmoud Mokhtar', 'نهضة مصر', 'Egypt Renaissance', 'النحت', 'sculpture'],
@@ -592,6 +735,70 @@ const globalTechFacts = [
   ['شبكة قريبة: Wi-Fi تستخدم غالبا لتوفير اتصال ماذا؟', 'Nearby network: Wi-Fi usually provides what kind of connection?', 'اتصال لاسلكي محلي', 'local wireless connection', [['وقود للطائرات', 'aircraft fuel'], ['ورق للطباعة', 'printing paper'], ['عدسة كاميرا', 'camera lens']]]
 ];
 
+const animalTrickyFacts = [
+  ['لغز طبيعة: كائن بحري ينام بنصف دماغه أحيانا ويستخدم الأصوات للتواصل. من هو؟', 'Nature riddle: which sea animal can rest half its brain and uses sound to communicate?', 'الدلفين', 'dolphin', [['الحوت الأزرق', 'blue whale'], ['البطريق', 'penguin'], ['النسر الأصلع', 'bald eagle']]],
+  ['مفارقة الحجم: أضخم حيوان معروف يعتمد في غذائه على كائنات صغيرة جدا. من هو؟', 'Size paradox: the largest known animal feeds on tiny organisms. Which one?', 'الحوت الأزرق', 'blue whale', [['الفيل الأفريقي', 'African elephant'], ['التمساح النيلي', 'Nile crocodile'], ['الأسد', 'lion']]],
+  ['طائر ببدلة رسمية: لا يطير لكنه سباح ممتاز في المياه الباردة. من هو؟', 'Tuxedo bird clue: it cannot fly but swims brilliantly in cold water. Which one?', 'البطريق', 'penguin', [['أبو قردان', 'cattle egret'], ['النسر الأصلع', 'bald eagle'], ['النحلة', 'bee']]],
+  ['صديق الفلاح: طائر تراه قرب الماشية والحقول لأنه يلتقط الحشرات حولها. من هو؟', 'Farmer friend: which bird is seen near cattle and fields catching insects?', 'أبو قردان', 'cattle egret', [['النسر الأصلع', 'bald eagle'], ['البطريق', 'penguin'], ['الدلفين', 'dolphin']]],
+  ['خدعة الصحراء: السنام لا يخزن ماء مباشرة بل دهونا تساعده وقت الشدة. أي حيوان؟', 'Desert trick: the hump stores fat, not water directly. Which animal?', 'الجمل', 'camel', [['الكنغر', 'kangaroo'], ['الفيل الأفريقي', 'African elephant'], ['الأسد', 'lion']]],
+  ['أبيض وأسود لكن ليس بطريقا: غذاؤه الشهير الخيزران. من هو؟', 'Black and white but not a penguin: its famous food is bamboo. Which animal?', 'الباندا العملاقة', 'giant panda', [['النحلة', 'bee'], ['الكنغر', 'kangaroo'], ['أبو قردان', 'cattle egret']]],
+  ['لقطة نيلية: زاحف صبور وفكه من أقوى أسلحته. من هو؟', 'Nile clue: a patient reptile whose jaw is its main weapon. Which one?', 'التمساح النيلي', 'Nile crocodile', [['الجمل', 'camel'], ['الدلفين', 'dolphin'], ['البطريق', 'penguin']]],
+  ['مصنع صغير للطبيعة: يجمع الرحيق ويساعد النباتات على التلقيح. من هو؟', 'Tiny nature factory: it gathers nectar and helps plants pollinate. Which one?', 'النحلة', 'bee', [['الباندا العملاقة', 'giant panda'], ['أبو قردان', 'cattle egret'], ['الكنغر', 'kangaroo']]],
+  ['حقيبة طبيعية: الصغير يكمل نموه في جراب الأم بعد الولادة. أي حيوان؟', 'Natural pouch: the young continues growing in the mother pouch. Which animal?', 'الكنغر', 'kangaroo', [['الجمل', 'camel'], ['النسر الأصلع', 'bald eagle'], ['التمساح النيلي', 'Nile crocodile']]],
+  ['رمز سياسي من عالم الطيور: جارح أبيض الرأس صار شعارا أمريكيا مشهورا. من هو؟', 'Political bird symbol: a white-headed raptor became a famous American emblem. Which bird?', 'النسر الأصلع', 'bald eagle', [['النحلة', 'bee'], ['البطريق', 'penguin'], ['أبو قردان', 'cattle egret']]]
+];
+
+const vehicleTrickyFacts = [
+  ['مواصلات تحت الزحام: قضبان ومحطات داخل القاهرة الكبرى تنقل آلاف الركاب يوميا. ما هي؟', 'Transport under traffic: rails and stations move thousands across Greater Cairo. What is it?', 'مترو القاهرة', 'Cairo Metro', [['الترام', 'tram'], ['الأتوبيس', 'bus'], ['التوك توك', 'tuk-tuk']]],
+  ['رحلة سكك حديثة: قطار ركاب مميز دخل الخدمة في مصر بتصميم إسباني. ما اسمه؟', 'Modern rail clue: a distinctive passenger train in Egypt with Spanish design. What is it?', 'قطار تالجو في مصر', 'Talgo train in Egypt', [['مترو القاهرة', 'Cairo Metro'], ['الترام', 'tram'], ['السفينة', 'ship']]],
+  ['ثلاث عجلات وزقاق ضيق: وسيلة عملية للمشاوير القصيرة في مناطق كثيرة. ما هي؟', 'Three wheels and narrow streets: a practical short-trip vehicle. What is it?', 'التوك توك', 'tuk-tuk', [['الدراجة النارية', 'motorcycle'], ['الدراجة', 'bicycle'], ['الأتوبيس', 'bus']]],
+  ['طاقة بشرية فقط: وسيلة تنقل ورياضة في نفس الوقت ولا تحتاج وقودا. ما هي؟', 'Human power only: both transport and sport without fuel. What is it?', 'الدراجة', 'bicycle', [['السيارة الكهربائية', 'electric car'], ['الدراجة النارية', 'motorcycle'], ['الترام', 'tram']]],
+  ['هدوء وانبعاثات أقل: مركبة طريق تعتمد على بطارية بدلا من البنزين. ما هي؟', 'Quiet and lower emissions: a road vehicle powered by a battery instead of petrol. What is it?', 'السيارة الكهربائية', 'electric car', [['الأتوبيس', 'bus'], ['التوك توك', 'tuk-tuk'], ['السفينة', 'ship']]],
+  ['قطار خفيف في الشارع: يسير على قضبان داخل المدينة غالبا. ما هو؟', 'Light rail in the street: it usually runs on tracks inside a city. What is it?', 'الترام', 'tram', [['قطار تالجو في مصر', 'Talgo train in Egypt'], ['الطائرة', 'airplane'], ['السيارة الكهربائية', 'electric car']]],
+  ['عبور البحر: وسيلة ضخمة تنقل الركاب أو البضائع فوق الماء. ما هي؟', 'Sea crossing: a large vehicle moving passengers or goods on water. What is it?', 'السفينة', 'ship', [['الطائرة', 'airplane'], ['الأتوبيس', 'bus'], ['الدراجة', 'bicycle']]],
+  ['شارع ومحطات وركاب كثيرون: وسيلة نقل جماعي مألوفة داخل المدن. ما هي؟', 'Road, stops, and many passengers: familiar urban public transport. What is it?', 'الأتوبيس', 'bus', [['التوك توك', 'tuk-tuk'], ['الدراجة النارية', 'motorcycle'], ['السفينة', 'ship']]],
+  ['عجلتان ومحرك: أسرع من الدراجة وأخف من السيارة. ما هي؟', 'Two wheels and an engine: faster than a bicycle and lighter than a car. What is it?', 'الدراجة النارية', 'motorcycle', [['الدراجة', 'bicycle'], ['الترام', 'tram'], ['الأتوبيس', 'bus']]],
+  ['سفر فوق السحاب: وسيلة تقطع مسافات بعيدة في وقت قصير. ما هي؟', 'Above-cloud travel: it covers long distances quickly. What is it?', 'الطائرة', 'airplane', [['السفينة', 'ship'], ['قطار تالجو في مصر', 'Talgo train in Egypt'], ['مترو القاهرة', 'Cairo Metro']]]
+];
+
+const gameTrickyFacts = [
+  ['لوحة بلا حظ: كل لاعب يرى نفس القطع، والذكاء في الخطة لا في الزهر. أي لعبة؟', 'Board without luck: both players see the same pieces and strategy matters more than dice. Which game?', 'الشطرنج', 'chess', [['الطاولة', 'backgammon'], ['الدومينو', 'dominoes'], ['مونوبولي (Monopoly)', 'Monopoly']]],
+  ['زهر وأقراص وحساب مخاطرة: لعبة قهاوي وبيوت قديمة. أي لعبة؟', 'Dice, checkers, and risk calculation: an old cafe-and-home game. Which game?', 'الطاولة', 'backgammon', [['الشطرنج', 'chess'], ['تتريس (Tetris)', 'Tetris'], ['باك مان (Pac-Man)', 'Pac-Man']]],
+  ['قطع مرقمة لا تحتاج شاشة: السر في مطابقة الأطراف. أي لعبة؟', 'Numbered tiles without a screen: the trick is matching ends. Which game?', 'الدومينو', 'dominoes', [['مونوبولي (Monopoly)', 'Monopoly'], ['الشطرنج', 'chess'], ['سوبر ماريو (Super Mario)', 'Super Mario']]],
+  ['عقارات وفلوس ورهن: لعبة تعلمك أن الإفلاس جزء من المتعة. أي لعبة؟', 'Properties, money, and mortgages: a game where bankruptcy is part of the fun. Which game?', 'مونوبولي (Monopoly)', 'Monopoly', [['الدومينو', 'dominoes'], ['تتريس (Tetris)', 'Tetris'], ['الطاولة', 'backgammon']]],
+  ['كتل تسقط بسرعة: المتعة في ترتيب الفوضى قبل أن تمتلئ الشاشة. أي لعبة؟', 'Falling blocks: the fun is organizing chaos before the screen fills. Which game?', 'تتريس (Tetris)', 'Tetris', [['باك مان (Pac-Man)', 'Pac-Man'], ['ماينكرافت (Minecraft)', 'Minecraft'], ['الشطرنج', 'chess']]],
+  ['متاهة ونقاط ومطاردة: لعبة أركيد تصنع توترا بأبسط شكل. أي لعبة؟', 'Maze, dots, and chase: an arcade game creating tension with simple rules. Which game?', 'باك مان (Pac-Man)', 'Pac-Man', [['سوبر ماريو (Super Mario)', 'Super Mario'], ['الدومينو', 'dominoes'], ['مونوبولي (Monopoly)', 'Monopoly']]],
+  ['عوالم مفتوحة ومكعبات: تبني وتنجو وتخترع قصتك بنفسك. أي لعبة؟', 'Open worlds and blocks: build, survive, and invent your own story. Which game?', 'ماينكرافت (Minecraft)', 'Minecraft', [['كرة القدم الإلكترونية فيفا (FIFA)', 'FIFA video game'], ['تتريس (Tetris)', 'Tetris'], ['الطاولة', 'backgammon']]],
+  ['سباك ومنصات وقفز: واحدة من أشهر شخصيات نينتندو. أي سلسلة؟', 'Plumber, platforms, and jumping: one of Nintendo most famous characters. Which series?', 'سوبر ماريو (Super Mario)', 'Super Mario', [['باك مان (Pac-Man)', 'Pac-Man'], ['ماينكرافت (Minecraft)', 'Minecraft'], ['الشطرنج', 'chess']]]
+];
+
+const religionTrickyFacts = [
+  ['سيرة مبكرة: مكان صغير قرب مكة ارتبط بأول نزول للوحي. ما هو؟', 'Early seerah clue: a small place near Mecca linked to the first revelation. What is it?', 'غار حراء', 'Cave Hira', [['غار ثور', 'Cave Thawr'], ['جبل عرفات', 'Mount Arafat'], ['مسجد قباء', 'Quba Mosque']]],
+  ['تقويم ومعنى: بداية التقويم الهجري مرتبطة بأي حدث كبير؟', 'Calendar meaning: the Hijri calendar begins from which major event?', 'الهجرة النبوية', 'the Hijra', [['فتح مكة', 'Conquest of Mecca'], ['غزوة بدر', 'Battle of Badr'], ['عام الفيل', 'Year of the Elephant']]],
+  ['شهر بعد الصيام: أول يوم فيه يرتبط بعيد الفطر. أي شهر؟', 'After fasting: its first day is linked with Eid al-Fitr. Which month?', 'شوال', 'Shawwal', [['رمضان', 'Ramadan'], ['ذو الحجة', 'Dhu al-Hijjah'], ['محرم', 'Muharram']]],
+  ['تعليم مصري عريق: مؤسسة علمية تاريخية ارتبطت بجامع في القاهرة. ما هي؟', 'Historic Egyptian learning: which scholarly institution is linked to a Cairo mosque?', 'جامعة الأزهر', 'Al-Azhar University', [['دار الكتب', 'National Library'], ['مكتبة الإسكندرية', 'Bibliotheca Alexandrina'], ['دار الأوبرا', 'Opera House']]],
+  ['صوت النداء الأول: الصحابي المعروف بأنه أول مؤذن في الإسلام. من هو؟', 'First call voice: which companion is known as the first muezzin?', 'بلال بن رباح', 'Bilal ibn Rabah', [['زيد بن ثابت', 'Zayd ibn Thabit'], ['مصعب بن عمير', 'Musab ibn Umayr'], ['سعد بن أبي وقاص', 'Saad ibn Abi Waqqas']]],
+  ['جمع المصحف: الخليفة الذي ارتبط بتوحيد المصاحف على رسم واحد. من هو؟', 'Mushaf standardization: which caliph is linked to standardizing Quran manuscripts?', 'عثمان بن عفان', 'Uthman ibn Affan', [['أبو بكر الصديق', 'Abu Bakr'], ['عمر بن الخطاب', 'Umar'], ['علي بن أبي طالب', 'Ali']]]
+];
+
+const politicsTrickyFacts = [
+  ['بطاقة عالمية: منظمة تجمع دول العالم تقريبا وتتكلم كثيرا عن السلم الدولي. ما هي؟', 'Global card: which organization gathers nearly all states and focuses on peace?', 'الأمم المتحدة', 'United Nations', [['جامعة الدول العربية', 'League of Arab States'], ['الاتحاد الأفريقي', 'African Union'], ['البنك الدولي (World Bank)', 'World Bank']]],
+  ['ثقافة وتعليم وتراث: أي منظمة دولية تقف خلف مواقع التراث العالمي؟', 'Culture, education, and heritage: which organization is behind World Heritage sites?', 'اليونسكو (UNESCO)', 'UNESCO', [['منظمة الصحة العالمية (WHO)', 'WHO'], ['صندوق النقد الدولي (IMF)', 'IMF'], ['محكمة العدل الدولية', 'International Court of Justice']]],
+  ['صحة عالمية: مؤسسة نسمع اسمها كثيرا عند الأوبئة واللقاحات. ما هي؟', 'Global health: which body is often heard during epidemics and vaccines?', 'منظمة الصحة العالمية (WHO)', 'World Health Organization', [['البنك الدولي (World Bank)', 'World Bank'], ['مجلس النواب المصري', 'Egyptian House of Representatives'], ['منظمة التعاون الإسلامي', 'Organisation of Islamic Cooperation']]],
+  ['بيت التشريع: في مصر، المؤسسة التي تناقش القوانين وتمثل المواطنين هي أي جهة؟', 'Legislation house: in Egypt, which body debates laws and represents citizens?', 'مجلس النواب المصري', 'Egyptian House of Representatives', [['مجلس الوزراء المصري', 'Egyptian Cabinet'], ['محكمة العدل الدولية', 'International Court of Justice'], ['اليونسكو (UNESCO)', 'UNESCO']]],
+  ['قارة واحدة وطاولة مشتركة: أي منظمة تجمع الدول الأفريقية سياسيا؟', 'One continent, shared table: which organization gathers African states politically?', 'الاتحاد الأفريقي', 'African Union', [['جامعة الدول العربية', 'League of Arab States'], ['الأمم المتحدة', 'United Nations'], ['صندوق النقد الدولي (IMF)', 'IMF']]],
+  ['نزاعات بين دول: المحكمة الدولية الأشهر في لاهاي تختص غالبا بأي اسم؟', 'State disputes: which international court in The Hague is the famous one?', 'محكمة العدل الدولية', 'International Court of Justice', [['مجلس الشيوخ المصري', 'Egyptian Senate'], ['البنك الدولي (World Bank)', 'World Bank'], ['منظمة الصحة العالمية (WHO)', 'WHO']]]
+];
+
+const musicTrickyFacts = [
+  ['صوت وملحن ولحن طويل: أغنية «أنت عمري» تجمع أم كلثوم بأي موسيقار كبير؟', 'Long-song clue: Enta Omri links Umm Kulthum with which great composer?', 'محمد عبد الوهاب', 'Mohamed Abdel Wahab', [['رياض السنباطي', 'Riad Al Sunbati'], ['بليغ حمدي', 'Baligh Hamdi'], ['كمال الطويل', 'Kamal El Tawil']]],
+  ['نشيد وطني سابق: «والله زمان يا سلاحي» ارتبط بصوت أي مطربة؟', 'Former anthem clue: Wallah Zaman Ya Selahy is linked to which singer voice?', 'أم كلثوم', 'Umm Kulthum', [['شادية', 'Shadia'], ['نجاة الصغيرة', 'Nagat El Saghira'], ['ليلى مراد', 'Layla Murad']]],
+  ['أغنية وطنية سينمائية الروح: «يا حبيبتي يا مصر» اشتهرت بصوت من؟', 'Patriotic cinematic song: Ya Habibti Ya Masr is famous in whose voice?', 'شادية', 'Shadia', [['وردة الجزائرية', 'Warda Al-Jazairia'], ['أنغام', 'Angham'], ['ليلى مراد', 'Layla Murad']]],
+  ['أغنية من الفوازير إلى الذاكرة: «ذهب الليل» ارتبطت بأي فنان؟', 'From children memory to song history: Dahab El Leil is linked to which artist?', 'محمد فوزي', 'Mohamed Fawzi', [['محمد منير', 'Mohamed Mounir'], ['عبد الحليم حافظ', 'Abdel Halim Hafez'], ['علي الحجار', 'Ali El Haggar']]],
+  ['لون نوبي وصوت معاصر: «حدوتة مصرية» تلمع مع اسم من؟', 'Nubian colour and modern voice: Hadouta Masreya shines with whose name?', 'محمد منير', 'Mohamed Mounir', [['عمرو دياب', 'Amr Diab'], ['سيد درويش', 'Sayed Darwish'], ['محمد الموجي', 'Mohamed El Mougy']]],
+  ['أغنية كسرت حدود التسعينات: «نور العين» ارتبطت بأي مطرب؟', '1990s hit clue: Nour El Ain is tied to which singer?', 'عمرو دياب', 'Amr Diab', [['علي الحجار', 'Ali El Haggar'], ['فريد الأطرش', 'Farid al-Atrash'], ['محمد عبد الوهاب', 'Mohamed Abdel Wahab']]]
+];
+
 for (const [textAr, textEn, answerAr, answerEn, wrong] of generalFacts) {
   addDirectQuestion('general-knowledge', 'Easy', 15, textAr, textEn, answerAr, answerEn, wrong);
 }
@@ -602,6 +809,10 @@ for (const [textAr, textEn, answerAr, answerEn, wrong] of globalGeneralFacts) {
 
 for (const [textAr, textEn, answerAr, answerEn, wrong] of religionQuestions) {
   addDirectQuestion('religion-islamic', 'Easy', 15, textAr, textEn, answerAr, answerEn, wrong);
+}
+
+for (const [textAr, textEn, answerAr, answerEn, wrong] of religionTrickyFacts) {
+  addDirectQuestion('religion-islamic', 'Medium', 20, textAr, textEn, answerAr, answerEn, wrong);
 }
 
 for (const [textAr, textEn, answerAr, answerEn, wrong] of globalHistoryFacts) {
@@ -689,21 +900,27 @@ addFieldQuestions('sports', egyptSports, [
   ] }
 ]);
 
-addFieldQuestions('sports', egyptSportsPeople, [
-  { arField: 'sportAr', enField: 'sportEn', difficulty: 'Easy', timeLimitSec: 15, variants: [
-    { ar: (r) => `بطاقة بطل مصري: ${r.nameAr} اسمه اتلمع في أي رياضة؟`, en: (r) => `Egyptian champion card: which sport made ${r.nameEn} stand out?` }
+addFieldQuestions('sports', footballPlayers, [
+  { arField: 'nameAr', enField: 'nameEn', difficulty: 'Medium', timeLimitSec: 20, variants: [
+    { ar: (r) => `مين اللاعب؟ ${r.clueAr}.`, en: (r) => `Name the player: ${r.clueEn}.` }
   ] },
-  { arField: 'knownForAr', enField: 'knownForEn', difficulty: 'Medium', timeLimitSec: 20, variants: [
-    { ar: (r) => `في نقاش رياضي سريع: اسم ${r.nameAr} مرتبط بإيه أكتر؟`, en: (r) => `Quick sports debate: what is ${r.nameEn} most linked with?` }
+  { arField: 'associatedAr', enField: 'associatedEn', difficulty: 'Medium', timeLimitSec: 20, variants: [
+    { ar: (r) => `بطاقة لاعب ناقصة: ${r.nameAr} غالبا هتوصله بأي محطة كروية؟`, en: (r) => `Missing player card: which football stop best links to ${r.nameEn}?` }
+  ] },
+  { arField: 'roleAr', enField: 'roleEn', difficulty: 'Medium', timeLimitSec: 20, variants: [
+    { ar: (r) => `لو بتكوّن فريق أحلام، ${r.nameAr} تحطه غالبا في أي دور؟`, en: (r) => `If building a dream team, which role fits ${r.nameEn}?` }
+  ] },
+  { arField: 'nationalTeamAr', enField: 'nationalTeamEn', difficulty: 'Easy', timeLimitSec: 15, variants: [
+    { ar: (r) => `قميص المنتخب: ${r.nameAr} ارتبط دوليا بأي منتخب؟`, en: (r) => `National shirt: which national team is ${r.nameEn} linked with?` }
   ] }
 ]);
 
-addFieldQuestions('sports', worldSportsTournaments, [
+addFieldQuestions('sports', footballTournaments, [
   { arField: 'nameAr', enField: 'nameEn', difficulty: 'Medium', timeLimitSec: 20, variants: [
-    { ar: (r) => `بطاقة بطولة عالمية: ${r.identityAr}. أي بطولة نقصد؟`, en: (r) => `Global tournament card: ${r.identityEn}. Which tournament is it?` }
+    { ar: (r) => `بطاقة بطولة كروية: ${r.identityAr}. أي بطولة نقصد؟`, en: (r) => `Football tournament card: ${r.identityEn}. Which tournament is it?` }
   ] },
-  { arField: 'sportAr', enField: 'sportEn', difficulty: 'Easy', timeLimitSec: 15, variants: [
-    { ar: (r) => `ريموت الرياضة معاك: لما تشغل ${r.nameAr}، أنت داخل على أي رياضة؟`, en: (r) => `Sports remote in hand: which sport are you watching with ${r.nameEn}?` }
+  { arField: 'scopeAr', enField: 'scopeEn', difficulty: 'Medium', timeLimitSec: 20, variants: [
+    { ar: (r) => `افهم البطولة من غير حفظ: ${r.nameAr} تخص غالبا أي نوع فرق؟`, en: (r) => `Understand the tournament: which team type fits ${r.nameEn}?` }
   ] },
   { arField: 'memoryAr', enField: 'memoryEn', difficulty: 'Medium', timeLimitSec: 20, variants: [
     { ar: (r) => `معلومة تحفظ البطولة: أي جملة تميّز ${r.nameAr}؟`, en: (r) => `Tournament memory hook: which sentence marks ${r.nameEn}?` }
@@ -736,6 +953,26 @@ for (const [textAr, textEn, answerAr, answerEn, wrong] of globalTechFacts) {
   addDirectQuestion('technology', 'Medium', 20, textAr, textEn, answerAr, answerEn, wrong);
 }
 
+for (const [textAr, textEn, answerAr, answerEn, wrong] of politicsTrickyFacts) {
+  addDirectQuestion('politics', 'Medium', 20, textAr, textEn, answerAr, answerEn, wrong);
+}
+
+for (const [textAr, textEn, answerAr, answerEn, wrong] of animalTrickyFacts) {
+  addDirectQuestion('animals', 'Medium', 20, textAr, textEn, answerAr, answerEn, wrong);
+}
+
+for (const [textAr, textEn, answerAr, answerEn, wrong] of vehicleTrickyFacts) {
+  addDirectQuestion('vehicles', 'Medium', 20, textAr, textEn, answerAr, answerEn, wrong);
+}
+
+for (const [textAr, textEn, answerAr, answerEn, wrong] of gameTrickyFacts) {
+  addDirectQuestion('games', 'Medium', 20, textAr, textEn, answerAr, answerEn, wrong);
+}
+
+for (const [textAr, textEn, answerAr, answerEn, wrong] of musicTrickyFacts) {
+  addDirectQuestion('music', 'Medium', 20, textAr, textEn, answerAr, answerEn, wrong);
+}
+
 addFieldQuestions('politics', politicsRecords, [
   { arField: 'headquartersAr', enField: 'headquartersEn', difficulty: 'Medium', timeLimitSec: 20, variants: [
     { ar: (r) => `خريطة مؤسسات: لو هتزور مقر ${r.nameAr}، هتسافر لفين؟`, en: (r) => `Institutions map: where would you travel to visit ${r.nameEn} headquarters?` }
@@ -746,9 +983,6 @@ addFieldQuestions('politics', politicsRecords, [
 ]);
 
 addFieldQuestions('animals', animalRecords, [
-  { arField: 'habitatAr', enField: 'habitatEn', difficulty: 'Easy', timeLimitSec: 15, variants: [
-    { ar: (r) => `رحلة برية: لو بتدور على ${r.nameAr} في بيئته، هتفتش فين؟`, en: (r) => `Wildlife trip: where would you look for the ${r.nameEn}?` }
-  ] },
   { arField: 'featureAr', enField: 'featureEn', difficulty: 'Easy', timeLimitSec: 15, variants: [
     { ar: (r) => `كارت معلومة سريع: شهرة ${r.nameAr} جاية من إيه؟`, en: (r) => `Quick fact card: what gives the ${r.nameEn} its fame?` }
   ] }
@@ -782,7 +1016,7 @@ const moreGeneralFacts = [
   ['ما اسم أشهر متحف للآثار المصرية في ميدان التحرير؟', 'What is the famous antiquities museum in Tahrir Square?', 'المتحف المصري بالتحرير', 'Egyptian Museum in Tahrir', [['متحف الفن الإسلامي', 'Museum of Islamic Art'], ['متحف النوبة', 'Nubian Museum'], ['متحف الإسكندرية القومي', 'Alexandria National Museum']]],
   ['أي منطقة مصرية تشتهر بالشعاب المرجانية قرب شرم الشيخ؟', 'Which Egyptian area is famous for coral reefs near Sharm El Sheikh?', 'محمية رأس محمد', 'Ras Muhammad National Park', [['واحة سيوة', 'Siwa Oasis'], ['وادي الملوك', 'Valley of the Kings'], ['قصر عابدين', 'Abdeen Palace']]],
   ['ما اسم السوق التاريخي الأشهر للسياح في القاهرة؟', 'What is the famous historic tourist bazaar in Cairo?', 'خان الخليلي', 'Khan el-Khalili', [['سوق الجمعة', 'Friday Market'], ['سوق العبور', 'Obour Market'], ['سوق ليبيا', 'Libya Market']]],
-  ['أي مدينة مصرية ارتبطت تاريخيا بحجر رشيد؟', 'Which Egyptian city is historically linked to the Rosetta Stone?', 'رشيد', 'Rosetta', [['دمياط', 'Damietta'], ['طنطا', 'Tanta'], ['الفيوم', 'Fayoum']]],
+  ['أي أثر ساعد العلماء على فك رموز الهيروغليفية بعد اكتشافه عام 1799؟', 'Which artifact helped scholars decode hieroglyphs after its discovery in 1799?', 'حجر رشيد', 'Rosetta Stone', [['لوحة نارمر', 'Narmer Palette'], ['قناع توت عنخ آمون', 'Tutankhamun mask'], ['مسلة كليوباترا', 'Cleopatra Needle']]],
   ['ما اسم البحيرة الصناعية الكبيرة خلف السد العالي؟', 'What is the large reservoir behind the High Dam?', 'بحيرة ناصر', 'Lake Nasser', [['بحيرة قارون', 'Lake Qarun'], ['بحيرة المنزلة', 'Lake Manzala'], ['البحيرات المرة', 'Bitter Lakes']]],
   ['أي مدينة مصرية تشتهر بدار الأوبرا المصرية؟', 'Which Egyptian city is associated with the Cairo Opera House?', 'القاهرة', 'Cairo', [['الإسكندرية', 'Alexandria'], ['الأقصر', 'Luxor'], ['أسوان', 'Aswan']]]
 ];
@@ -790,8 +1024,8 @@ const moreGeneralFacts = [
 moreGeneralFacts.push(
   ['أي محافظة مصرية تضم واحة سيوة؟', 'Which Egyptian governorate includes Siwa Oasis?', 'مطروح', 'Matrouh', [['الفيوم', 'Fayoum'], ['أسوان', 'Aswan'], ['شمال سيناء', 'North Sinai']]],
   ['ما اسم أشهر شارع تاريخي في القاهرة الفاطمية؟', 'What is the famous historic street in Fatimid Cairo?', 'شارع المعز', 'Al-Muizz Street', [['شارع الهرم', 'Al Haram Street'], ['شارع رمسيس', 'Ramses Street'], ['شارع البحر الأعظم', 'Al Bahr Al Aazam Street']]],
-  ['أي مدينة مصرية تقع عند المدخل الشمالي لقناة السويس؟', 'Which Egyptian city is at the northern entrance of the Suez Canal?', 'بورسعيد', 'Port Said', [['السويس', 'Suez'], ['الإسماعيلية', 'Ismailia'], ['دمياط', 'Damietta']]],
-  ['أي مدينة مصرية تقع عند المدخل الجنوبي لقناة السويس؟', 'Which Egyptian city is at the southern entrance of the Suez Canal?', 'السويس', 'Suez', [['بورسعيد', 'Port Said'], ['الإسماعيلية', 'Ismailia'], ['العريش', 'Arish']]],
+  ['أي مدينة مصرية تقع عند المدخل الشمالي للممر الملاحي بين المتوسط والأحمر؟', 'Which Egyptian city is at the northern entrance of the canal between the Mediterranean and Red Sea?', 'بورسعيد', 'Port Said', [['السويس', 'Suez'], ['الإسماعيلية', 'Ismailia'], ['دمياط', 'Damietta']]],
+  ['أي مدينة مصرية تقع عند المدخل الجنوبي للممر الملاحي بين المتوسط والأحمر؟', 'Which Egyptian city is at the southern entrance of the canal between the Mediterranean and Red Sea?', 'السويس', 'Suez', [['بورسعيد', 'Port Said'], ['الإسماعيلية', 'Ismailia'], ['العريش', 'Arish']]],
   ['ما اسم أشهر منطقة أثرية تضم الهرم الأكبر؟', 'What is the famous archaeological area that includes the Great Pyramid?', 'منطقة أهرامات الجيزة', 'Giza pyramid complex', [['سقارة', 'Saqqara'], ['دهشور', 'Dahshur'], ['أبو صير', 'Abusir']]],
   ['أي مدينة مصرية ارتبطت تاريخيا بمكتبة قديمة شهيرة؟', 'Which Egyptian city is historically linked to an ancient famous library?', 'الإسكندرية', 'Alexandria', [['الأقصر', 'Luxor'], ['سوهاج', 'Sohag'], ['طنطا', 'Tanta']]],
   ['ما اسم البحر الذي تطل عليه مدينة الإسكندرية؟', 'Which sea does Alexandria overlook?', 'البحر المتوسط', 'Mediterranean Sea', [['البحر الأحمر', 'Red Sea'], ['بحر العرب', 'Arabian Sea'], ['بحر مرمرة', 'Sea of Marmara']]],
@@ -851,20 +1085,24 @@ addFieldQuestions('music', egyptMusic, [
 const sportsDirectQuestions = [
   ['أي ناد مصري يلقب غالبا بالمارد الأحمر؟', 'Which Egyptian club is commonly nicknamed the Red Giant?', 'النادي الأهلي', 'Al Ahly SC', [['نادي الزمالك', 'Zamalek SC'], ['الإسماعيلي', 'Ismaily SC'], ['الاتحاد السكندري', 'Al Ittihad Alexandria']]],
   ['أي ناد مصري يلقب غالبا بالفارس الأبيض؟', 'Which Egyptian club is commonly nicknamed the White Knight?', 'نادي الزمالك', 'Zamalek SC', [['النادي الأهلي', 'Al Ahly SC'], ['المصري البورسعيدي', 'Al Masry SC'], ['سموحة', 'Smouha SC']]],
-  ['أي مدينة يرتبط بها النادي المصري البورسعيدي؟', 'Which city is associated with Al Masry SC?', 'بورسعيد', 'Port Said', [['الإسماعيلية', 'Ismailia'], ['القاهرة', 'Cairo'], ['الإسكندرية', 'Alexandria']]],
-  ['أي رياضة اشتهرت فيها نور الشربيني؟', 'Which sport is Nour El Sherbini known for?', 'الإسكواش', 'squash', [['التنس', 'tennis'], ['الكاراتيه', 'karate'], ['كرة اليد', 'handball']]],
-  ['أي رياضة اشتهر فيها كرم جابر؟', 'Which sport is Karam Gaber known for?', 'المصارعة', 'wrestling', [['الإسكواش', 'squash'], ['الجودو', 'judo'], ['رفع الأثقال', 'weightlifting']]],
-  ['أي رياضة اشتهر فيها علاء أبو القاسم؟', 'Which sport is Alaaeldin Abouelkassem known for?', 'السلاح', 'fencing', [['المصارعة', 'wrestling'], ['السباحة', 'swimming'], ['كرة السلة', 'basketball']]],
-  ['ما مركز عصام الحضري الشهير في كرة القدم؟', 'What was Essam El Hadary famous position in football?', 'حراسة المرمى', 'goalkeeping', [['قلب الدفاع', 'center back'], ['رأس الحربة', 'striker'], ['الجناح الأيسر', 'left winger']]],
+  ['اللون الأخضر وجماهير مدينة ساحلية على القناة: أي ناد مصري في الصورة؟', 'Green shirts and a canal coastal city crowd: which Egyptian club fits?', 'النادي المصري البورسعيدي', 'Al Masry SC', [['نادي الإسماعيلي', 'Ismaily SC'], ['الاتحاد السكندري', 'Al Ittihad Alexandria'], ['نادي الزمالك', 'Zamalek SC']]],
+  ['لقطة حراسة: مركز عصام الحضري الشهير كان فين داخل الملعب؟', 'Goalkeeping clue: which position made Essam El Hadary famous?', 'حراسة المرمى', 'goalkeeping', [['قلب الدفاع', 'center back'], ['رأس الحربة', 'striker'], ['الجناح الأيسر', 'left winger']]],
   ['أي منتخب ارتبط باسم حسام حسن كلاعب تاريخي؟', 'Which national team is Hossam Hassan historically associated with?', 'منتخب مصر', 'Egypt national team', [['منتخب المغرب', 'Morocco national team'], ['منتخب تونس', 'Tunisia national team'], ['منتخب الجزائر', 'Algeria national team']]],
   ['أي ناد إنجليزي ارتبط باسم محمد صلاح عالميا؟', 'Which English club is Mohamed Salah globally associated with?', 'ليفربول (Liverpool)', 'Liverpool', [['تشيلسي (Chelsea)', 'Chelsea'], ['آرسنال (Arsenal)', 'Arsenal'], ['مانشستر سيتي (Manchester City)', 'Manchester City']]],
-  ['أي رياضة جماعية تشتهر بها بطولة كأس العالم لكرة القدم؟', 'Which team sport is FIFA World Cup associated with?', 'كرة القدم', 'football', [['كرة اليد', 'handball'], ['كرة السلة', 'basketball'], ['الكرة الطائرة', 'volleyball']]],
   ['حكاية أول مونديال: أي بلد استضاف أول كأس عالم وفاز به عام 1930؟', 'First World Cup story: which country hosted and won the first tournament in 1930?', 'أوروجواي', 'Uruguay', [['إيطاليا', 'Italy'], ['البرازيل', 'Brazil'], ['فرنسا', 'France']]],
   ['معلومة مونديالية سهلة الحفظ: كأس العالم للمنتخبات يقام غالبا كل كام سنة؟', 'Easy World Cup memory hook: how often is the national-team World Cup usually held?', 'كل أربع سنوات', 'every four years', [['كل سنة', 'every year'], ['كل سنتين', 'every two years'], ['كل عشر سنوات', 'every ten years']]],
   ['قصة كأس أفريقيا: أول نسخة من كأس الأمم الأفريقية بدأت في أي عقد؟', 'Africa Cup story: the first AFCON began in which decade?', 'الخمسينيات', '1950s', [['الثلاثينيات', '1930s'], ['السبعينيات', '1970s'], ['التسعينيات', '1990s']]],
   ['ليالي أوروبا: أي بطولة أندية أوروبية بدأت باسم كأس الأندية الأوروبية البطلة؟', 'European nights: which club competition began as the European Champion Clubs Cup?', 'دوري أبطال أوروبا', 'UEFA Champions League', [['الدوري الأوروبي', 'Europa League'], ['كأس العالم للأندية', 'Club World Cup'], ['كأس أمم أوروبا', 'UEFA Euro']]],
-  ['تنس بسرعة: أي بطولة كبرى مشهورة بالملاعب العشبية والملابس البيضاء؟', 'Fast tennis clue: which major tournament is known for grass courts and white clothing?', 'ويمبلدون', 'Wimbledon', [['رولان جاروس', 'Roland-Garros'], ['أمريكا المفتوحة', 'US Open'], ['أستراليا المفتوحة', 'Australian Open']]],
-  ['رياضة بمذاق سباق: القميص الأصفر رمز مشهور في أي بطولة؟', 'Race-flavoured sport clue: the yellow jersey is famous in which competition?', 'سباق فرنسا للدراجات', 'Tour de France', [['جائزة موناكو الكبرى', 'Monaco Grand Prix'], ['السوبر بول', 'Super Bowl'], ['نهائيات NBA', 'NBA Finals']]]
+  ['نهائي القرن محليا: لما تسمع ديربي القاهرة، أي ناديين غالبا في الصورة؟', 'Local derby clue: which two clubs usually define the Cairo derby?', 'الأهلي والزمالك', 'Al Ahly and Zamalek', [['الإسماعيلي والمصري', 'Ismaily and Al Masry'], ['الاتحاد وسموحة', 'Al Ittihad and Smouha'], ['إنبي والمقاولون', 'ENPPI and Al Mokawloon']]],
+  ['كارت أفريقيا: أي بطولة قارية للأندية يطاردها الأهلي والزمالك عادة؟', 'Africa club card: which continental club trophy do Al Ahly and Zamalek usually chase?', 'دوري أبطال أفريقيا', 'CAF Champions League', [['الدوري المصري الممتاز', 'Egyptian Premier League'], ['كأس مصر', 'Egypt Cup'], ['الدوري الأوروبي', 'Europa League']]],
+  ['كلاسيكو عالمي: ريال مدريد وبرشلونة هما طرفا أي مواجهة مشهورة؟', 'Global rivalry clue: Real Madrid and Barcelona form which famous fixture?', 'الكلاسيكو', 'El Clasico', [['ديربي مانشستر', 'Manchester derby'], ['ديربي ميلانو', 'Milan derby'], ['ديربي القاهرة', 'Cairo derby']]],
+  ['رقم 10 و1986: أي نجم أرجنتيني يلمع خلف هذه اللقطة؟', 'Number 10 and 1986: which Argentine star is behind this clue?', 'دييغو مارادونا', 'Diego Maradona', [['ليونيل ميسي', 'Lionel Messi'], ['زين الدين زيدان', 'Zinedine Zidane'], ['رونالدينيو', 'Ronaldinho']]],
+  ['أرقام دوري الأبطال والقفزات العالية: أي نجم برتغالي تقصد اللقطة؟', 'Champions League numbers and huge leaps: which Portuguese star is this?', 'كريستيانو رونالدو', 'Cristiano Ronaldo', [['لوكا مودريتش', 'Luka Modric'], ['كيليان مبابي', 'Kylian Mbappe'], ['إيرلينغ هالاند', 'Erling Haaland']]],
+  ['أنفيلد والقدم اليسرى والسرعة: أي لاعب مصري هو الأقرب؟', 'Anfield, left foot, and speed: which Egyptian player fits?', 'محمد صلاح', 'Mohamed Salah', [['محمد أبو تريكة', 'Mohamed Aboutrika'], ['أحمد حسن', 'Ahmed Hassan'], ['حسام حسن', 'Hossam Hassan']]],
+  ['تيكي تاكا في الوسط: أي ثنائي إسباني يرتبط غالبا بإيقاع برشلونة؟', 'Tiki-taka midfield clue: which Spanish pair is tied to Barcelona rhythm?', 'تشافي وإنييستا', 'Xavi and Iniesta', [['ميسي ونيمار', 'Messi and Neymar'], ['بيليه ورونالدو', 'Pele and Ronaldo'], ['مودريتش وكروس', 'Modric and Kroos']]],
+  ['مونديال 2022: أي منتخب عربي وصل إلى نصف النهائي في مفاجأة تاريخية؟', 'World Cup 2022: which Arab national team reached the semi-final in a historic surprise?', 'منتخب المغرب', 'Morocco national team', [['منتخب مصر', 'Egypt national team'], ['منتخب تونس', 'Tunisia national team'], ['منتخب السعودية', 'Saudi Arabia national team']]],
+  ['كأس العالم 2006: الحارس الأسطوري بوفون كان مع أي منتخب؟', 'World Cup 2006: legendary goalkeeper Buffon played for which national team?', 'منتخب إيطاليا', 'Italy national team', [['منتخب فرنسا', 'France national team'], ['منتخب البرازيل', 'Brazil national team'], ['منتخب ألمانيا', 'Germany national team']]],
+  ['نهائي 1998 ورأسيتان: أي لاعب فرنسي صار عنوان الليلة؟', '1998 final and two headers: which French player became the headline?', 'زين الدين زيدان', 'Zinedine Zidane', [['كيليان مبابي', 'Kylian Mbappe'], ['تييري هنري', 'Thierry Henry'], ['ديدييه دروغبا', 'Didier Drogba']]]
 ];
 
 for (const [textAr, textEn, answerAr, answerEn, wrong] of sportsDirectQuestions) {
@@ -940,6 +1178,12 @@ const bank = {
   focus: 'Egypt-first',
   sources: [
     {
+      name: 'Wikipedia',
+      url: 'https://www.wikipedia.org/',
+      license: 'Creative Commons Attribution-ShareAlike',
+      usage: 'Broad encyclopedia cross-checks for public factual prompts; no copied prose.'
+    },
+    {
       name: 'Wikidata',
       url: 'https://www.wikidata.org/wiki/Wikidata:Licensing',
       license: 'Creative Commons CC0',
@@ -964,22 +1208,28 @@ const bank = {
       usage: 'World Cup and global football tournament fact checks.'
     },
     {
-      name: 'International Olympic Committee records',
-      url: 'https://olympics.com/ioc',
-      license: 'Official factual reference; no copied prose',
-      usage: 'Olympic and Paralympic history and symbol fact checks.'
-    },
-    {
       name: 'UEFA competition history',
       url: 'https://www.uefa.com/uefachampionsleague/history/',
       license: 'Official factual reference; no copied prose',
       usage: 'European club tournament history and records.'
     },
     {
-      name: 'FIBA events history',
-      url: 'https://www.fiba.basketball/en/history',
+      name: 'CAF official competitions',
+      url: 'https://www.cafonline.com/',
       license: 'Official factual reference; no copied prose',
-      usage: 'Basketball tournament history and event references.'
+      usage: 'African football competitions and national-team tournament fact checks.'
+    },
+    {
+      name: 'Premier League official records',
+      url: 'https://www.premierleague.com/',
+      license: 'Official factual reference; no copied prose',
+      usage: 'English football league and club-context fact checks.'
+    },
+    {
+      name: 'LaLiga official records',
+      url: 'https://www.laliga.com/',
+      license: 'Official factual reference; no copied prose',
+      usage: 'Spanish football league and club-context fact checks.'
     },
     {
       name: 'NASA Solar System Exploration',
@@ -992,6 +1242,24 @@ const bank = {
       url: 'https://www.nobelprize.org/about-the-nobel-prize/',
       license: 'Official factual reference; no copied prose',
       usage: 'Nobel history, categories, and award timing fact checks.'
+    },
+    {
+      name: 'UNESCO World Heritage Centre',
+      url: 'https://whc.unesco.org/',
+      license: 'Official factual reference; no copied prose',
+      usage: 'Culture, heritage, geography, and organization fact checks.'
+    },
+    {
+      name: 'United Nations official site',
+      url: 'https://www.un.org/',
+      license: 'Official factual reference; no copied prose',
+      usage: 'International organization and political institution fact checks.'
+    },
+    {
+      name: 'Britannica',
+      url: 'https://www.britannica.com/',
+      license: 'General encyclopedia factual reference; no copied prose',
+      usage: 'Secondary cross-checks for science, history, culture, animals, and inventions.'
     }
   ],
   categories,

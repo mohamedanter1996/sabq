@@ -6,43 +6,58 @@ The local Arabic question bank is stored in `questions.ar.json` and is loaded by
 
 - Normal database seeding does not fetch questions from the internet.
 - The checked-in JSON is the source of truth for startup seeding.
-- Version 2 is Egypt-first: Egyptian film, football, literature, art, music, history, geography, and general knowledge are prioritized.
-- Global coverage is also curated where it improves play: world tournaments, world geography, science, technology, and broadly recognizable historical moments.
-- Questions should feel playable first: every category should use a small scene, clue, memory hook, or practical context instead of a bare dictionary prompt.
-- Good prompts should teach while they play by exposing why the fact matters: travel context, historical clues, cultural memory, everyday tech use, or a quick comparison.
+- The bank uses a curated static model: facts are checked from Wikipedia, Wikidata, official sites, and reputable references, then rewritten as original Arabic prompts.
+- Sources are documentation and audit metadata only. `DbSeeder` does not read per-question `source` values today.
+- Sports is football-only in this version: Egyptian football, global football players, clubs, national teams, and football competitions.
+- Non-football sports prompts are rejected from `sports`, including tennis, basketball, Olympics, Formula 1, cricket, rugby, handball, NFL, and similar topics.
+- Questions should feel playable first: every category should use a small scene, clue, memory hook, comparison, or practical context instead of a bare dictionary prompt.
+- Good prompts should teach while they play by exposing why the fact matters: cultural memory, travel context, historical clue, everyday tech use, tournament identity, or an unexpected comparison.
 - `religion-islamic` contains informational Islam-related questions about Quran, seerah, companions, Islamic history, Al-Azhar, and Egyptian Islamic landmarks. It avoids fatwas, sectarian framing, and disputed rulings.
 - Filler prompts such as "اختر الإجابة الصحيحة المرتبطة بـ..." are rejected by the generator and must not appear in the bank.
-- Dry repeated stems such as "بماذا يشتهر", "ما الاستخدام الأشهر", "ما نوع", and plain year/author templates are rejected by the generator when produced from generated field templates.
-- The optional monthly refresh job is disabled by default and only imports from configured open/structured providers after validation.
+- Dry repeated stems such as "بماذا يشتهر", "ما الاستخدام الأشهر", "ما نوع", and plain year/author templates are rejected when produced from generated field templates.
+- Prompts are rejected when the correct answer appears literally inside the Arabic question text.
+- Over-obvious clue/answer pairs are rejected, such as asking about "الفيل الأفريقي" with "أفريقيا" as the answer.
+- Distractors should match the answer type: player with players, tournament with tournaments, country with countries, animal trait with animal traits, and organization with organizations.
+- The optional monthly refresh job is disabled by default and only imports from configured open or structured providers after validation.
 - Existing questions that are not in the JSON bank are disabled, not deleted, to preserve game history.
 - Every active question must have exactly four options and exactly one correct answer.
 
 ## Open Sources and Attribution
 
+- Wikipedia: https://www.wikipedia.org/
+  - Used for broad encyclopedia cross-checks. Question wording is original and no prose is copied.
+- Wikidata: https://www.wikidata.org/wiki/Wikidata:Licensing
+  - License: Creative Commons CC0 for structured data.
+  - Used for factual verification and open-data compatibility.
 - Open Trivia Database: https://opentdb.com/
   - License: Creative Commons Attribution-ShareAlike 4.0.
   - Used as the open-trivia source model, category reference, and optional future import source.
 - OpenTriviaQA: https://github.com/uberspot/OpenTriviaQA
   - License: Creative Commons Attribution-ShareAlike 4.0.
   - Used as a multiple-choice dataset format reference.
-- Wikidata: https://www.wikidata.org/wiki/Wikidata:Licensing
-  - License: Creative Commons CC0 for structured data.
-  - Used for factual verification and open-data compatibility.
 - Curated Egypt-first local records:
   - Locally generated from structured factual records checked into `scripts/generate-question-bank.mjs`.
   - Used for the current Arabic user-facing v2 bank.
 - FIFA tournament records: https://www.fifa.com/en/tournaments
   - Used only as official factual reference for World Cup and global football tournament questions.
-- International Olympic Committee records: https://olympics.com/ioc
-  - Used only as official factual reference for Olympic and Paralympic history.
 - UEFA competition history: https://www.uefa.com/uefachampionsleague/history/
   - Used only as official factual reference for European club competition history.
-- FIBA events history: https://www.fiba.basketball/en/history
-  - Used only as official factual reference for basketball tournament history.
+- CAF official competitions: https://www.cafonline.com/
+  - Used only as official factual reference for African football competitions.
+- Premier League official records: https://www.premierleague.com/
+  - Used only as official factual reference for English football league and club-context questions.
+- LaLiga official records: https://www.laliga.com/
+  - Used only as official factual reference for Spanish football league and club-context questions.
 - NASA Solar System Exploration: https://science.nasa.gov/solar-system/
   - Used for public space and solar-system facts.
 - Nobel Prize official facts: https://www.nobelprize.org/about-the-nobel-prize/
   - Used only as official factual reference for Nobel history, categories, and award timing.
+- UNESCO World Heritage Centre: https://whc.unesco.org/
+  - Used for culture, heritage, geography, and organization fact checks.
+- United Nations official site: https://www.un.org/
+  - Used for international organization and political institution fact checks.
+- Britannica: https://www.britannica.com/
+  - Used as a secondary factual cross-check for science, history, culture, animals, and inventions.
 
 ## Regeneration
 
@@ -55,10 +70,10 @@ node scripts\generate-question-bank.mjs
 Then validate with:
 
 ```powershell
-node -e "const fs=require('fs'); const bank=JSON.parse(fs.readFileSync('src/Sabq.Infrastructure/Data/QuestionBank/questions.ar.json','utf8')); const bad=bank.questions.filter(q=>q.options.length!==4 || q.options.filter(o=>o.isCorrect).length!==1); console.log({questions: bank.questions.length, bad: bad.length});"
+node -e "const fs=require('fs'); const bank=JSON.parse(fs.readFileSync('src/Sabq.Infrastructure/Data/QuestionBank/questions.ar.json','utf8')); const bad=bank.questions.filter(q=>q.options.length!==4 || q.options.filter(o=>o.isCorrect).length!==1); console.log({questions: bank.questions.length, bad: bad.length}); if (bad.length) process.exit(1);"
 ```
 
-The generator also rejects duplicate slugs, duplicate Arabic question text, missing category questions, and the banned filler phrase.
+The generator also rejects duplicate slugs, duplicate Arabic question text, missing category questions, banned filler phrases, correct answers inside question text, obvious clue/answer pairs, and non-football sports prompts.
 
 ## Monthly Refresh Job
 
