@@ -50,6 +50,26 @@ const bannedQuestionPhrases = [
   'لو البطاقة فيها',
   'دليلان قبل الاسم',
   'دليلان في بطاقة',
+  'الدليل عن',
+  'الدليلان:',
+  'الدليلان معًا',
+  'من الدليلين',
+  'الدليل:',
+  'الفخ القريب',
+  'ركز في المعلومة',
+  'بين اختيارات متقاربة',
+  'اختيار قريب لكنه فخ',
+  'السؤال عن',
+  'دليل سريع عن',
+  'تفصيلة صغيرة عن',
+  'لما يجتمع',
+  'يجتمع فيه',
+  'معلومة تحفظ',
+  'بطولة كروية:',
+  'حدث مصري:',
+  'أقرب للمعنى',
+  'يفسرها',
+  'أي تفصيلة أدق',
   'أي اسم يناسب',
   'قرينة واضحة',
   'استبعد التشابه',
@@ -416,24 +436,24 @@ function addAnswerFieldRelationships(categorySlug, records, spec, questionSource
     const labelEn = spec.labelEn;
     const variants = [
       {
-        ar: `السؤال عن ${labelAr}: ${name} و${clue}. ما الإجابة الصحيحة؟`,
-        en: `Question about ${labelEn}: ${nameEn} and ${clueEn}. What is the correct answer?`
+        ar: `${name}: ${clue}. ما الإجابة الصحيحة؟`,
+        en: `${nameEn}: ${clueEn}. What is the correct answer?`
       },
       {
-        ar: `دليل سريع عن ${name}: ${clue}. أي ${labelAr} أقرب للمعنى؟`,
-        en: `Quick clue about ${nameEn}: ${clueEn}. Which ${labelEn} is closest to the meaning?`
+        ar: `${name} و${clue}. ما الاختيار الأدق؟`,
+        en: `${nameEn} and ${clueEn}. Which choice is most accurate?`
       },
       {
-        ar: `لما يجتمع ${name} مع ${clue}، أي تفصيلة أدق؟`,
-        en: `When ${nameEn} meets ${clueEn}, which detail is most accurate?`
+        ar: `${name}: ${clue}. ما الاختيار الأقرب؟`,
+        en: `${nameEn}: ${clueEn}. Which choice is closest?`
       },
       {
-        ar: `تفصيلة صغيرة عن ${name}: ${clue}. أي ${labelAr} يفسرها؟`,
-        en: `Small detail about ${nameEn}: ${clueEn}. Which ${labelEn} explains it?`
+        ar: `${clue} يرتبط بـ«${name}». ما الإجابة الصحيحة؟`,
+        en: `${clueEn}. Which detail is linked to ${nameEn}?`
       },
       {
-        ar: `الدليل عن ${labelAr}: ${name} و${clue}. ما الإجابة؟`,
-        en: `Clue about ${labelEn}: ${nameEn} and ${clueEn}. What is the answer?`
+        ar: `${name} و${clue}. ما الإجابة الصحيحة؟`,
+        en: `${nameEn} and ${clueEn}. Which ${labelEn} is correct?`
       }
     ];
 
@@ -469,24 +489,24 @@ function addNameFromClueRelationships(categorySlug, records, spec, questionSourc
     const clueBEn = record[fieldName(spec.clueFields[1], 'En')];
     const variants = [
       {
-        ar: `الدليلان: ${clueA} و${clueB}. ما الاسم الصحيح؟`,
-        en: `Two clues: ${clueAEn} and ${clueBEn}. Which name is correct?`
+        ar: `${clueA} و${clueB}. ما الاسم الصحيح؟`,
+        en: `${clueAEn} and ${clueBEn}. Which name is correct?`
       },
       {
-        ar: `يجتمع فيه ${clueA} و${clueB}. ما الاسم؟`,
-        en: `It has ${clueAEn} and ${clueBEn}. What is the name?`
+        ar: `${clueA}. ${clueB}. ما الاسم؟`,
+        en: `${clueAEn}. ${clueBEn}. What is the name?`
       },
       {
-        ar: `من الدليلين ${clueA} و${clueB}، ما الإجابة؟`,
-        en: `From the clues ${clueAEn} and ${clueBEn}, what is the answer?`
+        ar: `${clueA}. ${clueB}. ما الإجابة؟`,
+        en: `${clueAEn}. ${clueBEn}. What is the answer?`
       },
       {
-        ar: `الدليلان معًا: ${clueA} و${clueB}. ما الاسم؟`,
-        en: `The two clues together: ${clueAEn} and ${clueBEn}. What is the name?`
+        ar: `${clueB}. ${clueA}. ما الاسم؟`,
+        en: `${clueBEn}. ${clueAEn}. What is the name?`
       },
       {
-        ar: `الدليل: ${clueA} ثم ${clueB}. ما الاسم الصحيح؟`,
-        en: `Clue: ${clueAEn}, then ${clueBEn}. Which name is correct?`
+        ar: `${clueA} ثم ${clueB}. ما الاسم الصحيح؟`,
+        en: `${clueAEn}, then ${clueBEn}. Which name is correct?`
       }
     ];
 
@@ -1135,7 +1155,28 @@ const vehicleTrickyFacts = [
   ['عبور البحر: وسيلة ضخمة تنقل الركاب أو البضائع فوق الماء. ما هي؟', 'Sea crossing: a large vehicle moving passengers or goods on water. What is it?', 'السفينة', 'ship', [['العبارة', 'ferry'], ['القارب', 'boat'], ['الناقلة', 'tanker']]],
   ['شارع ومحطات وركاب كثيرون: وسيلة نقل جماعي مألوفة داخل المدن. ما هي؟', 'Road, stops, and many passengers: familiar urban public transport. What is it?', 'الأتوبيس', 'bus', [['الميكروباص', 'minibus'], ['الترام', 'tram'], ['مترو الأنفاق', 'metro']]],
   ['عجلتان ومحرك: أسرع من الدراجة وأخف من السيارة. ما هي؟', 'Two wheels and an engine: faster than a bicycle and lighter than a car. What is it?', 'الدراجة النارية', 'motorcycle', [['الدراجة', 'bicycle'], ['الترام', 'tram'], ['الأتوبيس', 'bus']]],
-  ['سفر فوق السحاب: وسيلة تقطع مسافات بعيدة في وقت قصير. ما هي؟', 'Above-cloud travel: it covers long distances quickly. What is it?', 'الطائرة', 'airplane', [['المروحية', 'helicopter'], ['الطائرة الشراعية', 'glider'], ['المنطاد', 'hot-air balloon']]]
+  ['سفر فوق السحاب: وسيلة تقطع مسافات بعيدة في وقت قصير. ما هي؟', 'Above-cloud travel: it covers long distances quickly. What is it?', 'الطائرة', 'airplane', [['المروحية', 'helicopter'], ['الطائرة الشراعية', 'glider'], ['المنطاد', 'hot-air balloon']]],
+  ['رحلة ليلية على السكة: وسيلة توفر كبائن للراحة بين المدن. ما هي؟', 'Night rail trip: a vehicle with cabins for resting between cities. What is it?', 'قطار النوم', 'sleeping train', [['قطار تالجو في مصر', 'Talgo train in Egypt'], ['قطار الضواحي', 'commuter train'], ['مترو الأنفاق', 'metro']]],
+  ['عبور قصير بين ضفتين: تحمل ركابا أو سيارات فوق الماء لمسافة محدودة. ما هي؟', 'Short crossing between two banks: it carries passengers or cars over water for a limited distance. What is it?', 'العبارة', 'ferry', [['السفينة', 'ship'], ['القارب', 'boat'], ['الناقلة', 'tanker']]],
+  ['إقلاع عمودي ومروحة علوية: مفيدة في الإنقاذ والوصول لمناطق ضيقة. ما هي؟', 'Vertical takeoff and an overhead rotor: useful for rescue and tight places. What is it?', 'المروحية', 'helicopter', [['الطائرة', 'airplane'], ['المنطاد', 'hot-air balloon'], ['الطائرة الشراعية', 'glider']]],
+  ['مدينة مزدحمة ومسار مخصص: حافلة تسير غالبا في حارة منفصلة لتقليل التأخير. ما هي؟', 'Crowded city and dedicated lane: a bus often running in a separate lane to reduce delay. What is it?', 'الحافلة السريعة BRT', 'BRT bus', [['الأتوبيس', 'bus'], ['الميكروباص', 'minibus'], ['الترام', 'tram']]],
+  ['عجلتان وبطارية: تشبه الدراجة العادية لكنها تساعدك بمحرك كهربائي. ما هي؟', 'Two wheels and a battery: like a regular bicycle but assisted by an electric motor. What is it?', 'الدراجة الكهربائية', 'e-bike', [['الدراجة', 'bicycle'], ['السكوتر', 'scooter'], ['الدراجة النارية', 'motorcycle']]],
+  ['سيارة تجمع محرك وقود مع مساعدة كهربائية لتقليل الاستهلاك. ما هي؟', 'A car combining a fuel engine with electric assistance to reduce consumption. What is it?', 'السيارة الهجينة', 'hybrid car', [['السيارة الكهربائية', 'electric car'], ['سيارة ديزل', 'diesel car'], ['سيارة غاز طبيعي', 'natural-gas car']]],
+  ['نقل جماعي بين مدينة وضواحيها: يقف في محطات متكررة خارج المركز. ما هو؟', 'Public transport between a city and its suburbs, stopping often outside the center. What is it?', 'قطار الضواحي', 'commuter train', [['مترو الأنفاق', 'metro'], ['قطار تالجو في مصر', 'Talgo train in Egypt'], ['الترام', 'tram']]],
+  ['سكة مرتفعة غالبا ومسار واحد: حل حضري سريع في مدن مزدحمة. ما هو؟', 'Often elevated with a single rail: a fast urban solution in crowded cities. What is it?', 'المونوريل', 'monorail', [['القطار الخفيف', 'light rail'], ['مترو الأنفاق', 'metro'], ['الترام', 'tram']]],
+  ['رحلة فردية واقفة: لوح بعجلتين ومقود للمشاوير القصيرة. ما هي؟', 'Standing solo ride: a two-wheeled board with a handlebar for short trips. What is it?', 'السكوتر', 'scooter', [['الدراجة', 'bicycle'], ['الدراجة النارية', 'motorcycle'], ['التوك توك', 'tuk-tuk']]],
+  ['نقل ركاب صغير على خطوط ثابتة بين الأحياء والمدن. ما هو؟', 'Small passenger transport on fixed routes between neighborhoods and towns. What is it?', 'الميكروباص', 'minibus', [['الأتوبيس', 'bus'], ['التاكسي', 'taxi'], ['التوك توك', 'tuk-tuk']]],
+  ['مركبة على الماء أصغر من سفينة، تستخدم غالبا للصيد أو التنزه. ما هي؟', 'A water vehicle smaller than a ship, often used for fishing or leisure. What is it?', 'القارب', 'boat', [['العبارة', 'ferry'], ['السفينة', 'ship'], ['اليخت', 'yacht']]],
+  ['طيران بلا محرك غالبا، يعتمد على التيارات الهوائية والتدريب. ما هي؟', 'Often engine-free flight, relying on air currents and training. What is it?', 'الطائرة الشراعية', 'glider', [['الطائرة', 'airplane'], ['المروحية', 'helicopter'], ['المنطاد', 'hot-air balloon']]],
+  ['ركوب خاص قصير بأجرة مباشرة داخل المدينة. ما الوسيلة؟', 'A private short paid ride inside the city. What is the vehicle?', 'التاكسي', 'taxi', [['الميكروباص', 'minibus'], ['الأتوبيس', 'bus'], ['التوك توك', 'tuk-tuk']]],
+  ['نقل بضائع ثقيلة على الطرق: صندوق كبير ومحرك قوي. ما هي؟', 'Heavy goods transport on roads: a large box and a strong engine. What is it?', 'الشاحنة', 'truck', [['الأتوبيس', 'bus'], ['البيك أب', 'pickup truck'], ['الفان', 'van']]],
+  ['سكة طويلة وحمولات كثيرة بين المدن والموانئ. ما الوسيلة؟', 'Long rails and large loads between cities and ports. What is it?', 'قطار البضائع', 'freight train', [['قطار الضواحي', 'commuter train'], ['قطار النوم', 'sleeping train'], ['قطار تالجو في مصر', 'Talgo train in Egypt']]],
+  ['بالون كبير وهواء ساخن: يصعد بهدوء في رحلات سياحية وتجارب. ما هو؟', 'A large balloon and hot air: it rises calmly for tours and experiments. What is it?', 'المنطاد', 'hot-air balloon', [['الطائرة الشراعية', 'glider'], ['المروحية', 'helicopter'], ['الطائرة', 'airplane']]],
+  ['لوح بمقود ومحرك كهربائي صغير للمشاوير القصيرة. ما هو؟', 'A board with a handlebar and small electric motor for short trips. What is it?', 'السكوتر الكهربائي', 'electric scooter', [['السكوتر', 'scooter'], ['الدراجة الكهربائية', 'e-bike'], ['الدراجة النارية', 'motorcycle']]],
+  ['كابينة أمامية ومساحة خلفية مفتوحة لنقل أشياء خفيفة. ما هي؟', 'A front cabin and open rear space for carrying light loads. What is it?', 'البيك أب', 'pickup truck', [['الشاحنة', 'truck'], ['الفان', 'van'], ['التاكسي', 'taxi']]],
+  ['عربة صغيرة مغلقة لنقل عائلة أو بضائع خفيفة داخل المدينة. ما هي؟', 'A small enclosed vehicle for a family or light goods inside the city. What is it?', 'الفان', 'van', [['البيك أب', 'pickup truck'], ['الشاحنة', 'truck'], ['الميكروباص', 'minibus']]],
+  ['سيارة بإطارات قوية وخلوص أعلى للطرق الوعرة والرحلات. ما النوع؟', 'A car with strong tires and higher clearance for rough roads and trips. What type is it?', 'سيارة دفع رباعي', 'SUV', [['سيارة سيدان', 'sedan'], ['هاتشباك', 'hatchback'], ['سيارة رياضية', 'sports car']]],
+  ['مركبة طويلة تسحب خلفها حمولة ولا تتحرك وحدها غالبا. ما هي؟', 'A long vehicle pulled behind another load carrier and usually not self-powered. What is it?', 'المقطورة', 'trailer', [['الشاحنة', 'truck'], ['البيك أب', 'pickup truck'], ['الفان', 'van']]]
 ];
 
 const gameTrickyFacts = [
@@ -1365,10 +1406,10 @@ addFieldQuestions('geography', globalPlaces, [
 
 addFieldQuestions('history', egyptHistoryEvents, [
   { arField: 'yearAr', enField: 'yearEn', difficulty: 'Medium', timeLimitSec: 20, poolRadius: 3, variants: [
-    { ar: (r) => `رحلة زمنية: حدث «${r.nameAr}» هتحطه عند أي سنة أو فترة؟`, en: (r) => `Time-trip clue: which year or period fits ${r.nameEn}?` }
+    { ar: (r) => `حدث «${r.nameAr}» يرتبط بأي سنة أو فترة؟`, en: (r) => `Which year or period fits ${r.nameEn}?` }
   ] },
   { arField: 'keyAr', enField: 'keyEn', difficulty: 'Medium', timeLimitSec: 20, variants: [
-    { ar: (r) => `حدث مصري: «${r.nameAr}». ما الاسم أو الجهة الأبرز المرتبطة به؟`, en: (r) => `Egyptian event: which name or group is linked to ${r.nameEn}?` }
+    { ar: (r) => `«${r.nameAr}» يرتبط بأي اسم أو جهة بارزة؟`, en: (r) => `Which name or group is linked to ${r.nameEn}?` }
   ] }
 ]);
 
@@ -1445,10 +1486,10 @@ for (const [textAr, textEn, answerAr, answerEn, wrong] of footballDeepCutQuestio
 
 addFieldQuestions('sports', footballTournaments, [
   { arField: 'nameAr', enField: 'nameEn', difficulty: 'Medium', timeLimitSec: 20, variants: [
-    { ar: (r) => `بطولة كروية: ${r.identityAr}. ما اسم البطولة؟`, en: (r) => `Football tournament: ${r.identityEn}. Which tournament is it?` }
+    { ar: (r) => `${r.identityAr}. ما اسم البطولة؟`, en: (r) => `${r.identityEn}. Which tournament is it?` }
   ] },
   { arField: 'memoryAr', enField: 'memoryEn', difficulty: 'Medium', timeLimitSec: 20, variants: [
-    { ar: (r) => `معلومة تحفظ البطولة: أي جملة تميّز ${r.nameAr}؟`, en: (r) => `Tournament memory hook: which sentence marks ${r.nameEn}?` }
+    { ar: (r) => `${r.nameAr}: ما الجملة التي تميزها؟`, en: (r) => `${r.nameEn}: which sentence marks it?` }
   ] }
 ]);
 
@@ -1758,8 +1799,8 @@ const sameFamilyComparisonFrames = [
     en: (textEn, wrong) => `Close trap "${wrong}": ${textEn}`
   },
   {
-    ar: (textAr, wrong) => `استبعد «${wrong}» وركز في الدليل: ${textAr}`,
-    en: (textEn, wrong) => `Rule out "${wrong}" and focus on the clue: ${textEn}`
+    ar: (textAr, wrong) => `استبعد «${wrong}» وركز في المعلومة: ${textAr}`,
+    en: (textEn, wrong) => `Rule out "${wrong}" and focus on the detail: ${textEn}`
   },
   {
     ar: (textAr, wrong) => `بين اختيارات متقاربة، «${wrong}» مش كفاية: ${textAr}`,
@@ -1821,7 +1862,10 @@ function inflateCategoryToTarget(categorySlug, targetCount) {
 }
 
 for (const [categorySlug, targetCount] of Object.entries(targetCategoryCounts)) {
-  inflateCategoryToTarget(categorySlug, targetCount);
+  const currentCount = categoryQuestionCount(categorySlug);
+  if (currentCount < targetCount) {
+    throw new Error(`Category ${categorySlug} has ${currentCount} questions; add curated direct questions to reach ${targetCount}.`);
+  }
 }
 
 if (questions.length < minimumTotalQuestions) {
