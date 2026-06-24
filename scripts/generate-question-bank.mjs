@@ -42,6 +42,8 @@ const bannedQuestionPhrases = [
   'ما اسم أشهر',
   'ما القبلة التي',
   'في أي شهر يصوم',
+  'لو خلطت بين',
+  'لو خلط بين',
   'من هو خاتم الأنبياء',
   'كل كام سنة'
 ];
@@ -421,8 +423,8 @@ function addAnswerFieldRelationships(categorySlug, records, spec, questionSource
         en: `Small detail about ${nameEn}: ${clueEn}. Which ${labelEn} explains it?`
       },
       {
-        ar: `لو خلطت بين ${name} وبديل قريب، ${clue} تشير لأي ${labelAr}؟`,
-        en: `If ${nameEn} is confused with a close alternative, which ${labelEn} does ${clueEn} point to?`
+        ar: `قرينة واضحة عن ${name}: ${clue}. أي ${labelAr} أدق هنا؟`,
+        en: `Clear clue about ${nameEn}: ${clueEn}. Which ${labelEn} is most accurate here?`
       }
     ];
 
