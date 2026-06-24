@@ -224,7 +224,22 @@ public class GameService
                 return NormalizeQuestionText(remainder[1..]);
         }
 
+        if (StartsWithSameFamilyComparisonPrefix(normalized))
+        {
+            var colonIndex = normalized.IndexOf(':', StringComparison.Ordinal);
+            if (colonIndex >= 0 && colonIndex + 1 < normalized.Length)
+                return NormalizeQuestionText(normalized[(colonIndex + 1)..]);
+        }
+
         return normalized;
+    }
+
+    private static bool StartsWithSameFamilyComparisonPrefix(string normalizedQuestionTextAr)
+    {
+        return normalizedQuestionTextAr.StartsWith("الفخ القريب", StringComparison.Ordinal) ||
+               normalizedQuestionTextAr.StartsWith("استبعد", StringComparison.Ordinal) ||
+               normalizedQuestionTextAr.StartsWith("بين اختيارات متقاربة", StringComparison.Ordinal) ||
+               normalizedQuestionTextAr.StartsWith("اختيار قريب لكنه فخ", StringComparison.Ordinal);
     }
 
     private static string NormalizeQuestionText(string questionTextAr)

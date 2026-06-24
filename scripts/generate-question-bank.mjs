@@ -1,6 +1,11 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { generationConfig } from './question-generation.config.mjs';
+import {
+  assertQuestionQuality as assertRubricQuestionQuality,
+  getQuestionQualityFailures
+} from './question-quality.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const outputPath = join(__dirname, '..', 'src', 'Sabq.Infrastructure', 'Data', 'QuestionBank', 'questions.ar.json');
@@ -115,27 +120,12 @@ const categories = [
   { slug: 'games', nameAr: 'ألعاب', nameEn: 'Games', description: 'ألعاب فيديو وألعاب لوحية وكلاسيكيات اللعب.', displayOrder: 15 }
 ];
 
-const minimumTotalQuestions = 5000;
-const targetCategoryCounts = {
-  'general-knowledge': 320,
-  'religion-islamic': 300,
-  history: 360,
-  geography: 360,
-  art: 280,
-  'film-tv': 380,
-  music: 280,
-  'books-literature': 300,
-  sports: 800,
-  'science-nature': 340,
-  technology: 320,
-  politics: 280,
-  animals: 280,
-  vehicles: 280,
-  games: 280
-};
+const minimumTotalQuestions = generationConfig.minimumTotalQuestions;
+const targetCategoryCounts = generationConfig.targetCategoryCounts;
 
 const questions = [];
 const usedSlugs = new Set();
+const usedQuestionTexts = new Set();
 
 function hash(value) {
   let h = 2166136261;
@@ -290,21 +280,33 @@ function addQuestion(categorySlug, difficulty, timeLimitSec, textAr, textEn, cor
 
   const options = pickOptions(correct, pool, slug);
   assertQuestionQuality(categorySlug, textAr, textEn, correct, options);
-  questions.push({ slug, categorySlug, difficulty, timeLimitSec, textAr, textEn, options, source: questionSource });
+  const question = { slug, categorySlug, difficulty, timeLimitSec, textAr, textEn, options, source: questionSource };
+  assertRubricQuestionQuality(question);
+  const normalizedQuestionText = normalizeForQuality(textAr);
+  if (usedQuestionTexts.has(normalizedQuestionText)) {
+    throw new Error(`Duplicate Arabic question text: ${textAr}`);
+  }
+  usedQuestionTexts.add(normalizedQuestionText);
+  questions.push(question);
 }
 
 function addDirectQuestion(categorySlug, difficulty, timeLimitSec, textAr, textEn, answerAr, answerEn, wrongOptions, questionSource = source) {
   const framed = frameDirectQuestion(categorySlug, textAr, textEn);
-  addQuestion(
-    categorySlug,
-    difficulty,
-    timeLimitSec,
-    framed.textAr,
-    framed.textEn,
-    { ar: answerAr, en: answerEn },
-    [{ ar: answerAr, en: answerEn }, ...wrongOptions.map(([ar, en]) => ({ ar, en }))],
-    questionSource
-  );
+  try {
+    addQuestion(
+      categorySlug,
+      difficulty,
+      timeLimitSec,
+      framed.textAr,
+      framed.textEn,
+      { ar: answerAr, en: answerEn },
+      [{ ar: answerAr, en: answerEn }, ...wrongOptions.map(([ar, en]) => ({ ar, en }))],
+      questionSource
+    );
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 function fieldPool(records, arField, enField, centerIndex = null, radius = null) {
@@ -336,7 +338,7 @@ function addFieldQuestions(categorySlug, records, specs, questionSource = source
           continue;
         }
 
-        addQuestion(
+        tryAddQuestion(
           categorySlug,
           spec.difficulty,
           spec.timeLimitSec,
@@ -347,6 +349,144 @@ function addFieldQuestions(categorySlug, records, specs, questionSource = source
           questionSource
         );
       }
+    }
+  }
+}
+
+function tryAddQuestion(categorySlug, difficulty, timeLimitSec, textAr, textEn, correct, pool, questionSource = source) {
+  try {
+    addQuestion(categorySlug, difficulty, timeLimitSec, textAr, textEn, correct, pool, questionSource);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function fieldName(field, lang) {
+  return `${field}${lang}`;
+}
+
+function fieldOption(record, field) {
+  return {
+    ar: record[fieldName(field, 'Ar')],
+    en: record[fieldName(field, 'En')]
+  };
+}
+
+function relationshipPool(records, field, centerIndex, radius = 4) {
+  return fieldPool(records, fieldName(field, 'Ar'), fieldName(field, 'En'), centerIndex, radius);
+}
+
+function addAnswerFieldRelationships(categorySlug, records, spec, questionSource = `${source} / rubric relationship template`) {
+  for (let recordIndex = 0; recordIndex < records.length; recordIndex += 1) {
+    const record = records[recordIndex];
+    const correct = fieldOption(record, spec.answerField);
+    const pool = relationshipPool(records, spec.answerField, recordIndex, spec.poolRadius);
+    const clue = record[fieldName(spec.clueField, 'Ar')];
+    const clueEn = record[fieldName(spec.clueField, 'En')];
+    const name = record.nameAr;
+    const nameEn = record.nameEn;
+    const labelAr = spec.labelAr;
+    const labelEn = spec.labelEn;
+    const variants = [
+      {
+        ar: `${name}: ${clue}. أي ${labelAr} يكمل البطاقة؟`,
+        en: `${nameEn}: ${clueEn}. Which ${labelEn} completes the card?`
+      },
+      {
+        ar: `دليل سريع عن ${name}: ${clue}. اختر ${labelAr} الأقرب.`,
+        en: `Quick clue about ${nameEn}: ${clueEn}. Pick the closest ${labelEn}.`
+      },
+      {
+        ar: `لما يجتمع ${name} مع ${clue}، أي تفصيلة أدق؟`,
+        en: `When ${nameEn} meets ${clueEn}, which detail is most accurate?`
+      },
+      {
+        ar: `بطاقة ناقصة: ${name} و${clue}. ما التفصيلة الصحيحة؟`,
+        en: `Missing card: ${nameEn} and ${clueEn}. Which detail is right?`
+      },
+      {
+        ar: `${clue} يظهر مع ${name}: أي ${labelAr} تختاره؟`,
+        en: `${clueEn} appears with ${nameEn}: which ${labelEn} do you pick?`
+      }
+    ];
+
+    for (const variant of variants) {
+      if (answerAppearsInQuestionText(variant.ar, correct) || findObviousAnswerPair(variant.ar, correct)) {
+        continue;
+      }
+
+      tryAddQuestion(
+        categorySlug,
+        spec.difficulty,
+        spec.timeLimitSec,
+        variant.ar,
+        variant.en,
+        correct,
+        pool,
+        questionSource
+      );
+    }
+  }
+}
+
+function addNameFromClueRelationships(categorySlug, records, spec, questionSource = `${source} / rubric relationship template`) {
+  for (let recordIndex = 0; recordIndex < records.length; recordIndex += 1) {
+    const record = records[recordIndex];
+    const correct = fieldOption(record, 'name');
+    const pool = relationshipPool(records, 'name', recordIndex, spec.poolRadius);
+    const clueA = record[fieldName(spec.clueFields[0], 'Ar')];
+    const clueB = record[fieldName(spec.clueFields[1], 'Ar')];
+    const clueAEn = record[fieldName(spec.clueFields[0], 'En')];
+    const clueBEn = record[fieldName(spec.clueFields[1], 'En')];
+    const variants = [
+      {
+        ar: `دليلان في بطاقة واحدة: ${clueA} و${clueB}. أي اسم يناسب؟`,
+        en: `Two clues on one card: ${clueAEn} and ${clueBEn}. Which name fits?`
+      },
+      {
+        ar: `من غير ما نقول الاسم: ${clueA} + ${clueB}. تختار إيه؟`,
+        en: `Without naming it: ${clueAEn} plus ${clueBEn}. What do you choose?`
+      },
+      {
+        ar: `لو البطاقة فيها ${clueA} و${clueB}، أي اسم أقرب؟`,
+        en: `If the card has ${clueAEn} and ${clueBEn}, which name is closest?`
+      },
+      {
+        ar: `${clueA} مع ${clueB}: أي اختيار يكمل الصورة؟`,
+        en: `${clueAEn} with ${clueBEn}: which option completes the picture?`
+      },
+      {
+        ar: `بطاقة مختصرة: ${clueA} / ${clueB}. أي اسم؟`,
+        en: `Short card: ${clueAEn} / ${clueBEn}. Which name?`
+      }
+    ];
+
+    for (const variant of variants) {
+      if (answerAppearsInQuestionText(variant.ar, correct) || findObviousAnswerPair(variant.ar, correct)) {
+        continue;
+      }
+
+      tryAddQuestion(
+        categorySlug,
+        spec.difficulty,
+        spec.timeLimitSec,
+        variant.ar,
+        variant.en,
+        correct,
+        pool,
+        questionSource
+      );
+    }
+  }
+}
+
+function addRecordRelationshipSet(categorySlug, records, specs) {
+  for (const spec of specs) {
+    if (spec.kind === 'nameFromClues') {
+      addNameFromClueRelationships(categorySlug, records, spec);
+    } else {
+      addAnswerFieldRelationships(categorySlug, records, spec);
     }
   }
 }
@@ -1323,6 +1463,114 @@ addFieldQuestions('technology', techRecords, [
   ] }
 ]);
 
+addRecordRelationshipSet('geography', egyptPlaces, [
+  { kind: 'nameFromClues', clueFields: ['knownFor', 'governorate'], difficulty: 'Medium', timeLimitSec: 20 },
+  { answerField: 'governorate', clueField: 'knownFor', labelAr: 'مكان', labelEn: 'place', difficulty: 'Medium', timeLimitSec: 20 },
+  { answerField: 'knownFor', clueField: 'governorate', labelAr: 'وصف', labelEn: 'description', difficulty: 'Medium', timeLimitSec: 20 }
+]);
+
+addRecordRelationshipSet('geography', globalPlaces, [
+  { kind: 'nameFromClues', clueFields: ['knownFor', 'location'], difficulty: 'Medium', timeLimitSec: 20 },
+  { answerField: 'location', clueField: 'knownFor', labelAr: 'موقع', labelEn: 'location', difficulty: 'Medium', timeLimitSec: 20 },
+  { answerField: 'knownFor', clueField: 'location', labelAr: 'وصف', labelEn: 'description', difficulty: 'Medium', timeLimitSec: 20 }
+]);
+
+addRecordRelationshipSet('history', egyptHistoryEvents, [
+  { kind: 'nameFromClues', clueFields: ['key', 'year'], difficulty: 'Medium', timeLimitSec: 20 },
+  { answerField: 'key', clueField: 'year', labelAr: 'اسم أو جهة', labelEn: 'name or group', difficulty: 'Medium', timeLimitSec: 20 },
+  { answerField: 'year', clueField: 'key', labelAr: 'سنة أو فترة', labelEn: 'year or period', difficulty: 'Medium', timeLimitSec: 20, poolRadius: 5 }
+]);
+
+addRecordRelationshipSet('film-tv', egyptFilms, [
+  { kind: 'nameFromClues', clueFields: ['director', 'star'], difficulty: 'Medium', timeLimitSec: 20 },
+  { kind: 'nameFromClues', clueFields: ['star', 'year'], difficulty: 'Hard', timeLimitSec: 25 },
+  { answerField: 'director', clueField: 'star', labelAr: 'مخرج', labelEn: 'director', difficulty: 'Medium', timeLimitSec: 20 },
+  { answerField: 'star', clueField: 'director', labelAr: 'نجم', labelEn: 'star', difficulty: 'Medium', timeLimitSec: 20 },
+  { answerField: 'year', clueField: 'star', labelAr: 'سنة', labelEn: 'year', difficulty: 'Hard', timeLimitSec: 25, poolRadius: 5 }
+]);
+
+addRecordRelationshipSet('film-tv', egyptSeries, [
+  { kind: 'nameFromClues', clueFields: ['writer', 'star'], difficulty: 'Medium', timeLimitSec: 20 },
+  { answerField: 'writer', clueField: 'star', labelAr: 'كاتب', labelEn: 'writer', difficulty: 'Medium', timeLimitSec: 20 },
+  { answerField: 'star', clueField: 'writer', labelAr: 'نجم', labelEn: 'star', difficulty: 'Medium', timeLimitSec: 20 }
+]);
+
+addRecordRelationshipSet('books-literature', egyptBooks, [
+  { kind: 'nameFromClues', clueFields: ['author', 'type'], difficulty: 'Medium', timeLimitSec: 20 },
+  { answerField: 'author', clueField: 'type', labelAr: 'كاتب', labelEn: 'author', difficulty: 'Medium', timeLimitSec: 20 },
+  { answerField: 'type', clueField: 'author', labelAr: 'نوع أدبي', labelEn: 'literary type', difficulty: 'Medium', timeLimitSec: 20 }
+]);
+
+addRecordRelationshipSet('music', egyptMusic, [
+  { kind: 'nameFromClues', clueFields: ['work', 'country'], difficulty: 'Medium', timeLimitSec: 20 },
+  { answerField: 'work', clueField: 'country', labelAr: 'عمل غنائي', labelEn: 'musical work', difficulty: 'Medium', timeLimitSec: 20 },
+  { answerField: 'country', clueField: 'work', labelAr: 'بلد أو ساحة فنية', labelEn: 'country or scene', difficulty: 'Medium', timeLimitSec: 20 }
+]);
+
+addRecordRelationshipSet('sports', egyptSports, [
+  { kind: 'nameFromClues', clueFields: ['city', 'stadium'], difficulty: 'Medium', timeLimitSec: 20 },
+  { kind: 'nameFromClues', clueFields: ['color', 'city'], difficulty: 'Medium', timeLimitSec: 20 },
+  { answerField: 'city', clueField: 'stadium', labelAr: 'مدينة', labelEn: 'city', difficulty: 'Medium', timeLimitSec: 20 },
+  { answerField: 'stadium', clueField: 'city', labelAr: 'ملعب', labelEn: 'stadium', difficulty: 'Medium', timeLimitSec: 20 },
+  { answerField: 'color', clueField: 'city', labelAr: 'لون', labelEn: 'color', difficulty: 'Medium', timeLimitSec: 20 }
+]);
+
+addRecordRelationshipSet('sports', footballPlayers, [
+  { kind: 'nameFromClues', clueFields: ['clue', 'associated'], difficulty: 'Medium', timeLimitSec: 20 },
+  { kind: 'nameFromClues', clueFields: ['role', 'nationalTeam'], difficulty: 'Hard', timeLimitSec: 25 },
+  { answerField: 'role', clueField: 'clue', labelAr: 'دور في الملعب', labelEn: 'football role', difficulty: 'Medium', timeLimitSec: 20 },
+  { answerField: 'associated', clueField: 'clue', labelAr: 'نادي أو محطة', labelEn: 'club or career stop', difficulty: 'Medium', timeLimitSec: 20 },
+  { answerField: 'nationalTeam', clueField: 'associated', labelAr: 'منتخب', labelEn: 'national team', difficulty: 'Medium', timeLimitSec: 20 }
+]);
+
+addRecordRelationshipSet('sports', footballTournaments, [
+  { kind: 'nameFromClues', clueFields: ['identity', 'memory'], difficulty: 'Medium', timeLimitSec: 20 },
+  { answerField: 'scope', clueField: 'identity', labelAr: 'نطاق البطولة', labelEn: 'competition scope', difficulty: 'Medium', timeLimitSec: 20 },
+  { answerField: 'memory', clueField: 'scope', labelAr: 'معلومة مميزة', labelEn: 'memory hook', difficulty: 'Medium', timeLimitSec: 20 }
+]);
+
+addRecordRelationshipSet('art', egyptArtists, [
+  { kind: 'nameFromClues', clueFields: ['work', 'field'], difficulty: 'Medium', timeLimitSec: 20 },
+  { answerField: 'work', clueField: 'field', labelAr: 'عمل أو اتجاه', labelEn: 'work or style', difficulty: 'Medium', timeLimitSec: 20 },
+  { answerField: 'field', clueField: 'work', labelAr: 'مجال فني', labelEn: 'art field', difficulty: 'Medium', timeLimitSec: 20 }
+]);
+
+addRecordRelationshipSet('science-nature', scienceRecords, [
+  { kind: 'nameFromClues', clueFields: ['symbol', 'feature'], difficulty: 'Medium', timeLimitSec: 20 },
+  { answerField: 'symbol', clueField: 'feature', labelAr: 'رمز أو وصف', labelEn: 'symbol or label', difficulty: 'Medium', timeLimitSec: 20 },
+  { answerField: 'feature', clueField: 'symbol', labelAr: 'خاصية', labelEn: 'feature', difficulty: 'Medium', timeLimitSec: 20 }
+]);
+
+addRecordRelationshipSet('technology', techRecords, [
+  { kind: 'nameFromClues', clueFields: ['creator', 'use'], difficulty: 'Medium', timeLimitSec: 20 },
+  { answerField: 'creator', clueField: 'use', labelAr: 'شخص أو جهة', labelEn: 'person or organization', difficulty: 'Medium', timeLimitSec: 20 },
+  { answerField: 'use', clueField: 'creator', labelAr: 'استخدام', labelEn: 'use', difficulty: 'Medium', timeLimitSec: 20 }
+]);
+
+addRecordRelationshipSet('politics', politicsRecords, [
+  { kind: 'nameFromClues', clueFields: ['headquarters', 'purpose'], difficulty: 'Medium', timeLimitSec: 20 },
+  { answerField: 'headquarters', clueField: 'purpose', labelAr: 'مقر', labelEn: 'headquarters', difficulty: 'Medium', timeLimitSec: 20 },
+  { answerField: 'purpose', clueField: 'headquarters', labelAr: 'هدف أو وظيفة', labelEn: 'purpose or role', difficulty: 'Medium', timeLimitSec: 20 }
+]);
+
+addRecordRelationshipSet('animals', animalRecords, [
+  { kind: 'nameFromClues', clueFields: ['habitat', 'feature'], difficulty: 'Medium', timeLimitSec: 20 },
+  { answerField: 'habitat', clueField: 'feature', labelAr: 'بيئة', labelEn: 'habitat', difficulty: 'Medium', timeLimitSec: 20 },
+  { answerField: 'feature', clueField: 'habitat', labelAr: 'صفة', labelEn: 'feature', difficulty: 'Medium', timeLimitSec: 20 }
+]);
+
+addRecordRelationshipSet('vehicles', vehicleRecords, [
+  { kind: 'nameFromClues', clueFields: ['type', 'use'], difficulty: 'Medium', timeLimitSec: 20 },
+  { answerField: 'type', clueField: 'use', labelAr: 'نوع', labelEn: 'type', difficulty: 'Medium', timeLimitSec: 20 },
+  { answerField: 'use', clueField: 'type', labelAr: 'استخدام', labelEn: 'use', difficulty: 'Medium', timeLimitSec: 20 }
+]);
+
+addRecordRelationshipSet('games', gameRecords, [
+  { kind: 'nameFromClues', clueFields: ['type', 'knownFor'], difficulty: 'Medium', timeLimitSec: 20 },
+  { answerField: 'type', clueField: 'knownFor', labelAr: 'نوع اللعبة', labelEn: 'game type', difficulty: 'Medium', timeLimitSec: 20 },
+  { answerField: 'knownFor', clueField: 'type', labelAr: 'فكرة اللعب', labelEn: 'gameplay idea', difficulty: 'Medium', timeLimitSec: 20 }
+]);
+
 const derivedQuestionLeads = [
   { ar: 'زاوية تفكير جديدة:', en: 'Fresh thinking angle' },
   { ar: 'كارت تحدي قريب الاختيارات:', en: 'Close-choice challenge card' },
@@ -1348,25 +1596,46 @@ function categoryQuestionCount(categorySlug) {
   return questions.filter((question) => question.categorySlug === categorySlug).length;
 }
 
+const sameFamilyComparisonFrames = [
+  {
+    ar: (textAr, wrong) => `الفخ القريب «${wrong}»: ${textAr}`,
+    en: (textEn, wrong) => `Close trap "${wrong}": ${textEn}`
+  },
+  {
+    ar: (textAr, wrong) => `استبعد «${wrong}» وركز في الدليل: ${textAr}`,
+    en: (textEn, wrong) => `Rule out "${wrong}" and focus on the clue: ${textEn}`
+  },
+  {
+    ar: (textAr, wrong) => `بين اختيارات متقاربة، «${wrong}» مش كفاية: ${textAr}`,
+    en: (textEn, wrong) => `Among close options, "${wrong}" is not enough: ${textEn}`
+  },
+  {
+    ar: (textAr, wrong) => `اختيار قريب لكنه فخ «${wrong}»: ${textAr}`,
+    en: (textEn, wrong) => `A close but wrong trap is "${wrong}": ${textEn}`
+  }
+];
+
 function addDerivedQuestion(baseQuestion, variantIndex) {
-  const lead = derivedQuestionLeads[variantIndex % derivedQuestionLeads.length];
-  const round = Math.floor(variantIndex / derivedQuestionLeads.length) + 1;
-  const roundTagAr = round > 1 ? ` ${round}` : '';
-  const roundTagEn = round > 1 ? ` ${round}` : '';
   const correctOption = baseQuestion.options.find((option) => option.isCorrect);
   if (!correctOption) {
     throw new Error(`Cannot derive from question without a correct option: ${baseQuestion.slug}`);
   }
 
+  const wrongOptions = baseQuestion.options.filter((option) => !option.isCorrect);
+  const wrongOption = wrongOptions[variantIndex % wrongOptions.length];
+  const frame = sameFamilyComparisonFrames[variantIndex % sameFamilyComparisonFrames.length];
+  const textAr = frame.ar(baseQuestion.textAr, wrongOption.textAr);
+  const textEn = frame.en(baseQuestion.textEn, wrongOption.textEn);
+
   addQuestion(
     baseQuestion.categorySlug,
     baseQuestion.difficulty,
     baseQuestion.timeLimitSec,
-    `${lead.ar}${roundTagAr} ${baseQuestion.textAr}`,
-    `${lead.en}${roundTagEn}: ${baseQuestion.textEn}`,
+    textAr,
+    textEn,
     { ar: correctOption.textAr, en: correctOption.textEn },
     baseQuestion.options.map((option) => ({ ar: option.textAr, en: option.textEn })),
-    `${source} / close-choice derived variant`
+    `${source} / same-family comparison fallback`
   );
 }
 
@@ -1377,10 +1646,21 @@ function inflateCategoryToTarget(categorySlug, targetCount) {
   }
 
   let variantIndex = 0;
-  while (categoryQuestionCount(categorySlug) < targetCount) {
+  let attempts = 0;
+  const maxAttempts = targetCount * 40;
+  while (categoryQuestionCount(categorySlug) < targetCount && attempts < maxAttempts) {
     const baseQuestion = baseQuestions[variantIndex % baseQuestions.length];
-    addDerivedQuestion(baseQuestion, Math.floor(variantIndex / baseQuestions.length));
+    try {
+      addDerivedQuestion(baseQuestion, Math.floor(variantIndex / baseQuestions.length));
+    } catch {
+      // Some base prompts are already at the length boundary; skip weak fallbacks.
+    }
     variantIndex++;
+    attempts++;
+  }
+
+  if (categoryQuestionCount(categorySlug) < targetCount) {
+    throw new Error(`Category ${categorySlug} cannot reach ${targetCount} questions without weak variants.`);
   }
 }
 

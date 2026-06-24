@@ -7,13 +7,17 @@ The local Arabic question bank is stored in `questions.ar.json` and is loaded by
 - Normal database seeding does not fetch questions from the internet.
 - The checked-in JSON is the source of truth for startup seeding.
 - The bank uses a curated static model: facts are checked from Wikipedia, Wikidata, official sites, and reputable references, then rewritten as original Arabic prompts.
-- The production bank target is at least 5,000 active Arabic questions, with at least 700 football questions and at least 250 questions per category.
+- The production bank target is at least 5,000 active Arabic questions, with at least 700 football questions and at least 250 questions per category. The current rubric-generated bank is above that target.
+- Generation quality is controlled by `scripts/question-generation.config.mjs` and enforced by `scripts/question-quality.mjs`; the generator and validator share the same rubric instead of keeping separate rules.
 - Game question selection avoids questions seen by any current room player during the last 90 days whenever enough fresh questions are available, then falls back to the oldest seen questions if necessary.
 - Sources are documentation and audit metadata only. `DbSeeder` does not read per-question `source` values today.
 - Sports is football-only in this version: Egyptian football, global football players, clubs, national teams, and football competitions.
 - Non-football sports prompts are rejected from `sports`, including tennis, basketball, Olympics, Formula 1, cricket, rugby, handball, NFL, and similar topics.
 - Questions should feel playable first: every category should use a small scene, clue, memory hook, comparison, or practical context instead of a bare dictionary prompt.
 - Good prompts should teach while they play by exposing why the fact matters: cultural memory, travel context, historical clue, everyday tech use, tournament identity, or an unexpected comparison.
+- Short direct stems such as "what is it?", "who is it?", largest/first/month-only prompts, and obvious animal habitat clues are rejected when they make the answer feel exposed.
+- Rubric relationship templates may produce multiple questions from one factual record only when the asked field changes, such as clue-to-name, name-to-feature, player-to-club, player-to-national-team, tournament-to-memory, or object-to-use.
+- Same-family comparison fallback is capped by validation and is allowed only as a controlled close-choice variant, not as generic prefix inflation.
 - `religion-islamic` contains informational Islam-related questions about Quran, seerah, companions, Islamic history, Al-Azhar, and Egyptian Islamic landmarks. It avoids fatwas, sectarian framing, and disputed rulings.
 - Filler prompts such as "اختر الإجابة الصحيحة المرتبطة بـ..." are rejected by the generator and must not appear in the bank.
 - Dry repeated stems such as "بماذا يشتهر", "ما الاستخدام الأشهر", "ما نوع", and plain year/author templates are rejected when produced from generated field templates.
@@ -76,16 +80,10 @@ node scripts\generate-question-bank.mjs
 Then validate with:
 
 ```powershell
-node -e "const fs=require('fs'); const bank=JSON.parse(fs.readFileSync('src/Sabq.Infrastructure/Data/QuestionBank/questions.ar.json','utf8')); const bad=bank.questions.filter(q=>q.options.length!==4 || q.options.filter(o=>o.isCorrect).length!==1); console.log({questions: bank.questions.length, bad: bad.length}); if (bad.length) process.exit(1);"
-```
-
-The generator also rejects duplicate slugs, duplicate Arabic question text, missing category questions, banned filler phrases, correct answers inside question text, obvious clue/answer pairs, and non-football sports prompts.
-
-For the full bank gate, run:
-
-```powershell
 node scripts\validate-question-bank.mjs
 ```
+
+The generator and validator reject duplicate slugs, duplicate Arabic question text, weak generated sources, missing category minimums, banned dry stems, short direct endings, correct answers inside question text, obvious clue/answer pairs, overlong prompts, non-football sports prompts, and excess fallback share.
 
 ## Monthly Refresh Job
 

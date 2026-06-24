@@ -133,6 +133,34 @@ public class GameServiceTests
         Assert.NotEqual(derivedVariant.Id, selectedQuestions[0].Id);
     }
 
+    [Fact]
+    public async Task StartGameAsync_TreatsComparisonFallbackAsSameQuestionFamily()
+    {
+        var options = CreateInMemoryOptions();
+        await using var context = new SabqDbContext(options);
+
+        var category = AddCategory(context);
+        var original = AddQuestion(context, category.Id, 1, "أصل الاختبار: أي اختيار يناسب الدليل؟");
+        var comparisonVariant = AddQuestion(context, category.Id, 2, "الفخ القريب «اختيار قريب»: أصل الاختبار: أي اختيار يناسب الدليل؟");
+        var freshQuestion = AddQuestion(context, category.Id, 3, "بطاقة مختلفة تماما: أي اختيار يناسب الدليل؟");
+        var hostPlayerId = Guid.NewGuid();
+        AddPlayer(context, hostPlayerId);
+        AddHistoricalRoom(context, hostPlayerId, DateTime.UtcNow.AddDays(-2), original);
+
+        const string roomCode = "FAMLY2";
+        var roomId = AddCurrentRoom(context, roomCode, hostPlayerId, category.Id, questionCount: 1);
+        await context.SaveChangesAsync();
+
+        var roomStore = await CreateRoomStoreAsync(roomCode, roomId, hostPlayerId);
+        var service = new GameService(context, roomStore);
+
+        var selectedQuestions = await service.StartGameAsync(roomCode, hostPlayerId);
+
+        Assert.Single(selectedQuestions);
+        Assert.Equal(freshQuestion.Id, selectedQuestions[0].Id);
+        Assert.NotEqual(comparisonVariant.Id, selectedQuestions[0].Id);
+    }
+
     private static Category AddCategory(SabqDbContext context)
     {
         var category = new Category
