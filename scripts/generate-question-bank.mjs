@@ -44,6 +44,15 @@ const bannedQuestionPhrases = [
   'في أي شهر يصوم',
   'لو خلطت بين',
   'لو خلط بين',
+  'بطاقة',
+  'من غير ما نقول الاسم',
+  'يكمل البطاقة',
+  'لو البطاقة فيها',
+  'دليلان قبل الاسم',
+  'دليلان في بطاقة',
+  'أي اسم يناسب',
+  'قرينة واضحة',
+  'استبعد التشابه',
   'من هو خاتم الأنبياء',
   'كل كام سنة'
 ];
@@ -407,8 +416,8 @@ function addAnswerFieldRelationships(categorySlug, records, spec, questionSource
     const labelEn = spec.labelEn;
     const variants = [
       {
-        ar: `${name}: ${clue}. أي ${labelAr} يكمل البطاقة؟`,
-        en: `${nameEn}: ${clueEn}. Which ${labelEn} completes the card?`
+        ar: `السؤال عن ${labelAr}: ${name} و${clue}. ما الإجابة الصحيحة؟`,
+        en: `Question about ${labelEn}: ${nameEn} and ${clueEn}. What is the correct answer?`
       },
       {
         ar: `دليل سريع عن ${name}: ${clue}. أي ${labelAr} أقرب للمعنى؟`,
@@ -423,8 +432,8 @@ function addAnswerFieldRelationships(categorySlug, records, spec, questionSource
         en: `Small detail about ${nameEn}: ${clueEn}. Which ${labelEn} explains it?`
       },
       {
-        ar: `قرينة واضحة عن ${name}: ${clue}. أي ${labelAr} أدق هنا؟`,
-        en: `Clear clue about ${nameEn}: ${clueEn}. Which ${labelEn} is most accurate here?`
+        ar: `الدليل عن ${labelAr}: ${name} و${clue}. ما الإجابة؟`,
+        en: `Clue about ${labelEn}: ${nameEn} and ${clueEn}. What is the answer?`
       }
     ];
 
@@ -460,24 +469,24 @@ function addNameFromClueRelationships(categorySlug, records, spec, questionSourc
     const clueBEn = record[fieldName(spec.clueFields[1], 'En')];
     const variants = [
       {
-        ar: `دليلان في بطاقة واحدة: ${clueA} و${clueB}. أي اسم يناسب؟`,
-        en: `Two clues on one card: ${clueAEn} and ${clueBEn}. Which name fits?`
+        ar: `الدليلان: ${clueA} و${clueB}. ما الاسم الصحيح؟`,
+        en: `Two clues: ${clueAEn} and ${clueBEn}. Which name is correct?`
       },
       {
-        ar: `من غير ما نقول الاسم: ${clueA} + ${clueB}. أي اسم يناسب؟`,
-        en: `Without naming it: ${clueAEn} plus ${clueBEn}. Which name fits?`
+        ar: `يجتمع فيه ${clueA} و${clueB}. ما الاسم؟`,
+        en: `It has ${clueAEn} and ${clueBEn}. What is the name?`
       },
       {
-        ar: `لو البطاقة فيها ${clueA} و${clueB}، أي اسم أقرب؟`,
-        en: `If the card has ${clueAEn} and ${clueBEn}, which name is closest?`
+        ar: `من الدليلين ${clueA} و${clueB}، ما الإجابة؟`,
+        en: `From the clues ${clueAEn} and ${clueBEn}, what is the answer?`
       },
       {
-        ar: `استبعد التشابه: ${clueA} و${clueB}. أي اسم يلائم الاثنين؟`,
-        en: `Rule out the similarity: ${clueAEn} and ${clueBEn}. Which name fits both?`
+        ar: `الدليلان معًا: ${clueA} و${clueB}. ما الاسم؟`,
+        en: `The two clues together: ${clueAEn} and ${clueBEn}. What is the name?`
       },
       {
-        ar: `دليلان قبل الاسم: ${clueA} ثم ${clueB}. من المقصود؟`,
-        en: `Two clues before the name: ${clueAEn}, then ${clueBEn}. Who or what is meant?`
+        ar: `الدليل: ${clueA} ثم ${clueB}. ما الاسم الصحيح؟`,
+        en: `Clue: ${clueAEn}, then ${clueBEn}. Which name is correct?`
       }
     ];
 
@@ -1036,7 +1045,7 @@ const generalFacts = [
 
 const globalGeneralFacts = [
   ['لقطة عالمية: جوائز نوبل بدأت تمنح لأول مرة في أي سنة؟', 'Global snapshot: in which year were the Nobel Prizes first awarded?', '1901', '1901', [['1896', '1896'], ['1918', '1918'], ['1969', '1969']]],
-  ['بطاقة اسم: وصية أي شخص كانت وراء فكرة جوائز نوبل؟', 'Name card: whose will inspired the Nobel Prizes?', 'ألفريد نوبل', 'Alfred Nobel', [['أندرو كارنيغي', 'Andrew Carnegie'], ['جون د. روكفلر', 'John D. Rockefeller'], ['غوستاف دالين', 'Gustaf Dalen']]],
+  ['جوائز نوبل بدأت من وصية سويدية؛ من صاحبها؟', 'The Nobel Prizes began from a Swedish will; whose was it?', 'ألفريد نوبل', 'Alfred Nobel', [['أندرو كارنيغي', 'Andrew Carnegie'], ['جون د. روكفلر', 'John D. Rockefeller'], ['غوستاف دالين', 'Gustaf Dalen']]],
   ['لو سمعت عن جائزة نوبل في الاقتصاد، فالمعلومة اللطيفة أنها أضيفت لاحقا في أي مجال؟', 'If you hear about the later Nobel-linked prize, which field was added later?', 'العلوم الاقتصادية', 'economic sciences', [['الأدب', 'literature'], ['الكيمياء', 'chemistry'], ['السلام', 'peace']]],
   ['قصة فضاء في سطر: أي مهمة أوصلت أول بشر إلى سطح القمر؟', 'Space story in one line: which mission first landed humans on the Moon?', 'أبولو 11', 'Apollo 11', [['فوياجر 1', 'Voyager 1'], ['سبوتنيك 1', 'Sputnik 1'], ['أبولو 13', 'Apollo 13']]],
   ['خريطة العالم: أكبر محيط على الأرض هو أي محيط؟', 'World map: which ocean is the largest on Earth?', 'المحيط الهادئ', 'Pacific Ocean', [['المحيط الأطلسي', 'Atlantic Ocean'], ['المحيط الهندي', 'Indian Ocean'], ['المحيط المتجمد الشمالي', 'Arctic Ocean']]],
@@ -1075,7 +1084,7 @@ const generalKnowledgeRecords = [
 const globalHistoryFacts = [
   ['رحلة زمنية عالمية: سقوط جدار برلين يرتبط غالبا بأي سنة؟', 'World time-trip: the fall of the Berlin Wall is usually linked to which year?', '1989', '1989', [['1945', '1945'], ['1969', '1969'], ['2001', '2001']]],
   ['اختراع غيّر القراءة: الطباعة بالحروف المتحركة في أوروبا ترتبط بأي اسم؟', 'Reading-changing invention: movable-type printing in Europe is linked to which name?', 'يوهانس جوتنبرج', 'Johannes Gutenberg', [['غاليليو غاليلي', 'Galileo Galilei'], ['ليوناردو دافنشي', 'Leonardo da Vinci'], ['جيمس وات', 'James Watt']]],
-  ['بطاقة قانون قديمة: وثيقة ماجنا كارتا سنة 1215 ارتبطت بأي بلد؟', 'Old law card: Magna Carta in 1215 is linked to which country?', 'إنجلترا', 'England', [['فرنسا', 'France'], ['إسبانيا', 'Spain'], ['البرتغال', 'Portugal']]],
+  ['وثيقة ماجنا كارتا سنة 1215 ارتبطت بأي بلد؟', 'Magna Carta in 1215 is linked to which country?', 'إنجلترا', 'England', [['فرنسا', 'France'], ['إسبانيا', 'Spain'], ['البرتغال', 'Portugal']]],
   ['منعطف صناعي: الثورة الصناعية بدأت بقوة في أي بلد؟', 'Industrial turning point: the Industrial Revolution began strongly in which country?', 'بريطانيا', 'Britain', [['فرنسا', 'France'], ['ألمانيا', 'Germany'], ['بلجيكا', 'Belgium']]],
   ['طريق تجارة قديم: طريق الحرير كان يربط الصين غالبا بأي عالم أوسع؟', 'Old trade route: the Silk Road linked China with which wider world?', 'آسيا الوسطى وأوروبا', 'Central Asia and Europe', [['جنوب شرق آسيا والهند', 'Southeast Asia and India'], ['شرق أفريقيا والبحر الأحمر', 'East Africa and the Red Sea'], ['روسيا وسيبيريا فقط', 'Russia and Siberia only']]],
   ['نهضة وفنون: عصر النهضة الأوروبي بدأ بقوة في أي منطقة؟', 'Renaissance and art: the European Renaissance grew strongly from which area?', 'إيطاليا', 'Italy', [['فلاندرز', 'Flanders'], ['فرنسا', 'France'], ['ألمانيا', 'Germany']]],
@@ -1178,7 +1187,7 @@ const islamicKnowledgeRecords = [
 ].map(([nameAr, nameEn, topicAr, topicEn, clueAr, clueEn, memoryAr, memoryEn]) => ({ nameAr, nameEn, topicAr, topicEn, clueAr, clueEn, memoryAr, memoryEn }));
 
 const politicsTrickyFacts = [
-  ['بطاقة عالمية: منظمة تجمع دول العالم تقريبا وتتكلم كثيرا عن السلم الدولي. ما هي؟', 'Global card: which organization gathers nearly all states and focuses on peace?', 'الأمم المتحدة', 'United Nations', [['عصبة الأمم', 'League of Nations'], ['الاتحاد الأوروبي', 'European Union'], ['مجموعة العشرين', 'G20']]],
+  ['منظمة تجمع دول العالم تقريبا وتتكلم كثيرا عن السلم الدولي. ما هي؟', 'Which organization gathers nearly all states and focuses on peace?', 'الأمم المتحدة', 'United Nations', [['عصبة الأمم', 'League of Nations'], ['الاتحاد الأوروبي', 'European Union'], ['مجموعة العشرين', 'G20']]],
   ['ثقافة وتعليم وتراث: أي منظمة دولية تقف خلف مواقع التراث العالمي؟', 'Culture, education, and heritage: which organization is behind World Heritage sites?', 'اليونسكو (UNESCO)', 'UNESCO', [['منظمة الصحة العالمية (WHO)', 'WHO'], ['منظمة العمل الدولية (ILO)', 'ILO'], ['منظمة الأغذية والزراعة (FAO)', 'FAO']]],
   ['صحة عالمية: مؤسسة نسمع اسمها كثيرا عند الأوبئة واللقاحات. ما هي؟', 'Global health: which body is often heard during epidemics and vaccines?', 'منظمة الصحة العالمية (WHO)', 'World Health Organization', [['اليونيسف (UNICEF)', 'UNICEF'], ['الصليب الأحمر الدولي', 'International Red Cross'], ['أطباء بلا حدود', 'Doctors Without Borders']]],
   ['بيت التشريع: في مصر، المؤسسة التي تناقش القوانين وتمثل المواطنين هي أي جهة؟', 'Legislation house: in Egypt, which body debates laws and represents citizens?', 'مجلس النواب المصري', 'Egyptian House of Representatives', [['مجلس الشيوخ المصري', 'Egyptian Senate'], ['مجلس الوزراء المصري', 'Egyptian Cabinet'], ['المحكمة الدستورية العليا', 'Supreme Constitutional Court']]],
@@ -1359,7 +1368,7 @@ addFieldQuestions('history', egyptHistoryEvents, [
     { ar: (r) => `رحلة زمنية: حدث «${r.nameAr}» هتحطه عند أي سنة أو فترة؟`, en: (r) => `Time-trip clue: which year or period fits ${r.nameEn}?` }
   ] },
   { arField: 'keyAr', enField: 'keyEn', difficulty: 'Medium', timeLimitSec: 20, variants: [
-    { ar: (r) => `بطاقة حدث ناقصة: «${r.nameAr}» محتاجة الاسم أو الجهة الأبرز. تختار مين؟`, en: (r) => `Missing event card: which name or group completes ${r.nameEn}?` }
+    { ar: (r) => `حدث مصري: «${r.nameAr}». ما الاسم أو الجهة الأبرز المرتبطة به؟`, en: (r) => `Egyptian event: which name or group is linked to ${r.nameEn}?` }
   ] }
 ]);
 
@@ -1436,7 +1445,7 @@ for (const [textAr, textEn, answerAr, answerEn, wrong] of footballDeepCutQuestio
 
 addFieldQuestions('sports', footballTournaments, [
   { arField: 'nameAr', enField: 'nameEn', difficulty: 'Medium', timeLimitSec: 20, variants: [
-    { ar: (r) => `بطاقة بطولة كروية: ${r.identityAr}. أي بطولة نقصد؟`, en: (r) => `Football tournament card: ${r.identityEn}. Which tournament is it?` }
+    { ar: (r) => `بطولة كروية: ${r.identityAr}. ما اسم البطولة؟`, en: (r) => `Football tournament: ${r.identityEn}. Which tournament is it?` }
   ] },
   { arField: 'memoryAr', enField: 'memoryEn', difficulty: 'Medium', timeLimitSec: 20, variants: [
     { ar: (r) => `معلومة تحفظ البطولة: أي جملة تميّز ${r.nameAr}؟`, en: (r) => `Tournament memory hook: which sentence marks ${r.nameEn}?` }
@@ -1449,7 +1458,7 @@ for (const [textAr, textEn, answerAr, answerEn, wrong] of footballTournamentClue
 
 addFieldQuestions('science-nature', scienceRecords, [
   { arField: 'symbolAr', enField: 'symbolEn', difficulty: 'Easy', timeLimitSec: 15, variants: [
-    { ar: (r) => `بطاقة معمل صغيرة: لو العنصر أو الكوكب هو ${r.nameAr}، إيه العلامة اللي تميزه؟`, en: (r) => `Tiny lab card: which marker identifies ${r.nameEn}?` }
+    { ar: (r) => `في المعمل أو الفلك: ما العلامة التي تميز ${r.nameAr}؟`, en: (r) => `In lab or space: which marker identifies ${r.nameEn}?` }
   ] },
   { arField: 'featureAr', enField: 'featureEn', difficulty: 'Medium', timeLimitSec: 20, variants: [
     { ar: (r) => `معلومة تنفع في دقيقة: ${r.nameAr} يهمنا غالبا بسبب إيه؟`, en: (r) => `One-minute science: why does ${r.nameEn} usually matter?` }
@@ -1554,13 +1563,13 @@ addFieldQuestions('geography', egyptPlaces, [
 
 addFieldQuestions('history', egyptHistoryEvents, [
   { arField: 'nameAr', enField: 'nameEn', difficulty: 'Medium', timeLimitSec: 20, variants: [
-    { ar: (r) => `مؤشران في بطاقة واحدة: ${r.keyAr} + ${r.yearAr}. أي حدث مصري ده؟`, en: (r) => `Two clues on one card: ${r.keyEn} plus ${r.yearEn}. Which Egyptian event is it?` }
+    { ar: (r) => `مؤشران واضحان: ${r.keyAr} + ${r.yearAr}. ما الحدث المصري؟`, en: (r) => `Two clear clues: ${r.keyEn} plus ${r.yearEn}. Which Egyptian event is it?` }
   ] }
 ]);
 
 addFieldQuestions('art', egyptArtists, [
   { arField: 'nameAr', enField: 'nameEn', difficulty: 'Medium', timeLimitSec: 20, variants: [
-    { ar: (r) => `شايف عمل أو اتجاه «${r.workAr}» على بطاقة المعرض؛ أي فنان مصري وراه؟`, en: (r) => `A gallery card says ${r.workEn}; which Egyptian artist is behind it?` }
+    { ar: (r) => `في المعرض: عمل أو اتجاه «${r.workAr}» يرتبط بأي فنان مصري؟`, en: (r) => `In a gallery: ${r.workEn} is linked to which Egyptian artist?` }
   ] },
   { arField: 'fieldAr', enField: 'fieldEn', difficulty: 'Easy', timeLimitSec: 15, variants: [
     { ar: (r) => `لو بتشرح ${r.nameAr} لصاحبك، هتقول مجاله الفني الأقرب إيه؟`, en: (r) => `If you explain ${r.nameEn} to a friend, which art field fits best?` }
@@ -1726,17 +1735,17 @@ const derivedQuestionLeads = [
   { ar: 'اختبار معلومة من نفس العائلة:', en: 'Same-family knowledge test' },
   { ar: 'دليل صغير يفرق بين الاختيارات:', en: 'Small clue separating close options' },
   { ar: 'تحدي اختيار واحد صحيح:', en: 'One-correct-choice challenge' },
-  { ar: 'بطاقة مقارنة خفيفة:', en: 'Light comparison card' },
+  { ar: 'مقارنة خفيفة:', en: 'Light comparison' },
   { ar: 'سؤال يحتاج ربط مش حفظ:', en: 'Linking-not-memorizing prompt' },
   { ar: 'جولة اختيارات متقاربة:', en: 'Close-options round' },
   { ar: 'معلومة بسؤال له ثنية:', en: 'Fact with a small twist' },
-  { ar: 'بطاقة مفيدة للعب:', en: 'Playable useful card' },
+  { ar: 'معلومة مفيدة للعب:', en: 'Playable useful clue' },
   { ar: 'لقطة تمييز بين إجابات قريبة:', en: 'Distinguish-close-answers clue' },
   { ar: 'تحدي سريع لكن مش مكشوف:', en: 'Quick but not obvious challenge' },
   { ar: 'دليل من نفس المجال:', en: 'Same-domain clue' },
   { ar: 'جولة تثبيت معلومة:', en: 'Knowledge-reinforcement round' },
   { ar: 'اختبار ربط بين clue وإجابة:', en: 'Clue-to-answer linking test' },
-  { ar: 'بطاقة تفكير للاعبين:', en: 'Player-thinking card' }
+  { ar: 'سؤال تفكير للاعبين:', en: 'Player-thinking question' }
 ];
 
 function categoryQuestionCount(categorySlug) {
