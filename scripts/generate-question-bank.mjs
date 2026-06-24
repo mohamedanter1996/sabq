@@ -70,6 +70,12 @@ const bannedQuestionPhrases = [
   'أقرب للمعنى',
   'يفسرها',
   'أي تفصيلة أدق',
+  'ما الإجابة الصحيحة؟',
+  'ما الاختيار الأدق؟',
+  'ما الاختيار الأقرب؟',
+  'ما الاسم الصحيح؟',
+  'ما الاسم؟',
+  'ما الإجابة؟',
   'أي اسم يناسب',
   'قرينة واضحة',
   'استبعد التشابه',
@@ -423,6 +429,249 @@ function relationshipPool(records, field, centerIndex, radius = 4) {
   return fieldPool(records, fieldName(field, 'Ar'), fieldName(field, 'En'), centerIndex, radius);
 }
 
+function answerFieldPromptAr(labelAr) {
+  const prompts = new Map([
+    ['مخرج', 'مين المخرج؟'],
+    ['نجم', 'مين النجم أو الممثل؟'],
+    ['كاتب', 'مين الكاتب؟'],
+    ['سنة', 'في أي سنة؟'],
+    ['سنة أو فترة', 'في أي سنة أو فترة؟'],
+    ['زاوية', 'ما الزاوية أو الموضوع؟'],
+    ['تفصيلة', 'ما التفصيلة المقصودة؟'],
+    ['مكان', 'في أي مكان؟'],
+    ['موقع', 'ما الموقع؟'],
+    ['وصف', 'ما الوصف الصحيح؟'],
+    ['اسم أو جهة', 'أي اسم أو جهة؟'],
+    ['نوع أدبي', 'ما التصنيف الأدبي؟'],
+    ['عمل غنائي', 'أي عمل غنائي؟'],
+    ['بلد أو ساحة فنية', 'أي بلد أو ساحة فنية؟'],
+    ['مدينة', 'أي مدينة؟'],
+    ['ملعب', 'أي ملعب؟'],
+    ['لون', 'ما اللون المرتبط؟'],
+    ['دور في الملعب', 'ما مركزه في الملعب؟'],
+    ['نادي أو محطة', 'أي نادي أو محطة كروية؟'],
+    ['منتخب', 'أي منتخب؟'],
+    ['نطاق البطولة', 'ما نطاق البطولة؟'],
+    ['معلومة مميزة', 'ما المعلومة المميزة؟'],
+    ['عمل أو اتجاه', 'ما العمل أو الاتجاه؟'],
+    ['مجال فني', 'ما المجال الفني؟'],
+    ['رمز أو وصف', 'ما الرمز أو الوصف؟'],
+    ['خاصية', 'ما الخاصية؟'],
+    ['شخص أو جهة', 'من الشخص أو الجهة؟'],
+    ['استخدام', 'ما الاستخدام؟'],
+    ['مقر', 'أين المقر؟'],
+    ['هدف أو وظيفة', 'ما الهدف أو الوظيفة؟'],
+    ['بيئة', 'ما البيئة؟'],
+    ['صفة', 'ما الصفة؟'],
+    ['نوع', 'ما التصنيف؟'],
+    ['نوع اللعبة', 'ما تصنيف اللعبة؟'],
+    ['فكرة اللعب', 'ما فكرة اللعب؟']
+  ]);
+
+  return prompts.get(labelAr) ?? `ما ${labelAr} المطلوب؟`;
+}
+
+function answerFieldPromptEn(labelEn) {
+  const prompts = new Map([
+    ['director', 'Who is the director?'],
+    ['star', 'Who is the star or actor?'],
+    ['writer', 'Who is the writer?'],
+    ['author', 'Who is the author?'],
+    ['year', 'Which year?'],
+    ['year or period', 'Which year or period?'],
+    ['city', 'Which city?'],
+    ['stadium', 'Which stadium?'],
+    ['football role', 'What is his football role?'],
+    ['club or career stop', 'Which club or career stop?'],
+    ['national team', 'Which national team?'],
+    ['competition scope', 'What is the competition scope?'],
+    ['memory hook', 'Which memory hook is correct?'],
+    ['headquarters', 'Where is the headquarters?'],
+    ['purpose or role', 'What is the purpose or role?'],
+    ['habitat', 'What is the habitat?'],
+    ['feature', 'What is the feature?'],
+    ['type', 'What is the type?'],
+    ['use', 'What is the use?'],
+    ['game type', 'What is the game type?'],
+    ['gameplay idea', 'What is the gameplay idea?']
+  ]);
+
+  return prompts.get(labelEn) ?? `Which ${labelEn} is required?`;
+}
+
+function answerRelationshipContextsAr(categorySlug, spec, name, clue) {
+  const quotedName = `«${name}»`;
+  const quotedClue = `«${clue}»`;
+
+  if (categorySlug === 'film-tv') {
+    if (spec.answerField === 'director') {
+      return [
+        `فيلم ${quotedName} شاركت فيه ${clue}.`,
+        `${clue} من نجوم فيلم ${quotedName}.`,
+        `في فيلم ${quotedName} يظهر اسم ${clue}.`,
+        `فيلم ${quotedName} ارتبط بتمثيل ${clue}.`,
+        `${quotedName} من أفلام ${clue} المعروفة.`
+      ];
+    }
+
+    if (spec.answerField === 'star') {
+      return [
+        `فيلم ${quotedName} من إخراج ${clue}.`,
+        `${clue} أخرج فيلم ${quotedName}.`,
+        `في فيلم ${quotedName} كان ${clue} وراء الكاميرا.`,
+        `${quotedName} ارتبط بإخراج ${clue}.`,
+        `إخراج ${clue} مرتبط بفيلم ${quotedName}.`
+      ];
+    }
+
+    if (spec.answerField === 'year') {
+      return [
+        `فيلم ${quotedName} شاركت فيه ${clue}.`,
+        `${clue} من نجوم فيلم ${quotedName}.`,
+        `في ذاكرة السينما: ${quotedName} و${clue}.`,
+        `${quotedName} ارتبط باسم ${clue}.`,
+        `فيلم ${quotedName} يظهر فيه اسم ${clue}.`
+      ];
+    }
+
+    if (spec.answerField === 'writer') {
+      return [
+        `مسلسل ${quotedName} شارك فيه ${clue}.`,
+        `${clue} من وجوه مسلسل ${quotedName}.`,
+        `في مسلسل ${quotedName} يظهر اسم ${clue}.`,
+        `${quotedName} ارتبط بتمثيل ${clue}.`,
+        `مسلسل ${quotedName} من أعمال ظهر فيها ${clue}.`
+      ];
+    }
+  }
+
+  if (categorySlug === 'sports' && spec.answerField === 'associated') {
+    return [
+      `${name} لاعب معروف، و${clue}.`,
+      `${name} في كرة القدم: ${clue}.`,
+      `${name} ارتبط بهذه المعلومة: ${clue}.`,
+      `عن اللاعب ${name}: ${clue}.`,
+      `${clue}. اللاعب هو ${name}.`
+    ];
+  }
+
+  return [
+    `${quotedName} يرتبط بـ${quotedClue}.`,
+    `${quotedClue} من علامات ${quotedName}.`,
+    `عن ${quotedName}: ${clue}.`,
+    `${name} و${clue}.`,
+    `${quotedName}: ${clue}.`
+  ];
+}
+
+function answerRelationshipContextsEn(categorySlug, spec, nameEn, clueEn) {
+  if (categorySlug === 'film-tv') {
+    if (spec.answerField === 'director') {
+      return [
+        `The film "${nameEn}" starred ${clueEn}.`,
+        `${clueEn} is one of the stars of "${nameEn}".`,
+        `In "${nameEn}", ${clueEn} appears among the cast.`,
+        `"${nameEn}" is linked with ${clueEn}'s acting.`,
+        `"${nameEn}" is one of the films linked with ${clueEn}.`
+      ];
+    }
+
+    if (spec.answerField === 'star') {
+      return [
+        `The film "${nameEn}" was directed by ${clueEn}.`,
+        `${clueEn} directed "${nameEn}".`,
+        `In "${nameEn}", ${clueEn} was behind the camera.`,
+        `"${nameEn}" is linked with ${clueEn}'s direction.`,
+        `${clueEn} is behind the film "${nameEn}".`
+      ];
+    }
+  }
+
+  return [
+    `"${nameEn}" is linked with ${clueEn}.`,
+    `${clueEn} is a marker for "${nameEn}".`,
+    `About "${nameEn}": ${clueEn}.`,
+    `${nameEn} and ${clueEn}.`,
+    `"${nameEn}": ${clueEn}.`
+  ];
+}
+
+function nameFromCluesPromptAr(categorySlug, spec) {
+  if (categorySlug === 'film-tv') {
+    if (spec.clueFields.includes('writer')) {
+      return 'ما اسم المسلسل؟';
+    }
+
+    return 'ما اسم الفيلم؟';
+  }
+
+  if (categorySlug === 'sports') {
+    if (spec.clueFields.includes('identity') || spec.clueFields.includes('scope')) {
+      return 'ما اسم البطولة؟';
+    }
+
+    if (spec.clueFields.includes('stadium') || spec.clueFields.includes('color')) {
+      return 'ما اسم النادي؟';
+    }
+
+    return 'مين اللاعب؟';
+  }
+
+  const prompts = {
+    geography: 'ما اسم المكان؟',
+    history: 'ما اسم الحدث؟',
+    art: 'مين الفنان؟',
+    music: 'ما الاسم الفني المقصود؟',
+    'books-literature': 'ما اسم العمل الأدبي؟',
+    'science-nature': 'ما الاسم العلمي أو الظاهرة؟',
+    technology: 'ما اسم التقنية أو المنتج؟',
+    politics: 'ما اسم المنظمة أو الجهة؟',
+    animals: 'أي حيوان؟',
+    vehicles: 'أي وسيلة نقل؟',
+    games: 'أي لعبة؟',
+    'religion-islamic': 'ما الاسم المقصود؟',
+    'general-knowledge': 'ما الاسم المقصود؟'
+  };
+
+  return prompts[categorySlug] ?? 'ما الاسم المقصود؟';
+}
+
+function nameFromCluesPromptEn(categorySlug, spec) {
+  if (categorySlug === 'film-tv') {
+    return spec.clueFields.includes('writer') ? 'Which series is it?' : 'Which film is it?';
+  }
+
+  if (categorySlug === 'sports') {
+    if (spec.clueFields.includes('identity') || spec.clueFields.includes('scope')) {
+      return 'Which tournament is it?';
+    }
+
+    if (spec.clueFields.includes('stadium') || spec.clueFields.includes('color')) {
+      return 'Which club is it?';
+    }
+
+    return 'Which player is it?';
+  }
+
+  const prompts = {
+    geography: 'Which place is it?',
+    history: 'Which event is it?',
+    art: 'Which artist is it?',
+    music: 'Which music name is it?',
+    'books-literature': 'Which literary work is it?',
+    'science-nature': 'Which scientific name or phenomenon is it?',
+    technology: 'Which technology or product is it?',
+    politics: 'Which organization or body is it?',
+    animals: 'Which animal is it?',
+    vehicles: 'Which vehicle is it?',
+    games: 'Which game is it?',
+    'religion-islamic': 'Which name is intended?',
+    'general-knowledge': 'Which name is intended?'
+  };
+
+  return prompts[categorySlug] ?? 'Which name is intended?';
+}
+
 function addAnswerFieldRelationships(categorySlug, records, spec, questionSource = `${source} / rubric relationship template`) {
   for (let recordIndex = 0; recordIndex < records.length; recordIndex += 1) {
     const record = records[recordIndex];
@@ -434,28 +683,14 @@ function addAnswerFieldRelationships(categorySlug, records, spec, questionSource
     const nameEn = record.nameEn;
     const labelAr = spec.labelAr;
     const labelEn = spec.labelEn;
-    const variants = [
-      {
-        ar: `${name}: ${clue}. ما الإجابة الصحيحة؟`,
-        en: `${nameEn}: ${clueEn}. What is the correct answer?`
-      },
-      {
-        ar: `${name} و${clue}. ما الاختيار الأدق؟`,
-        en: `${nameEn} and ${clueEn}. Which choice is most accurate?`
-      },
-      {
-        ar: `${name}: ${clue}. ما الاختيار الأقرب؟`,
-        en: `${nameEn}: ${clueEn}. Which choice is closest?`
-      },
-      {
-        ar: `${clue} يرتبط بـ«${name}». ما الإجابة الصحيحة؟`,
-        en: `${clueEn}. Which detail is linked to ${nameEn}?`
-      },
-      {
-        ar: `${name} و${clue}. ما الإجابة الصحيحة؟`,
-        en: `${nameEn} and ${clueEn}. Which ${labelEn} is correct?`
-      }
-    ];
+    const promptAr = answerFieldPromptAr(labelAr);
+    const promptEn = answerFieldPromptEn(labelEn);
+    const contextsAr = answerRelationshipContextsAr(categorySlug, spec, name, clue);
+    const contextsEn = answerRelationshipContextsEn(categorySlug, spec, nameEn, clueEn);
+    const variants = contextsAr.map((contextAr, index) => ({
+      ar: `${contextAr} ${promptAr}`,
+      en: `${contextsEn[index] ?? contextsEn[0]} ${promptEn}`
+    }));
 
     for (const variant of variants) {
       if (answerAppearsInQuestionText(variant.ar, correct) ||
@@ -487,26 +722,28 @@ function addNameFromClueRelationships(categorySlug, records, spec, questionSourc
     const clueB = record[fieldName(spec.clueFields[1], 'Ar')];
     const clueAEn = record[fieldName(spec.clueFields[0], 'En')];
     const clueBEn = record[fieldName(spec.clueFields[1], 'En')];
+    const promptAr = nameFromCluesPromptAr(categorySlug, spec);
+    const promptEn = nameFromCluesPromptEn(categorySlug, spec);
     const variants = [
       {
-        ar: `${clueA} و${clueB}. ما الاسم الصحيح؟`,
-        en: `${clueAEn} and ${clueBEn}. Which name is correct?`
+        ar: `${clueA} و${clueB}. ${promptAr}`,
+        en: `${clueAEn} and ${clueBEn}. ${promptEn}`
       },
       {
-        ar: `${clueA}. ${clueB}. ما الاسم؟`,
-        en: `${clueAEn}. ${clueBEn}. What is the name?`
+        ar: `${clueA}. كذلك ${clueB}. ${promptAr}`,
+        en: `${clueAEn}. Also ${clueBEn}. ${promptEn}`
       },
       {
-        ar: `${clueA}. ${clueB}. ما الإجابة؟`,
-        en: `${clueAEn}. ${clueBEn}. What is the answer?`
+        ar: `${clueA}. ${clueB}. ${promptAr}`,
+        en: `${clueAEn}. ${clueBEn}. ${promptEn}`
       },
       {
-        ar: `${clueB}. ${clueA}. ما الاسم؟`,
-        en: `${clueBEn}. ${clueAEn}. What is the name?`
+        ar: `${clueB}. ${clueA}. ${promptAr}`,
+        en: `${clueBEn}. ${clueAEn}. ${promptEn}`
       },
       {
-        ar: `${clueA} ثم ${clueB}. ما الاسم الصحيح؟`,
-        en: `${clueAEn}, then ${clueBEn}. Which name is correct?`
+        ar: `${clueA} ثم ${clueB}. ${promptAr}`,
+        en: `${clueAEn}, then ${clueBEn}. ${promptEn}`
       }
     ];
 
