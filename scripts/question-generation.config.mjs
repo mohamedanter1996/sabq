@@ -3,7 +3,7 @@ export const generationConfig = {
   minimumCategoryQuestions: 250,
   minimumSportsQuestions: 700,
   maximumDerivedQuestionShare: 0,
-  maximumFallbackQuestionShare: 0.25,
+  maximumFallbackQuestionShare: 0,
   targetDifficultyShare: {
     Easy: 0.2,
     Medium: 0.65,
@@ -65,6 +65,12 @@ export const generationConfig = {
     'خريطة العالم: أكبر',
     'أكبر محيط',
     'أكبر صحراء',
+    'أي اختيار يكمل الصورة',
+    'يظهر مع',
+    'بطاقة مختصرة',
+    'ما التفصيلة الصحيحة',
+    'اختر ',
+    'تختاره',
     'من هو خاتم الأنبياء',
     'كل كام سنة'
   ],

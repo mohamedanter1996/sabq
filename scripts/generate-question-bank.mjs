@@ -214,6 +214,14 @@ function findObviousAnswerPair(textAr, correct) {
   );
 }
 
+function findObviousQuestionPair(textAr) {
+  const normalizedText = normalizeForQuality(textAr);
+  return obviousAnswerPairs.find(([subject, answer]) =>
+    normalizedText.includes(normalizeForQuality(subject)) &&
+    normalizedText.includes(normalizeForQuality(answer))
+  );
+}
+
 function assertQuestionVoice(textAr) {
   const normalized = textAr.replace(/\s+/g, ' ').trim();
   const bannedPhrase = bannedQuestionPhrases.find((phrase) => normalized.includes(phrase));
@@ -234,6 +242,11 @@ function assertQuestionQuality(categorySlug, textAr, textEn, correct, options) {
   const obviousPair = findObviousAnswerPair(textAr, correct);
   if (obviousPair) {
     throw new Error(`Obvious answer pair "${obviousPair.join(' / ')}" in question: ${textAr}`);
+  }
+
+  const obviousQuestionPair = findObviousQuestionPair(textAr);
+  if (obviousQuestionPair) {
+    throw new Error(`Obvious clue pair "${obviousQuestionPair.join(' / ')}" in question: ${textAr}`);
   }
 
   if (categorySlug === 'sports') {
@@ -334,7 +347,9 @@ function addFieldQuestions(categorySlug, records, specs, questionSource = source
       for (const variant of spec.variants) {
         const textAr = variant.ar(record);
         const textEn = variant.en(record);
-        if (answerAppearsInQuestionText(textAr, correct) || findObviousAnswerPair(textAr, correct)) {
+        if (answerAppearsInQuestionText(textAr, correct) ||
+          findObviousAnswerPair(textAr, correct) ||
+          findObviousQuestionPair(textAr)) {
           continue;
         }
 
@@ -394,25 +409,27 @@ function addAnswerFieldRelationships(categorySlug, records, spec, questionSource
         en: `${nameEn}: ${clueEn}. Which ${labelEn} completes the card?`
       },
       {
-        ar: `دليل سريع عن ${name}: ${clue}. اختر ${labelAr} الأقرب.`,
-        en: `Quick clue about ${nameEn}: ${clueEn}. Pick the closest ${labelEn}.`
+        ar: `دليل سريع عن ${name}: ${clue}. أي ${labelAr} أقرب للمعنى؟`,
+        en: `Quick clue about ${nameEn}: ${clueEn}. Which ${labelEn} is closest to the meaning?`
       },
       {
         ar: `لما يجتمع ${name} مع ${clue}، أي تفصيلة أدق؟`,
         en: `When ${nameEn} meets ${clueEn}, which detail is most accurate?`
       },
       {
-        ar: `بطاقة ناقصة: ${name} و${clue}. ما التفصيلة الصحيحة؟`,
-        en: `Missing card: ${nameEn} and ${clueEn}. Which detail is right?`
+        ar: `تفصيلة صغيرة عن ${name}: ${clue}. أي ${labelAr} يفسرها؟`,
+        en: `Small detail about ${nameEn}: ${clueEn}. Which ${labelEn} explains it?`
       },
       {
-        ar: `${clue} يظهر مع ${name}: أي ${labelAr} تختاره؟`,
-        en: `${clueEn} appears with ${nameEn}: which ${labelEn} do you pick?`
+        ar: `لو خلطت بين ${name} وبديل قريب، ${clue} تشير لأي ${labelAr}؟`,
+        en: `If ${nameEn} is confused with a close alternative, which ${labelEn} does ${clueEn} point to?`
       }
     ];
 
     for (const variant of variants) {
-      if (answerAppearsInQuestionText(variant.ar, correct) || findObviousAnswerPair(variant.ar, correct)) {
+      if (answerAppearsInQuestionText(variant.ar, correct) ||
+        findObviousAnswerPair(variant.ar, correct) ||
+        findObviousQuestionPair(variant.ar)) {
         continue;
       }
 
@@ -445,25 +462,27 @@ function addNameFromClueRelationships(categorySlug, records, spec, questionSourc
         en: `Two clues on one card: ${clueAEn} and ${clueBEn}. Which name fits?`
       },
       {
-        ar: `من غير ما نقول الاسم: ${clueA} + ${clueB}. تختار إيه؟`,
-        en: `Without naming it: ${clueAEn} plus ${clueBEn}. What do you choose?`
+        ar: `من غير ما نقول الاسم: ${clueA} + ${clueB}. أي اسم يناسب؟`,
+        en: `Without naming it: ${clueAEn} plus ${clueBEn}. Which name fits?`
       },
       {
         ar: `لو البطاقة فيها ${clueA} و${clueB}، أي اسم أقرب؟`,
         en: `If the card has ${clueAEn} and ${clueBEn}, which name is closest?`
       },
       {
-        ar: `${clueA} مع ${clueB}: أي اختيار يكمل الصورة؟`,
-        en: `${clueAEn} with ${clueBEn}: which option completes the picture?`
+        ar: `استبعد التشابه: ${clueA} و${clueB}. أي اسم يلائم الاثنين؟`,
+        en: `Rule out the similarity: ${clueAEn} and ${clueBEn}. Which name fits both?`
       },
       {
-        ar: `بطاقة مختصرة: ${clueA} / ${clueB}. أي اسم؟`,
-        en: `Short card: ${clueAEn} / ${clueBEn}. Which name?`
+        ar: `دليلان قبل الاسم: ${clueA} ثم ${clueB}. من المقصود؟`,
+        en: `Two clues before the name: ${clueAEn}, then ${clueBEn}. Who or what is meant?`
       }
     ];
 
     for (const variant of variants) {
-      if (answerAppearsInQuestionText(variant.ar, correct) || findObviousAnswerPair(variant.ar, correct)) {
+      if (answerAppearsInQuestionText(variant.ar, correct) ||
+        findObviousAnswerPair(variant.ar, correct) ||
+        findObviousQuestionPair(variant.ar)) {
         continue;
       }
 
@@ -643,7 +662,11 @@ const egyptMusic = [
   ['بليغ حمدي', 'Baligh Hamdi', 'سيرة الحب', 'Siret El Hob', 'مصر', 'Egypt'],
   ['رياض السنباطي', 'Riad Al Sunbati', 'الأطلال', 'Al Atlal', 'مصر', 'Egypt'],
   ['محمد الموجي', 'Mohamed El Mougy', 'رسالة من تحت الماء', 'Resala Men Taht El Maa', 'مصر', 'Egypt'],
-  ['كمال الطويل', 'Kamal El Tawil', 'والله زمان يا سلاحي', 'Wallah Zaman Ya Selahy', 'مصر', 'Egypt']
+  ['كمال الطويل', 'Kamal El Tawil', 'والله زمان يا سلاحي', 'Wallah Zaman Ya Selahy', 'مصر', 'Egypt'],
+  ['عمار الشريعي', 'Ammar El Sherei', 'أرابيسك', 'Arabesque', 'مصر', 'Egypt'],
+  ['هاني شنودة', 'Hany Shenouda', 'فرقة المصريين', 'Al Masryeen band', 'مصر', 'Egypt'],
+  ['عزيز الشافعي', 'Aziz El Shafei', 'يا بلدنا يا حلوة', 'Ya Baladna Ya Helwa', 'مصر', 'Egypt'],
+  ['فيروز', 'Fairuz', 'زهرة المدائن', 'Zahrat Al Madaen', 'لبنان', 'Lebanon']
 ].map(([nameAr, nameEn, workAr, workEn, countryAr, countryEn]) => ({ nameAr, nameEn, workAr, workEn, countryAr, countryEn }));
 
 const egyptSports = [
@@ -816,7 +839,15 @@ const egyptArtists = [
   ['جاذبية سري', 'Gazbia Sirry', 'المرأة والمدينة', 'women and the city', 'التصوير', 'painting'],
   ['سيف وانلي', 'Seif Wanly', 'مشاهد الإسكندرية', 'Alexandria scenes', 'التصوير', 'painting'],
   ['آدم حنين', 'Adam Henein', 'النحت المعاصر', 'modern sculpture', 'النحت', 'sculpture'],
-  ['جورج بهجوري', 'George Bahgory', 'الكاريكاتير والبورتريه', 'caricature and portrait', 'الرسم', 'drawing']
+  ['جورج بهجوري', 'George Bahgory', 'الكاريكاتير والبورتريه', 'caricature and portrait', 'الرسم', 'drawing'],
+  ['حسن فتحي', 'Hassan Fathy', 'عمارة الفقراء', 'Architecture for the Poor', 'العمارة', 'architecture'],
+  ['رمسيس ويصا واصف', 'Ramses Wissa Wassef', 'النسيج في الحرانية', 'tapestry work in Harraniya', 'الفنون التطبيقية', 'applied arts'],
+  ['محمد ناجي', 'Mohamed Nagy', 'مدرسة الإسكندرية', 'Alexandria school', 'التصوير', 'painting'],
+  ['صلاح جاهين', 'Salah Jahin', 'الكاريكاتير والرباعيات', 'caricature and quatrains', 'الكاريكاتير', 'caricature'],
+  ['صلاح طاهر', 'Salah Taher', 'التجريد المصري', 'Egyptian abstraction', 'التصوير التجريدي', 'abstract painting'],
+  ['أحمد مصطفى', 'Ahmed Moustafa', 'الحروفية الإسلامية', 'Islamic calligraphic art', 'الفن الحروفي', 'calligraphic art'],
+  ['مصطفى الرزاز', 'Mostafa El Razzaz', 'الرموز الشعبية والطائر', 'folk symbols and birds', 'التصوير والرمز', 'painting and symbolism'],
+  ['إيفلين عشم الله', 'Evelyn Ashamallah', 'عوالم طفولية وذاكرة شعبية', 'childlike worlds and folk memory', 'التصوير المعاصر', 'contemporary painting']
 ].map(([nameAr, nameEn, workAr, workEn, fieldAr, fieldEn]) => ({ nameAr, nameEn, workAr, workEn, fieldAr, fieldEn }));
 
 const religionQuestions = [
@@ -864,7 +895,11 @@ const scienceRecords = [
   ['المشتري', 'Jupiter', 'أكبر كواكب المجموعة الشمسية', 'largest planet in the Solar System', 'عملاق غازي', 'gas giant'],
   ['زحل', 'Saturn', 'حلقاته الواسعة', 'wide rings', 'عملاق غازي', 'gas giant'],
   ['أورانوس', 'Uranus', 'دورانه المائل', 'tilted rotation', 'عملاق جليدي', 'ice giant'],
-  ['نبتون', 'Neptune', 'رياحه الشديدة وبعده عن الشمس', 'strong winds and distance from the Sun', 'عملاق جليدي', 'ice giant']
+  ['نبتون', 'Neptune', 'رياحه الشديدة وبعده عن الشمس', 'strong winds and distance from the Sun', 'عملاق جليدي', 'ice giant'],
+  ['النيتروجين', 'Nitrogen', 'N', '7', 'معظم الهواء حولنا', 'most of the air around us'],
+  ['الفضة', 'Silver', 'Ag', '47', 'المجوهرات والتوصيل', 'jewelry and conductivity'],
+  ['السيليكون', 'Silicon', 'Si', '14', 'رقائق الإلكترونيات', 'electronics chips'],
+  ['اليود', 'Iodine', 'I', '53', 'تعقيم طبي ودعم الغدة الدرقية', 'medical antiseptic and thyroid support']
 ].map(([nameAr, nameEn, symbolAr, symbolEn, featureAr, featureEn]) => ({ nameAr, nameEn, symbolAr, symbolEn, featureAr, featureEn }));
 
 const techRecords = [
@@ -882,7 +917,11 @@ const techRecords = [
   ['بلوتوث (Bluetooth)', 'Bluetooth', 'إريكسون (Ericsson)', 'Ericsson', 'اتصال لاسلكي قصير المدى', 'short-range wireless communication'],
   ['يو إس بي (USB)', 'USB', 'مجموعة شركات تقنية', 'technology consortium', 'توصيل الأجهزة ونقل البيانات', 'device connection and data transfer'],
   ['ويكيبيديا (Wikipedia)', 'Wikipedia', 'جيمي ويلز ولاري سانجر', 'Jimmy Wales and Larry Sanger', 'موسوعة حرة', 'free encyclopedia'],
-  ['يوتيوب (YouTube)', 'YouTube', 'تشاد هيرلي وستيف تشين وجاويد كريم', 'Chad Hurley, Steve Chen, and Jawed Karim', 'مشاركة الفيديو', 'video sharing']
+  ['يوتيوب (YouTube)', 'YouTube', 'تشاد هيرلي وستيف تشين وجاويد كريم', 'Chad Hurley, Steve Chen, and Jawed Karim', 'مشاركة الفيديو', 'video sharing'],
+  ['واتساب (WhatsApp)', 'WhatsApp', 'جان كوم وبراين أكتون', 'Jan Koum and Brian Acton', 'المراسلة الفورية', 'instant messaging'],
+  ['تيليغرام (Telegram)', 'Telegram', 'بافل دوروف (Pavel Durov)', 'Pavel Durov', 'المحادثات والقنوات', 'chats and channels'],
+  ['بيتكوين (Bitcoin)', 'Bitcoin', 'ساتوشي ناكاموتو', 'Satoshi Nakamoto', 'عملة رقمية لا مركزية', 'decentralized digital currency'],
+  ['إيثريوم (Ethereum)', 'Ethereum', 'فيتاليك بوتيرين', 'Vitalik Buterin', 'العقود الذكية', 'smart contracts']
 ].map(([nameAr, nameEn, creatorAr, creatorEn, useAr, useEn]) => ({ nameAr, nameEn, creatorAr, creatorEn, useAr, useEn }));
 
 const politicsRecords = [
@@ -897,7 +936,15 @@ const politicsRecords = [
   ['منظمة التعاون الإسلامي', 'Organisation of Islamic Cooperation', 'جدة', 'Jeddah', 'التعاون بين الدول الإسلامية', 'cooperation among Muslim-majority countries'],
   ['صندوق النقد الدولي (IMF)', 'International Monetary Fund', 'واشنطن (Washington, D.C.)', 'Washington, D.C.', 'الاستقرار المالي الدولي', 'international financial stability'],
   ['البنك الدولي (World Bank)', 'World Bank', 'واشنطن (Washington, D.C.)', 'Washington, D.C.', 'تمويل التنمية', 'development finance'],
-  ['محكمة العدل الدولية', 'International Court of Justice', 'لاهاي (The Hague)', 'The Hague', 'الفصل في النزاعات القانونية بين الدول', 'settling legal disputes between states']
+  ['محكمة العدل الدولية', 'International Court of Justice', 'لاهاي (The Hague)', 'The Hague', 'الفصل في النزاعات القانونية بين الدول', 'settling legal disputes between states'],
+  ['المحكمة الجنائية الدولية', 'International Criminal Court', 'لاهاي (The Hague)', 'The Hague', 'المحاسبة عن جرائم دولية خطيرة', 'accountability for serious international crimes'],
+  ['منظمة التجارة العالمية (WTO)', 'World Trade Organization', 'جنيف (Geneva)', 'Geneva', 'قواعد التجارة الدولية', 'rules for international trade'],
+  ['الاتحاد الأوروبي', 'European Union', 'بروكسل (Brussels)', 'Brussels', 'تكامل سياسي واقتصادي أوروبي', 'European political and economic integration'],
+  ['مجلس الأمن الدولي', 'UN Security Council', 'نيويورك (New York)', 'New York', 'السلم والأمن الدوليان', 'international peace and security'],
+  ['اليونيسف (UNICEF)', 'UNICEF', 'نيويورك (New York)', 'New York', 'حقوق الطفل والإغاثة', 'children rights and relief'],
+  ['منظمة العمل الدولية (ILO)', 'International Labour Organization', 'جنيف (Geneva)', 'Geneva', 'معايير العمل وحقوق العمال', 'labor standards and workers rights'],
+  ['منظمة الأغذية والزراعة (FAO)', 'Food and Agriculture Organization', 'روما (Rome)', 'Rome', 'الأمن الغذائي والزراعة', 'food security and agriculture'],
+  ['البرلمان الأوروبي', 'European Parliament', 'ستراسبورغ وبروكسل', 'Strasbourg and Brussels', 'تمثيل مواطني الاتحاد الأوروبي', 'representation of European Union citizens']
 ].map(([nameAr, nameEn, headquartersAr, headquartersEn, purposeAr, purposeEn]) => ({ nameAr, nameEn, headquartersAr, headquartersEn, purposeAr, purposeEn }));
 
 const animalRecords = [
@@ -912,7 +959,20 @@ const animalRecords = [
   ['الباندا العملاقة', 'giant panda', 'الصين (China)', 'China', 'أكل الخيزران', 'eating bamboo'],
   ['الكنغر', 'kangaroo', 'أستراليا (Australia)', 'Australia', 'القفز والجراب', 'jumping and pouch'],
   ['الحوت الأزرق', 'blue whale', 'المحيطات', 'oceans', 'أكبر حيوان معروف', 'largest known animal'],
-  ['النحلة', 'bee', 'خلايا النحل والزهور', 'hives and flowers', 'إنتاج العسل والتلقيح', 'honey production and pollination']
+  ['النحلة', 'bee', 'خلايا النحل والزهور', 'hives and flowers', 'إنتاج العسل والتلقيح', 'honey production and pollination'],
+  ['الفهد', 'cheetah', 'السافانا والمناطق المفتوحة', 'savanna and open areas', 'السرعة العالية في العدو القصير', 'high speed in short sprints'],
+  ['الزرافة', 'giraffe', 'السافانا الأفريقية', 'African savanna', 'الرقبة الطويلة وأكل أوراق الأشجار', 'long neck and browsing tree leaves'],
+  ['الأخطبوط', 'octopus', 'الشعاب وقاع البحر', 'reefs and seafloor', 'الأذرع الثمانية والتمويه', 'eight arms and camouflage'],
+  ['الخفاش', 'bat', 'الكهوف والليل', 'caves and night', 'تحديد الموقع بالصدى', 'echolocation'],
+  ['السلحفاة البحرية', 'sea turtle', 'الشواطئ والمحيطات', 'beaches and oceans', 'العودة للشاطئ لوضع البيض', 'returning to beaches to lay eggs'],
+  ['فرس النهر', 'hippopotamus', 'الأنهار والبحيرات الأفريقية', 'African rivers and lakes', 'جسم ضخم وحياة شبه مائية', 'large body and semi-aquatic life'],
+  ['القرش الأبيض', 'great white shark', 'المحيطات الباردة والمعتدلة', 'cool and temperate oceans', 'مفترس بحري بأسنان حادة', 'marine predator with sharp teeth'],
+  ['البومة', 'owl', 'الغابات والليل', 'forests and night', 'رؤية ليلية وطيران هادئ', 'night vision and silent flight'],
+  ['النملة', 'ant', 'المستعمرات والتربة', 'colonies and soil', 'التعاون وتقسيم العمل', 'cooperation and division of labor'],
+  ['الحبار العملاق', 'giant squid', 'أعماق المحيط', 'deep ocean', 'عيون كبيرة وأذرع طويلة', 'large eyes and long tentacles'],
+  ['الكوالا', 'koala', 'غابات الأوكالبتوس في أستراليا', 'eucalyptus forests in Australia', 'أكل أوراق الأوكالبتوس والنوم الطويل', 'eating eucalyptus leaves and long sleep'],
+  ['طائر الطنان', 'hummingbird', 'الأمريكتان والحدائق', 'the Americas and gardens', 'الطيران الثابت وضربات الجناح السريعة', 'hovering flight and rapid wingbeats'],
+  ['ثعلب الفنك', 'fennec fox', 'صحارى شمال أفريقيا', 'North African deserts', 'أذنان كبيرتان تساعدان في تبديد الحرارة', 'large ears that help dissipate heat']
 ].map(([nameAr, nameEn, habitatAr, habitatEn, featureAr, featureEn]) => ({ nameAr, nameEn, habitatAr, habitatEn, featureAr, featureEn }));
 
 const vehicleRecords = [
@@ -925,7 +985,15 @@ const vehicleRecords = [
   ['السيارة الكهربائية', 'electric car', 'سيارة تعمل بالكهرباء', 'electric-powered car', 'تقليل الانبعاثات المباشرة', 'reducing direct emissions'],
   ['الترام', 'tram', 'قطار خفيف داخل المدن', 'light urban rail', 'النقل العام داخل المدن', 'urban public transport'],
   ['الأتوبيس', 'bus', 'مركبة نقل جماعي', 'public transport vehicle', 'نقل الركاب', 'passenger transport'],
-  ['الدراجة النارية', 'motorcycle', 'مركبة بمحرك وعجلتين', 'two-wheeled motor vehicle', 'التنقل الفردي', 'personal mobility']
+  ['الدراجة النارية', 'motorcycle', 'مركبة بمحرك وعجلتين', 'two-wheeled motor vehicle', 'التنقل الفردي', 'personal mobility'],
+  ['القطار الكهربائي الخفيف', 'light rail transit', 'قطار حضري حديث', 'modern urban rail', 'ربط المدن الجديدة بالمناطق القريبة', 'linking new cities with nearby areas'],
+  ['المونوريل', 'monorail', 'قطار يسير على مسار واحد مرتفع غالبا', 'train usually running on one elevated beam', 'النقل الحضري السريع', 'rapid urban transport'],
+  ['القطار السريع', 'high-speed train', 'قطار ركاب عالي السرعة', 'high-speed passenger train', 'السفر الطويل بزمن أقل', 'long-distance travel in less time'],
+  ['قطار النوم', 'sleeper train', 'قطار رحلات ليلية', 'overnight train', 'السفر مع كبائن نوم', 'travel with sleeping cabins'],
+  ['العبارة', 'ferry', 'مركبة بحرية للعبور القصير', 'sea vehicle for short crossings', 'نقل ركاب أو سيارات بين ضفتين', 'moving passengers or cars between shores'],
+  ['الميكروباص', 'minibus', 'مركبة ركاب صغيرة', 'small passenger vehicle', 'خطوط قصيرة داخل المدن وبينها', 'short routes inside and between cities'],
+  ['السكوتر الكهربائي', 'electric scooter', 'مركبة فردية خفيفة', 'light personal vehicle', 'مشاوير قصيرة داخل المدينة', 'short city trips'],
+  ['الحافلة الكهربائية', 'electric bus', 'مركبة نقل جماعي كهربائية', 'electric public transport vehicle', 'تقليل عادم النقل العام', 'reducing public transport exhaust']
 ].map(([nameAr, nameEn, typeAr, typeEn, useAr, useEn]) => ({ nameAr, nameEn, typeAr, typeEn, useAr, useEn }));
 
 const gameRecords = [
@@ -938,7 +1006,17 @@ const gameRecords = [
   ['تتريس (Tetris)', 'Tetris', 'لعبة ألغاز', 'puzzle game', 'ترتيب القطع المتساقطة', 'arranging falling blocks'],
   ['سوبر ماريو (Super Mario)', 'Super Mario', 'لعبة منصات', 'platform game', 'شركة نينتندو (Nintendo)', 'Nintendo'],
   ['باك مان (Pac-Man)', 'Pac-Man', 'لعبة أركيد', 'arcade game', 'المتاهة والنقاط', 'maze and dots'],
-  ['مونوبولي (Monopoly)', 'Monopoly', 'لعبة لوحية اقتصادية', 'economic board game', 'بيع وشراء العقارات', 'buying and selling properties']
+  ['مونوبولي (Monopoly)', 'Monopoly', 'لعبة لوحية اقتصادية', 'economic board game', 'بيع وشراء العقارات', 'buying and selling properties'],
+  ['جو (Go)', 'Go', 'لعبة استراتيجية مجردة', 'abstract strategy game', 'السيطرة على المساحات', 'controlling territory'],
+  ['الداما', 'checkers', 'لعبة لوحية تكتيكية', 'tactical board game', 'القفز فوق القطع', 'jumping over pieces'],
+  ['كاتان (Catan)', 'Catan', 'لعبة لوحية تفاوضية', 'negotiation board game', 'موارد ومستعمرات وتبادل', 'resources, settlements, and trading'],
+  ['ريسك (Risk)', 'Risk', 'لعبة سيطرة على الخريطة', 'map-control game', 'جيوش ومناطق ونرد', 'armies, territories, and dice'],
+  ['سكرابل (Scrabble)', 'Scrabble', 'لعبة كلمات', 'word game', 'تكوين كلمات على لوحة مربعات', 'forming words on a square board'],
+  ['أونو (Uno)', 'Uno', 'لعبة كروت عائلية', 'family card game', 'ألوان وأرقام وبطاقات عكس الاتجاه', 'colors, numbers, and reverse cards'],
+  ['فوتبول مانجر (Football Manager)', 'Football Manager', 'لعبة إدارة رياضية', 'sports management game', 'خطط وانتقالات وتدريب', 'tactics, transfers, and coaching'],
+  ['روكيت ليغ (Rocket League)', 'Rocket League', 'لعبة سيارات وكرة', 'cars-and-ball game', 'سيارات تقفز لتسجيل الأهداف', 'jumping cars scoring goals'],
+  ['ستارديو فالي (Stardew Valley)', 'Stardew Valley', 'لعبة محاكاة حياة', 'life simulation game', 'زراعة وعلاقات وقرية صغيرة', 'farming, relationships, and a small town'],
+  ['أمونغ أس (Among Us)', 'Among Us', 'لعبة خداع اجتماعي', 'social deduction game', 'طاقم وسفينة ومخادع', 'crew, spaceship, and impostor']
 ].map(([nameAr, nameEn, typeAr, typeEn, knownForAr, knownForEn]) => ({ nameAr, nameEn, typeAr, typeEn, knownForAr, knownForEn }));
 
 const generalFacts = [
@@ -964,6 +1042,33 @@ const globalGeneralFacts = [
   ['رمز عالمي سريع: تمثال الحرية وصل إلى أمريكا كهدية من أي دولة؟', 'Quick global symbol: the Statue of Liberty came to the US as a gift from which country?', 'فرنسا', 'France', [['إيطاليا', 'Italy'], ['إسبانيا', 'Spain'], ['بريطانيا', 'Britain']]],
   ['معلومة جوائز: حفلات نوبل تقدم عادة في يوم 10 ديسمبر لأنه يوافق ماذا؟', 'Prize fact: Nobel ceremonies are usually held on 10 December because it marks what?', 'ذكرى وفاة ألفريد نوبل', 'anniversary of Alfred Nobel death', [['ذكرى ميلاد ألفريد نوبل', 'anniversary of Alfred Nobel birth'], ['تاريخ توقيع وصية نوبل', 'date of Nobel will signing'], ['ذكرى أول حفل لجوائز نوبل', 'anniversary of the first Nobel ceremony']]]
 ];
+
+const generalKnowledgeRecords = [
+  ['حجر رشيد', 'Rosetta Stone', 'أثر مصري', 'Egyptian artifact', 'ثلاث كتابات ساعدت على قراءة الهيروغليفية', 'three scripts helped decode hieroglyphs', 'مفتاح لفك رموز مصر القديمة', 'key to decoding ancient Egypt'],
+  ['قناة السويس', 'Suez Canal', 'ممر ملاحي', 'shipping route', 'يربط المتوسط بالبحر الأحمر', 'links the Mediterranean and Red Sea', 'اختصر طريق التجارة العالمية', 'shortened global trade routes'],
+  ['مكتبة الإسكندرية', 'Bibliotheca Alexandrina', 'مؤسسة ثقافية', 'cultural institution', 'مدينة ساحلية أعادت اسم مكتبة قديمة للواجهة', 'a coastal city revived an ancient library name', 'رمز معرفة حديث في مصر', 'modern knowledge symbol in Egypt'],
+  ['برج خليفة', 'Burj Khalifa', 'مبنى قياسي', 'record building', 'ناطحة دبي المرتبطة بأرقام الارتفاع', 'Dubai skyscraper tied to height records', 'مرجع عند الحديث عن أطول المباني', 'reference for tallest buildings'],
+  ['خندق ماريانا', 'Mariana Trench', 'جغرافيا محيطية', 'ocean geography', 'غرب الهادئ والغوص الشديد', 'western Pacific and extreme dives', 'أعمق نقطة محيطية معروفة', 'deepest known ocean point'],
+  ['جوائز نوبل', 'Nobel Prizes', 'جوائز عالمية', 'global awards', 'وصية سويدية في العلم والأدب والسلام', 'Swedish will covering science, literature, and peace', 'ترتبط غالبا بتاريخ 10 ديسمبر', 'often linked with 10 December'],
+  ['تمثال الحرية', 'Statue of Liberty', 'معلم عالمي', 'global landmark', 'هدية فرنسية في ميناء نيويورك', 'French gift in New York Harbor', 'رمز استقبال وحرية', 'symbol of welcome and liberty'],
+  ['أبولو 11', 'Apollo 11', 'مهمة فضائية', 'space mission', 'هبوط بشر على القمر وعبارة الخطوة الصغيرة', 'human Moon landing and the small-step phrase', 'أول هبوط بشري على القمر', 'first human Moon landing'],
+  ['قناة بنما', 'Panama Canal', 'ممر ملاحي', 'shipping route', 'تقصر الطريق بين الأطلسي والهادئ', 'shortens travel between Atlantic and Pacific', 'لا تربط البحرين المصريين', 'not the Egyptian two-sea route'],
+  ['غابات الأمازون', 'Amazon Rainforest', 'نظام طبيعي', 'natural system', 'غابة مطيرة كبرى في أمريكا الجنوبية', 'large South American rainforest', 'تأثير بيئي عالمي', 'global environmental impact'],
+  ['طريق الحرير', 'Silk Road', 'شبكة تجارة', 'trade network', 'ربط الصين بآسيا الوسطى وأوروبا', 'linked China with Central Asia and Europe', 'تبادل سلع وأفكار عبر قارات', 'exchange of goods and ideas across regions'],
+  ['ماجنا كارتا', 'Magna Carta', 'وثيقة تاريخية', 'historic document', 'إنجلترا 1215 وتقييد سلطة الملك', 'England 1215 and limiting royal power', 'رمز مبكر لحكم القانون', 'early rule-of-law symbol'],
+  ['الطباعة بالحروف المتحركة', 'movable-type printing', 'اختراع معرفة', 'knowledge invention', 'جوتنبرج وسرعة انتشار الكتب', 'Gutenberg and faster book spread', 'ثورة في القراءة والنشر', 'reading and publishing revolution'],
+  ['الأمم المتحدة', 'United Nations', 'منظمة عالمية', 'global organization', 'تأسست بعد حرب عالمية كبيرة', 'founded after a major world war', 'منصة دبلوماسية دولية', 'international diplomatic platform'],
+  ['النهضة الأوروبية', 'European Renaissance', 'حركة ثقافية', 'cultural movement', 'بدأت بقوة من المدن الإيطالية', 'grew strongly from Italian cities', 'فن وعلم وإنسانية', 'art, science, and humanism'],
+  ['الأخوان رايت', 'Wright brothers', 'تاريخ طيران', 'aviation history', 'أول رحلة بمحرك عام 1903', 'first powered flight in 1903', 'بداية الطيران الحديث', 'beginning of modern aviation'],
+  ['تاج محل', 'Taj Mahal', 'معلم هندي', 'Indian landmark', 'ضريح رخامي أبيض في أغرا', 'white marble mausoleum in Agra', 'رمز معماري للحب', 'architectural symbol of love'],
+  ['ماتشو بيتشو', 'Machu Picchu', 'مدينة أثرية', 'archaeological city', 'موقع إنكا عالي في جبال الأنديز', 'high Inca site in the Andes', 'حضارة بين الجبال', 'civilization among mountains'],
+  ['البيت الأبيض', 'White House', 'مقر سياسي', 'political residence', 'واشنطن ومكتب الرئيس الأمريكي', 'Washington and the U.S. president office', 'رمز السلطة التنفيذية الأمريكية', 'symbol of U.S. executive power'],
+  ['وادي السيليكون', 'Silicon Valley', 'منطقة تقنية', 'technology region', 'شركات ناشئة وتكنولوجيا في كاليفورنيا', 'startups and technology in California', 'مركز ابتكار تقني', 'technology innovation hub'],
+  ['اليونسكو', 'UNESCO', 'منظمة ثقافية', 'cultural organization', 'تعليم وثقافة ومواقع تراث عالمي', 'education, culture, and World Heritage sites', 'ذاكرة التراث العالمي', 'world heritage memory'],
+  ['درب التبانة', 'Milky Way', 'عنوان كوني', 'cosmic address', 'المجموعة الشمسية داخل مجرة واسعة', 'the solar system sits inside a large galaxy', 'اسم مجرتنا', 'name of our galaxy'],
+  ['حائط برلين', 'Berlin Wall', 'رمز سياسي', 'political symbol', 'سقوطه عام 1989 ارتبط بنهاية انقسام أوروبي', 'its 1989 fall marked an ending of European division', 'علامة على نهاية الحرب الباردة', 'Cold War ending symbol'],
+  ['الثورة الصناعية', 'Industrial Revolution', 'تحول اقتصادي', 'economic shift', 'بدأت بقوة في بريطانيا مع الآلة والمصانع', 'grew strongly in Britain with machines and factories', 'غيرت العمل والإنتاج', 'changed labor and production']
+].map(([nameAr, nameEn, topicAr, topicEn, clueAr, clueEn, memoryAr, memoryEn]) => ({ nameAr, nameEn, topicAr, topicEn, clueAr, clueEn, memoryAr, memoryEn }));
 
 const globalHistoryFacts = [
   ['رحلة زمنية عالمية: سقوط جدار برلين يرتبط غالبا بأي سنة؟', 'World time-trip: the fall of the Berlin Wall is usually linked to which year?', '1989', '1989', [['1945', '1945'], ['1969', '1969'], ['2001', '2001']]],
@@ -1041,6 +1146,34 @@ const religionTrickyFacts = [
   ['صوت النداء الأول: الصحابي المعروف بأنه أول مؤذن في الإسلام. من هو؟', 'First call voice: which companion is known as the first muezzin?', 'بلال بن رباح', 'Bilal ibn Rabah', [['زيد بن ثابت', 'Zayd ibn Thabit'], ['مصعب بن عمير', 'Musab ibn Umayr'], ['سعد بن أبي وقاص', 'Saad ibn Abi Waqqas']]],
   ['جمع المصحف: الخليفة الذي ارتبط بتوحيد المصاحف على رسم واحد. من هو؟', 'Mushaf standardization: which caliph is linked to standardizing Quran manuscripts?', 'عثمان بن عفان', 'Uthman ibn Affan', [['أبو بكر الصديق', 'Abu Bakr'], ['عمر بن الخطاب', 'Umar'], ['علي بن أبي طالب', 'Ali']]]
 ];
+
+const islamicKnowledgeRecords = [
+  ['غار حراء', 'Cave Hira', 'بداية الوحي', 'first revelation', 'مكان صغير قرب مكة ارتبط بأول نزول للوحي', 'small place near Mecca linked to the first revelation', 'ليس غار الاختباء في الهجرة', 'not the migration hiding cave'],
+  ['غار ثور', 'Cave Thawr', 'رحلة الهجرة', 'migration journey', 'مكان الاختباء أثناء طريق الهجرة', 'hiding place during the migration route', 'يختلف عن غار بداية الوحي', 'different from the first-revelation cave'],
+  ['الهجرة النبوية', 'the Hijra', 'التقويم الهجري', 'Hijri calendar', 'حدث صار نقطة البداية للتقويم الإسلامي', 'event that became the Islamic calendar starting point', 'انتقال إلى المدينة لا مولد النبي', 'migration to Medina, not the Prophet birth'],
+  ['مسجد قباء', 'Quba Mosque', 'معلم مدني مبكر', 'early Medinan landmark', 'ارتبط ببداية المجتمع في المدينة', 'linked to the early community in Medina', 'ليس المسجد النبوي نفسه', 'not the Prophet Mosque itself'],
+  ['جامع الأزهر', 'Al-Azhar Mosque', 'علم ومعلم', 'learning and landmark', 'جامع قاهري صار اسمه مؤسسة تعليم شرعي', 'Cairo mosque whose name became a scholarly institution', 'بوابة تاريخية للتعليم الإسلامي', 'historic gate to Islamic learning'],
+  ['بلال بن رباح', 'Bilal ibn Rabah', 'الأذان الأول', 'first call to prayer', 'صحابي حبشي ارتبط صوته بالنداء الأول', 'Abyssinian companion linked to the first call', 'كل البدائل من جيل الصحابة', 'all distractors are companions'],
+  ['عثمان بن عفان', 'Uthman ibn Affan', 'توحيد المصاحف', 'standardizing manuscripts', 'خليفة راشد ارتبط بتوحيد المصاحف على رسم واحد', 'Rashidun caliph linked to standardizing Quran manuscripts', 'ثالث الخلفاء الراشدين', 'third Rashidun caliph'],
+  ['الموطأ', 'Al-Muwatta', 'كتاب حديث وفقه', 'hadith and law book', 'عمل مبكر ارتبط بالإمام مالك', 'early work linked to Imam Malik', 'ليس من الصحاح الستة بالمعنى الشائع', 'not usually counted among the six canonical books'],
+  ['صحيح البخاري', 'Sahih al-Bukhari', 'كتاب حديث', 'hadith collection', 'جمع أحاديث الإمام البخاري', 'collection of Imam al-Bukhari hadiths', 'من أشهر كتب الحديث عند المسلمين', 'among the best-known hadith books'],
+  ['بدر', 'Badr', 'غزوة مبكرة', 'early battle', 'معركة قرب آبار معروفة في السيرة', 'battle near well-known wells in seerah memory', 'منعطف مبكر في المجتمع المدني', 'early turning point in Medina community'],
+  ['أحد', 'Uhud', 'غزوة وجبل', 'battle and mountain', 'جبل ومعركة جاءت بعد بدر في السيرة', 'mountain and battle after Badr in seerah', 'ترتبط بدرس الرماة الشهير', 'linked with the archers lesson'],
+  ['فتح مكة', 'Conquest of Mecca', 'حدث سيرة متأخر', 'late seerah event', 'دخول مكة في أواخر العهد النبوي', 'entry into Mecca late in the Prophetic period', 'تذكره كتب السيرة مع العفو العام', 'remembered with general pardon'],
+  ['عمرو بن العاص', 'Amr ibn al-As', 'فتح مصر', 'conquest of Egypt', 'قائد ارتبط بفتح مصر في العصر الراشدي', 'commander linked to Egypt conquest in the Rashidun era', 'اسمه على جامع قديم في القاهرة', 'his name is on an old Cairo mosque'],
+  ['خديجة بنت خويلد', 'Khadija bint Khuwaylid', 'بدايات السيرة', 'early seerah', 'سيدة من بيت تجاري كانت أول سند للرسالة', 'woman from a trading household who first supported the message', 'زوجة النبي الأولى', 'first wife of the Prophet'],
+  ['أبو بكر الصديق', 'Abu Bakr Al-Siddiq', 'الخلافة الأولى', 'first caliphate', 'لقب الصديق والخلافة الأولى يجتمعان هنا', 'the Siddiq title and first caliphate meet here', 'صاحب النبي في الهجرة', 'companion of the Prophet in migration'],
+  ['عمر بن الخطاب', 'Umar ibn Al-Khattab', 'الخلافة الراشدة', 'Rashidun caliphate', 'توسع الدولة وتنظيم الدواوين يكثران مع سيرته', 'state expansion and administrative registers often appear with his era', 'ثاني الخلفاء الراشدين', 'second Rashidun caliph'],
+  ['علي بن أبي طالب', 'Ali ibn Abi Talib', 'الخلافة الرابعة', 'fourth caliphate', 'ابن عم النبي ورابع الخلفاء في الذاكرة السنية الشائعة', 'Prophet cousin and fourth caliph in common Sunni memory', 'شخصية علم وشجاعة', 'figure of knowledge and courage'],
+  ['شوال', 'Shawwal', 'شهر بعد رمضان', 'month after Ramadan', 'يأتي بعد رمضان ويبدأ بعيد الفطر', 'comes after Ramadan and begins with Eid al-Fitr', 'ليس شهر الصيام نفسه', 'not the fasting month itself'],
+  ['ذو الحجة', 'Dhu al-Hijjah', 'شهر المناسك', 'pilgrimage month', 'ترتبط به المناسك الكبرى في آخر السنة الهجرية', 'major rites are linked to it late in the Hijri year', 'ليس الشهر الذي يلي رمضان', 'not the month after Ramadan'],
+  ['الوقوف بعرفة', 'Standing at Arafat', 'ركن حج', 'Hajj pillar', 'يحدث في اليوم التاسع ويعد قلب أعمال الحج', 'happens on the ninth day and is central to Hajj', 'ليس طواف الإفاضة ولا السعي', 'not Tawaf al-Ifadah or Sa’i'],
+  ['المدينة المنورة', 'Medina', 'مدينة الهجرة', 'migration city', 'كانت تعرف بيثرب وارتبطت بالمسجد النبوي', 'was known as Yathrib and linked to the Prophet Mosque', 'مركز المجتمع المدني الأول', 'center of the first Medinan community'],
+  ['مسجد القبلتين', 'Masjid al-Qiblatayn', 'معلم مدني', 'Medinan landmark', 'اسمه يرتبط بتحول القبلة', 'its name is linked to the qibla change', 'ليس أول مسجد في السيرة', 'not the first mosque in seerah'],
+  ['الإسراء والمعراج', 'Isra and Mi’raj', 'رحلة في السيرة', 'seerah journey', 'رحلة ليلية ومعراج في الذاكرة الإسلامية', 'night journey and ascension in Islamic memory', 'ترتبط بالمسجد الأقصى', 'linked to Al-Aqsa Mosque'],
+  ['سورة يس', 'Surah Ya-Sin', 'سورة في التراث', 'surah in tradition', 'يطلق عليها في التراث قلب القرآن', 'called the heart of the Quran in common tradition', 'ليست أطول سورة', 'not the longest surah'],
+  ['سورة الكهف', 'Surah Al-Kahf', 'سورة وقصص', 'surah and stories', 'تكثر قراءتها يوم الجمعة في العرف الديني', 'often read on Friday in religious custom', 'تضم قصص أصحاب الكهف وموسى والخضر', 'includes the People of the Cave and Moses-Khidr stories']
+].map(([nameAr, nameEn, topicAr, topicEn, clueAr, clueEn, memoryAr, memoryEn]) => ({ nameAr, nameEn, topicAr, topicEn, clueAr, clueEn, memoryAr, memoryEn }));
 
 const politicsTrickyFacts = [
   ['بطاقة عالمية: منظمة تجمع دول العالم تقريبا وتتكلم كثيرا عن السلم الدولي. ما هي؟', 'Global card: which organization gathers nearly all states and focuses on peace?', 'الأمم المتحدة', 'United Nations', [['عصبة الأمم', 'League of Nations'], ['الاتحاد الأوروبي', 'European Union'], ['مجموعة العشرين', 'G20']]],
@@ -1187,6 +1320,18 @@ for (const [textAr, textEn, answerAr, answerEn, wrong] of globalGeneralFacts) {
 for (const [textAr, textEn, answerAr, answerEn, wrong] of religionTrickyFacts) {
   addDirectQuestion('religion-islamic', 'Medium', 20, textAr, textEn, answerAr, answerEn, wrong);
 }
+
+addRecordRelationshipSet('general-knowledge', generalKnowledgeRecords, [
+  { kind: 'nameFromClues', clueFields: ['clue', 'memory'], difficulty: 'Medium', timeLimitSec: 20 },
+  { answerField: 'topic', clueField: 'clue', labelAr: 'زاوية', labelEn: 'angle', difficulty: 'Medium', timeLimitSec: 20 },
+  { answerField: 'memory', clueField: 'topic', labelAr: 'تفصيلة', labelEn: 'detail', difficulty: 'Medium', timeLimitSec: 20 }
+]);
+
+addRecordRelationshipSet('religion-islamic', islamicKnowledgeRecords, [
+  { kind: 'nameFromClues', clueFields: ['clue', 'memory'], difficulty: 'Medium', timeLimitSec: 20 },
+  { answerField: 'topic', clueField: 'clue', labelAr: 'زاوية', labelEn: 'angle', difficulty: 'Medium', timeLimitSec: 20 },
+  { answerField: 'memory', clueField: 'topic', labelAr: 'تفصيلة', labelEn: 'detail', difficulty: 'Medium', timeLimitSec: 20 }
+]);
 
 for (const [textAr, textEn, answerAr, answerEn, wrong] of globalHistoryFacts) {
   addDirectQuestion('history', 'Medium', 20, textAr, textEn, answerAr, answerEn, wrong);

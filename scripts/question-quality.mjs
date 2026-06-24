@@ -48,6 +48,17 @@ export function findObviousAnswerPair(questionOrText, correctOption) {
     normalizedAnswer.includes(normalizeQuestionText(answer)));
 }
 
+export function findObviousQuestionPair(questionOrText) {
+  const textAr = typeof questionOrText === 'string'
+    ? questionOrText
+    : questionOrText?.textAr;
+  const normalizedText = normalizeQuestionText(textAr);
+
+  return generationConfig.obviousAnswerPairs.find(([subject, answer]) =>
+    normalizedText.includes(normalizeQuestionText(subject)) &&
+    normalizedText.includes(normalizeQuestionText(answer)));
+}
+
 function correctOptionFor(question) {
   return question.options?.find((option) => option.isCorrect);
 }
@@ -118,6 +129,11 @@ export function getQuestionQualityFailures(question) {
   const obviousPair = correctOption ? findObviousAnswerPair(question, correctOption) : null;
   if (obviousPair) {
     failures.push(`Obvious clue/answer pair: ${obviousPair.join(' / ')}`);
+  }
+
+  const obviousQuestionPair = findObviousQuestionPair(question);
+  if (obviousQuestionPair) {
+    failures.push(`Obvious clue pair in question text: ${obviousQuestionPair.join(' / ')}`);
   }
 
   const uniqueOptions = new Set(options.map((option) => normalizeQuestionText(option.textAr)));

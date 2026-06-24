@@ -17,7 +17,7 @@ The local Arabic question bank is stored in `questions.ar.json` and is loaded by
 - Good prompts should teach while they play by exposing why the fact matters: cultural memory, travel context, historical clue, everyday tech use, tournament identity, or an unexpected comparison.
 - Short direct stems such as "what is it?", "who is it?", largest/first/month-only prompts, and obvious animal habitat clues are rejected when they make the answer feel exposed.
 - Rubric relationship templates may produce multiple questions from one factual record only when the asked field changes, such as clue-to-name, name-to-feature, player-to-club, player-to-national-team, tournament-to-memory, or object-to-use.
-- Same-family comparison fallback is capped by validation and is allowed only as a controlled close-choice variant, not as generic prefix inflation.
+- Same-family comparison fallback is now disallowed in the checked-in production bank. If a future generation needs more volume, add curated records or relationship templates instead of fallback variants.
 - `religion-islamic` contains informational Islam-related questions about Quran, seerah, companions, Islamic history, Al-Azhar, and Egyptian Islamic landmarks. It avoids fatwas, sectarian framing, and disputed rulings.
 - Filler prompts such as "اختر الإجابة الصحيحة المرتبطة بـ..." are rejected by the generator and must not appear in the bank.
 - Dry repeated stems such as "بماذا يشتهر", "ما الاستخدام الأشهر", "ما نوع", and plain year/author templates are rejected when produced from generated field templates.
@@ -83,7 +83,13 @@ Then validate with:
 node scripts\validate-question-bank.mjs
 ```
 
-The generator and validator reject duplicate slugs, duplicate Arabic question text, weak generated sources, missing category minimums, banned dry stems, short direct endings, correct answers inside question text, obvious clue/answer pairs, overlong prompts, non-football sports prompts, and excess fallback share.
+For a full question-by-question audit report, run:
+
+```powershell
+node scripts\audit-question-bank.mjs
+```
+
+The generator, validator, and audit reject duplicate slugs, duplicate Arabic question text, weak generated sources, missing category minimums, banned dry stems, short direct endings, correct answers inside question text, obvious clue/answer pairs, overlong prompts, non-football sports prompts, and any fallback-generated production question.
 
 ## Monthly Refresh Job
 
