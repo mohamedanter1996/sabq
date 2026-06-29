@@ -1,6 +1,6 @@
-import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
+import { Injectable, Inject } from '@angular/core';
 import { Title, Meta } from '@angular/platform-browser';
-import { DOCUMENT, isPlatformBrowser } from '@angular/common';
+import { DOCUMENT } from '@angular/common';
 import { Router } from '@angular/router';
 
 export interface SeoConfig {
@@ -24,17 +24,16 @@ export interface SeoConfig {
   providedIn: 'root'
 })
 export class SeoService {
-  private readonly siteName = 'سابق - Sabq';
-  private readonly siteUrl = 'https://sabq.com';
-  private readonly defaultImage = 'https://sabq.com/assets/og-image.png';
+  private readonly siteName = 'سابق';
+  private readonly siteUrl = 'https://sabiqgame.com';
+  private readonly defaultImage = `${this.siteUrl}/assets/og-image.svg`;
   private readonly twitterHandle = '@sabq_quiz';
 
   constructor(
     private title: Title,
     private meta: Meta,
     private router: Router,
-    @Inject(DOCUMENT) private document: Document,
-    @Inject(PLATFORM_ID) private platformId: Object
+    @Inject(DOCUMENT) private document: Document
   ) {}
 
   updateSeo(config: SeoConfig): void {
@@ -47,6 +46,9 @@ export class SeoService {
 
     // Basic meta tags
     this.updateMetaTag('description', config.description);
+    this.updateMetaTag('robots', 'index, follow');
+    this.updateMetaTag('application-name', this.siteName);
+    this.updateMetaTag('apple-mobile-web-app-title', this.siteName);
     if (config.keywords) {
       this.updateMetaTag('keywords', config.keywords);
     }
@@ -57,6 +59,7 @@ export class SeoService {
     this.updateMetaTag('og:description', config.description, true);
     this.updateMetaTag('og:url', url, true);
     this.updateMetaTag('og:image', image, true);
+    this.updateMetaTag('og:image:alt', `${this.siteName} - لعبة أسئلة ومسابقات جماعية`, true);
     this.updateMetaTag('og:type', config.type || 'website', true);
     this.updateMetaTag('og:site_name', this.siteName, true);
     this.updateMetaTag('og:locale', config.locale || 'ar_SA', true);
@@ -83,14 +86,13 @@ export class SeoService {
     this.updateMetaTag('twitter:title', fullTitle);
     this.updateMetaTag('twitter:description', config.description);
     this.updateMetaTag('twitter:image', image);
+    this.updateMetaTag('twitter:image:alt', `${this.siteName} - لعبة أسئلة ومسابقات جماعية`);
 
     // Canonical URL
     this.setCanonicalUrl(url);
   }
 
   setCanonicalUrl(url: string): void {
-    if (!isPlatformBrowser(this.platformId)) return;
-    
     let link: HTMLLinkElement | null = this.document.querySelector('link[rel="canonical"]');
     if (!link) {
       link = this.document.createElement('link');
@@ -101,8 +103,6 @@ export class SeoService {
   }
 
   setAlternateLanguages(arabicUrl: string, englishUrl: string): void {
-    if (!isPlatformBrowser(this.platformId)) return;
-    
     // Arabic
     this.setAlternateLink('ar', arabicUrl);
     // English
@@ -135,7 +135,7 @@ export class SeoService {
     // Reset to defaults
     this.updateSeo({
       title: '',
-      description: 'سابق - منصة المسابقات التفاعلية. جاوب الأول واكسب! تحدى أصدقاءك في مسابقات الأسئلة.',
+      description: 'سابق لعبة أسئلة جماعية تفاعلية للمنافسة بين الأصدقاء. العب مسابقات كويز مباشرة واكتسب معلومات جديدة بطريقة ممتعة.',
     });
   }
 }

@@ -60,10 +60,11 @@ public class SeoController : ControllerBase
     {
         var baseUrl = $"{Request.Scheme}://{Request.Host}";
         var robotsTxt = $@"# Robots.txt for Sabq - سابق
-# https://sabq.com
+# https://sabiqgame.com
 
 User-agent: *
 Allow: /
+Allow: /assets/
 Allow: /questions/
 Allow: /about
 Allow: /contact

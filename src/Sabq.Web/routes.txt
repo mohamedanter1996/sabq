@@ -1,5 +1,4 @@
 /
-/login
 /about
 /contact
 /privacy-policy

@@ -74,7 +74,7 @@ import { RouterLink } from '@angular/router';
               روابط سريعة
             </h4>
             <ul>
-              <li><a routerLink="/login"><span class="link-arrow">←</span> الرئيسية</a></li>
+              <li><a routerLink="/"><span class="link-arrow">←</span> الرئيسية</a></li>
               <li><a routerLink="/questions"><span class="link-arrow">←</span> الأسئلة</a></li>
               <li><a routerLink="/about"><span class="link-arrow">←</span> من نحن</a></li>
               <li><a routerLink="/contact"><span class="link-arrow">←</span> تواصل معنا</a></li>

@@ -1,5 +1,5 @@
-import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
-import { DOCUMENT, isPlatformBrowser } from '@angular/common';
+import { Injectable, Inject } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
 
 export interface Question {
   id: string;
@@ -30,11 +30,10 @@ export interface BreadcrumbItem {
   providedIn: 'root'
 })
 export class JsonLdService {
-  private readonly siteUrl = 'https://sabq.com';
+  private readonly siteUrl = 'https://sabiqgame.com';
 
   constructor(
-    @Inject(DOCUMENT) private document: Document,
-    @Inject(PLATFORM_ID) private platformId: Object
+    @Inject(DOCUMENT) private document: Document
   ) {}
 
   setQuestionSchema(question: Question): void {
@@ -50,7 +49,7 @@ export class JsonLdService {
       'dateModified': question.lastModified || new Date().toISOString(),
       'author': {
         '@type': 'Organization',
-        'name': 'سابق - Sabq',
+        'name': 'سابق',
         'url': this.siteUrl
       },
       'acceptedAnswer': correctOption ? {
@@ -79,7 +78,7 @@ export class JsonLdService {
       'inLanguage': 'ar',
       'provider': {
         '@type': 'Organization',
-        'name': 'سابق - Sabq',
+        'name': 'سابق',
         'url': this.siteUrl
       },
       'hasPart': questions.map(q => ({
@@ -131,10 +130,11 @@ export class JsonLdService {
     const schema = {
       '@context': 'https://schema.org',
       '@type': 'Organization',
-      'name': 'سابق - Sabq',
+      '@id': `${this.siteUrl}/#organization`,
+      'name': 'سابق',
       'alternateName': 'Sabq Quiz Platform',
       'url': this.siteUrl,
-      'logo': `${this.siteUrl}/assets/logo.png`,
+      'logo': `${this.siteUrl}/assets/logo.svg`,
       'sameAs': [
         'https://twitter.com/sabq_quiz',
         'https://www.facebook.com/sabqquiz',
@@ -143,7 +143,7 @@ export class JsonLdService {
       'contactPoint': {
         '@type': 'ContactPoint',
         'contactType': 'customer service',
-        'email': 'support@sabq.com',
+        'email': 'info@sabq.app',
         'availableLanguage': ['Arabic', 'English']
       }
     };
@@ -155,10 +155,14 @@ export class JsonLdService {
     const schema = {
       '@context': 'https://schema.org',
       '@type': 'WebSite',
-      'name': 'سابق - Sabq',
-      'alternateName': 'Sabq Multiplayer Quiz Game',
+      '@id': `${this.siteUrl}/#website`,
+      'name': 'سابق',
+      'alternateName': ['Sabq Multiplayer Quiz Game', 'Sabiq Game'],
       'url': this.siteUrl,
       'inLanguage': ['ar', 'en'],
+      'publisher': {
+        '@id': `${this.siteUrl}/#organization`
+      },
       'potentialAction': {
         '@type': 'SearchAction',
         'target': {
@@ -172,6 +176,33 @@ export class JsonLdService {
     this.setJsonLd('website-schema', schema);
   }
 
+  setGameApplicationSchema(): void {
+    const schema = {
+      '@context': 'https://schema.org',
+      '@type': 'SoftwareApplication',
+      '@id': `${this.siteUrl}/#game`,
+      'name': 'سابق',
+      'alternateName': ['Sabq', 'Sabiq Game', 'Sabq Quiz'],
+      'url': this.siteUrl,
+      'image': `${this.siteUrl}/assets/og-image.svg`,
+      'description': 'سابق لعبة أسئلة جماعية تفاعلية للمنافسة بين الأصدقاء واللاعبين، تجمع بين التحدي السريع واكتساب معلومات جديدة من خلال اللعب.',
+      'applicationCategory': 'GameApplication',
+      'operatingSystem': 'Web',
+      'inLanguage': 'ar',
+      'genre': ['لعبة أسئلة', 'مسابقات تفاعلية', 'ألعاب جماعية', 'تعلم باللعب'],
+      'offers': {
+        '@type': 'Offer',
+        'price': '0',
+        'priceCurrency': 'USD'
+      },
+      'publisher': {
+        '@id': `${this.siteUrl}/#organization`
+      }
+    };
+
+    this.setJsonLd('game-application-schema', schema);
+  }
+
   setWebPageSchema(title: string, description: string, url: string): void {
     const schema = {
       '@context': 'https://schema.org',
@@ -182,7 +213,7 @@ export class JsonLdService {
       'inLanguage': 'ar',
       'isPartOf': {
         '@type': 'WebSite',
-        'name': 'سابق - Sabq',
+        'name': 'سابق',
         'url': this.siteUrl
       }
     };
@@ -191,8 +222,6 @@ export class JsonLdService {
   }
 
   private setJsonLd(id: string, schema: any): void {
-    if (!isPlatformBrowser(this.platformId)) return;
-
     let script = this.document.getElementById(id) as HTMLScriptElement;
     if (!script) {
       script = this.document.createElement('script');
@@ -204,8 +233,6 @@ export class JsonLdService {
   }
 
   removeJsonLd(id: string): void {
-    if (!isPlatformBrowser(this.platformId)) return;
-    
     const script = this.document.getElementById(id);
     if (script) {
       script.remove();
@@ -213,7 +240,7 @@ export class JsonLdService {
   }
 
   clearAllJsonLd(): void {
-    const ids = ['question-schema', 'quiz-schema', 'breadcrumb-schema', 'faq-schema', 'organization-schema', 'website-schema', 'webpage-schema'];
+    const ids = ['question-schema', 'quiz-schema', 'breadcrumb-schema', 'faq-schema', 'organization-schema', 'website-schema', 'webpage-schema', 'game-application-schema'];
     ids.forEach(id => this.removeJsonLd(id));
   }
 }

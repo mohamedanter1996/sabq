@@ -137,7 +137,7 @@ export class HomeComponent implements OnInit {
 
   ngOnInit(): void {
     if (!this.authService.isLoggedIn) {
-      this.router.navigate(['/login']);
+      this.router.navigate(['/']);
       return;
     }
 
@@ -205,6 +205,6 @@ export class HomeComponent implements OnInit {
 
   logout(): void {
     this.authService.clearAuth();
-    this.router.navigate(['/login']);
+    this.router.navigate(['/']);
   }
 }

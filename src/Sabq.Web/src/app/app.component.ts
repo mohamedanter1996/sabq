@@ -38,7 +38,7 @@ import { filter } from 'rxjs/operators';
   `]
 })
 export class AppComponent {
-  title = 'سابق';
+  title = 'سابق - لعبة أسئلة جماعية تفاعلية';
   isGameRoute = false;
   
   private router = inject(Router);

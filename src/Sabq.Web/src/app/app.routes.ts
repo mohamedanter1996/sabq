@@ -6,8 +6,8 @@ import { GameComponent } from './components/game/game.component';
 import { ResultsComponent } from './components/results/results.component';
 
 export const routes: Routes = [
-  { path: '', redirectTo: '/login', pathMatch: 'full' },
-  { path: 'login', component: LoginComponent, title: 'الرئيسية  | سابق' },
+  { path: '', component: LoginComponent, title: 'سابق - لعبة أسئلة جماعية تفاعلية' },
+  { path: 'login', redirectTo: '', pathMatch: 'full' },
   { path: 'home', component: HomeComponent },
   { path: 'lobby/:code', component: LobbyComponent },
   { path: 'game/:code', component: GameComponent },

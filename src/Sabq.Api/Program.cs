@@ -119,7 +119,7 @@ builder.Services.AddScoped<SitemapService>(sp =>
 {
     var context = sp.GetRequiredService<SabqDbContext>();
     var config = sp.GetRequiredService<IConfiguration>();
-    var baseUrl = config["App:BaseUrl"] ?? "https://sabq.com";
+    var baseUrl = config["App:BaseUrl"] ?? "https://sabiqgame.com";
     return new SitemapService(context, baseUrl);
 });
 

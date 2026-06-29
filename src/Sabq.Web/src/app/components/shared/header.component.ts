@@ -10,7 +10,7 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
     <header class="site-header">
       <div class="header-backdrop"></div>
       <div class="header-container">
-        <a routerLink="/login" class="logo">
+        <a routerLink="/" class="logo">
           <div class="logo-icon-wrapper">
             <svg class="logo-icon" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
               <defs>
@@ -48,7 +48,7 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
         </button>
         
         <nav class="main-nav" [class.open]="menuOpen">
-          <a routerLink="/login" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-link">
+          <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-link">
             <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
               <polyline points="9 22 9 12 15 12 15 22"></polyline>
