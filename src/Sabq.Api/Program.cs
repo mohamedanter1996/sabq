@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using FluentValidation;
+using Sabq.Api.Services;
 using Sabq.Api.Hubs;
 using Sabq.Application.Interfaces;
 using Sabq.Application.Services;
@@ -12,6 +13,7 @@ using Sabq.Infrastructure.Data;
 using Sabq.Infrastructure.RoomState;
 using Sabq.Shared.DTOs;
 using System.IO.Compression;
+using System.Security.Claims;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -107,6 +109,8 @@ else
 
 // Application Services
 builder.Services.AddHttpClient();
+builder.Services.AddScoped<AdminAuthService>();
+builder.Services.AddScoped<AdminStatsService>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<RoomService>();
 builder.Services.AddScoped<GameService>();
@@ -159,7 +163,10 @@ builder.Services.AddResponseCaching();
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("Admin", policy =>
-        policy.RequireClaim("role", "admin"));
+        policy.RequireAssertion(context =>
+            context.User.HasClaim("role", "admin") ||
+            context.User.HasClaim(ClaimTypes.Role, "admin") ||
+            context.User.IsInRole("admin")));
 });
 
 // Background services

@@ -12,6 +12,7 @@ Allow: /terms-and-conditions
 
 # Disallow admin and API routes
 Disallow: /api/
+Disallow: /admin
 Disallow: /admin/
 Disallow: /login
 Disallow: /hubs/

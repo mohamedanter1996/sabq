@@ -4,6 +4,7 @@ import { HomeComponent } from './components/home/home.component';
 import { LobbyComponent } from './components/lobby/lobby.component';
 import { GameComponent } from './components/game/game.component';
 import { ResultsComponent } from './components/results/results.component';
+import { adminGuard } from './guards/admin.guard';
 
 export const routes: Routes = [
   { path: '', component: LoginComponent, title: 'سابق - لعبة أسئلة جماعية تفاعلية' },
@@ -12,6 +13,17 @@ export const routes: Routes = [
   { path: 'lobby/:code', component: LobbyComponent },
   { path: 'game/:code', component: GameComponent },
   { path: 'results/:code', component: ResultsComponent },
+  {
+    path: 'admin/login',
+    loadComponent: () => import('./components/admin/admin-login.component').then(m => m.AdminLoginComponent),
+    title: 'تسجيل دخول الإدارة | سابق'
+  },
+  {
+    path: 'admin',
+    loadComponent: () => import('./components/admin/admin-dashboard.component').then(m => m.AdminDashboardComponent),
+    canActivate: [adminGuard],
+    title: 'لوحة الإدارة | سابق'
+  },
   
   // SEO & Legal Pages (Lazy Loaded)
   {

@@ -29,18 +29,20 @@ public class JwtTokenService : ITokenService
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
 
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secret));
-        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+        return GenerateToken(claims, DateTime.UtcNow.AddDays(7));
+    }
 
-        var token = new JwtSecurityToken(
-            issuer: _issuer,
-            audience: _audience,
-            claims: claims,
-            expires: DateTime.UtcNow.AddDays(7),
-            signingCredentials: creds
-        );
+    public string GenerateAdminToken(string username, DateTime expiresAtUtc)
+    {
+        var claims = new[]
+        {
+            new Claim(ClaimTypes.Name, username),
+            new Claim("role", "admin"),
+            new Claim(ClaimTypes.Role, "admin"),
+            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+        };
 
-        return new JwtSecurityTokenHandler().WriteToken(token);
+        return GenerateToken(claims, expiresAtUtc);
     }
 
     public Guid? ValidateToken(string token)
@@ -70,5 +72,21 @@ public class JwtTokenService : ITokenService
         {
             return null;
         }
+    }
+
+    private string GenerateToken(IEnumerable<Claim> claims, DateTime expiresAtUtc)
+    {
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secret));
+        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+        var token = new JwtSecurityToken(
+            issuer: _issuer,
+            audience: _audience,
+            claims: claims,
+            expires: expiresAtUtc,
+            signingCredentials: creds
+        );
+
+        return new JwtSecurityTokenHandler().WriteToken(token);
     }
 }

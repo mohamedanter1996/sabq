@@ -59,7 +59,7 @@ public class SeoController : ControllerBase
     public IActionResult GetRobotsTxt()
     {
         var baseUrl = $"{Request.Scheme}://{Request.Host}";
-        var robotsTxt = $@"# Robots.txt for Sabq - سابق
+        var robotsTxt = $@"# Robots.txt for Sabq
 # https://sabiqgame.com
 
 User-agent: *
@@ -73,6 +73,7 @@ Allow: /terms-and-conditions
 
 # Disallow admin and API routes
 Disallow: /api/
+Disallow: /admin
 Disallow: /admin/
 Disallow: /login
 Disallow: /hubs/

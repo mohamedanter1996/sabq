@@ -11,13 +11,13 @@ import { filter } from 'rxjs/operators';
   imports: [CommonModule, RouterOutlet, HeaderComponent, FooterComponent],
   template: `
     <div class="app-container">
-      @if (!isGameRoute) {
+      @if (!hideSiteShell) {
         <app-header></app-header>
       }
       <main class="main-content" [class.game-mode]="isGameRoute">
         <router-outlet></router-outlet>
       </main>
-      @if (!isGameRoute) {
+      @if (!hideSiteShell) {
         <app-footer></app-footer>
       }
     </div>
@@ -40,6 +40,7 @@ import { filter } from 'rxjs/operators';
 export class AppComponent {
   title = 'سابق - لعبة أسئلة جماعية تفاعلية';
   isGameRoute = false;
+  hideSiteShell = false;
   
   private router = inject(Router);
   
@@ -48,7 +49,9 @@ export class AppComponent {
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe((event) => {
         const navEvent = event as NavigationEnd;
-        this.isGameRoute = navEvent.urlAfterRedirects.startsWith('/game/');
+        const url = navEvent.urlAfterRedirects;
+        this.isGameRoute = url.startsWith('/game/');
+        this.hideSiteShell = this.isGameRoute || url.startsWith('/admin');
       });
   }
 }
