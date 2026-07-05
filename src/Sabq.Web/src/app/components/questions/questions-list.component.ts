@@ -1,5 +1,5 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, Inject, OnInit, OnDestroy, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformServer } from '@angular/common';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
@@ -8,6 +8,11 @@ import { SeoService } from '../../services/seo.service';
 import { JsonLdService, Question } from '../../services/json-ld.service';
 import { environment } from '../../../environments/environment';
 import { AdSlotComponent } from '../shared/ad-slot.component';
+import {
+  QUESTION_PREVIEW_CATEGORIES,
+  QUESTION_PREVIEW_QUESTIONS,
+  QUESTION_PREVIEW_TOTAL_COUNT
+} from '../../data/question-preview.generated';
 
 interface PaginatedResponse<T> {
   items: T[];
@@ -481,7 +486,8 @@ export class QuestionsListComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private seoService: SeoService,
-    private jsonLdService: JsonLdService
+    private jsonLdService: JsonLdService,
+    @Inject(PLATFORM_ID) private platformId: object
   ) {}
 
   ngOnInit(): void {
@@ -520,17 +526,30 @@ export class QuestionsListComponent implements OnInit, OnDestroy {
   }
 
   loadCategories(): void {
+    if (isPlatformServer(this.platformId)) {
+      this.applyPreviewCategories();
+      return;
+    }
+
     this.http.get<Category[]>(`${this.apiUrl}/questions/categories`)
       .subscribe({
         next: (categories) => {
           this.categories = categories;
           this.updateSeo();
         },
-        error: (err) => console.error('Error loading categories:', err)
+        error: (err) => {
+          console.error('Error loading categories:', err);
+          this.applyPreviewCategories();
+        }
       });
   }
 
   loadQuestions(): void {
+    if (isPlatformServer(this.platformId)) {
+      this.applyPreviewQuestions();
+      return;
+    }
+
     this.loading = true;
     
     let params: any = {
@@ -564,9 +583,44 @@ export class QuestionsListComponent implements OnInit, OnDestroy {
         },
         error: (err) => {
           console.error('Error loading questions:', err);
-          this.loading = false;
+          this.applyPreviewQuestions();
         }
       });
+  }
+
+  private applyPreviewCategories(): void {
+    this.categories = QUESTION_PREVIEW_CATEGORIES.map(category => ({ ...category }));
+    this.updateSeo();
+  }
+
+  private applyPreviewQuestions(): void {
+    const normalizedSearch = this.searchTerm.trim().toLowerCase();
+    const normalizedDifficulty = this.selectedDifficulty.toLowerCase();
+
+    let items = QUESTION_PREVIEW_QUESTIONS.filter(question => {
+      const matchesCategory = !this.selectedCategory || question.categorySlug === this.selectedCategory;
+      const matchesDifficulty = !normalizedDifficulty || question.difficulty.toLowerCase() === normalizedDifficulty;
+      const matchesSearch = !normalizedSearch ||
+        question.textAr.toLowerCase().includes(normalizedSearch) ||
+        question.textEn.toLowerCase().includes(normalizedSearch);
+
+      return matchesCategory && matchesDifficulty && matchesSearch;
+    });
+
+    const start = (this.currentPage - 1) * this.pageSize;
+    this.questions = items.slice(start, start + this.pageSize).map(question => ({ ...question }));
+    this.totalCount = this.selectedCategory || normalizedSearch || normalizedDifficulty
+      ? items.length
+      : QUESTION_PREVIEW_TOTAL_COUNT;
+    this.totalPages = this.selectedCategory || normalizedSearch || normalizedDifficulty
+      ? Math.max(1, Math.ceil(items.length / this.pageSize))
+      : Math.max(1, Math.ceil(QUESTION_PREVIEW_TOTAL_COUNT / this.pageSize));
+    this.loading = false;
+    this.updateSeo();
+
+    if (this.questions.length > 0) {
+      this.jsonLdService.setQuizSchema(this.questions, this.pageTitle);
+    }
   }
 
   onSearchChange(value: string): void {

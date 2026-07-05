@@ -1,5 +1,5 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, Inject, OnInit, OnDestroy, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser, isPlatformServer } from '@angular/common';
 import { RouterLink, ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { Subject, takeUntil } from 'rxjs';
@@ -7,6 +7,7 @@ import { SeoService } from '../../services/seo.service';
 import { JsonLdService, Question, Option } from '../../services/json-ld.service';
 import { environment } from '../../../environments/environment';
 import { AdSlotComponent } from '../shared/ad-slot.component';
+import { QUESTION_PREVIEW_QUESTIONS } from '../../data/question-preview.generated';
 
 @Component({
   selector: 'app-question-detail',
@@ -447,6 +448,7 @@ import { AdSlotComponent } from '../shared/ad-slot.component';
 })
 export class QuestionDetailComponent implements OnInit, OnDestroy {
   private readonly apiUrl = environment.apiUrl;
+  private readonly siteUrl = 'https://sabiqgame.com';
   private destroy$ = new Subject<void>();
 
   question: Question | null = null;
@@ -459,7 +461,8 @@ export class QuestionDetailComponent implements OnInit, OnDestroy {
     private http: HttpClient,
     private route: ActivatedRoute,
     private seoService: SeoService,
-    private jsonLdService: JsonLdService
+    private jsonLdService: JsonLdService,
+    @Inject(PLATFORM_ID) private platformId: object
   ) {}
 
   ngOnInit(): void {
@@ -482,6 +485,23 @@ export class QuestionDetailComponent implements OnInit, OnDestroy {
   loadQuestion(categorySlug: string, questionSlug: string): void {
     this.loading = true;
     this.errorMessage = '';
+
+    if (isPlatformServer(this.platformId)) {
+      const question = QUESTION_PREVIEW_QUESTIONS.find(item =>
+        item.categorySlug === categorySlug && item.slug === questionSlug);
+
+      if (question) {
+        this.question = { ...question };
+        this.loading = false;
+        this.updateSeo();
+        this.setJsonLd();
+      } else {
+        this.loading = false;
+        this.errorMessage = 'لم يتم العثور على السؤال المطلوب.';
+      }
+
+      return;
+    }
 
     this.http.get<Question>(`${this.apiUrl}/questions/${categorySlug}/${questionSlug}`)
       .subscribe({
@@ -557,20 +577,36 @@ export class QuestionDetailComponent implements OnInit, OnDestroy {
   getTwitterShareUrl(): string {
     if (!this.question) return '';
     const text = encodeURIComponent(`${this.question.textAr} - جاوب على سابق!`);
-    const url = encodeURIComponent(window.location.href);
+    const url = encodeURIComponent(this.getCurrentQuestionUrl());
     return `https://twitter.com/intent/tweet?text=${text}&url=${url}`;
   }
 
   getWhatsAppShareUrl(): string {
     if (!this.question) return '';
-    const text = encodeURIComponent(`${this.question.textAr}\n\nجاوب على: ${window.location.href}`);
+    const text = encodeURIComponent(`${this.question.textAr}\n\nجاوب على: ${this.getCurrentQuestionUrl()}`);
     return `https://wa.me/?text=${text}`;
   }
 
   copyLink(): void {
-    navigator.clipboard.writeText(window.location.href).then(() => {
+    if (!isPlatformBrowser(this.platformId) || !navigator.clipboard) {
+      return;
+    }
+
+    navigator.clipboard.writeText(this.getCurrentQuestionUrl()).then(() => {
       this.copySuccess = true;
       setTimeout(() => this.copySuccess = false, 2000);
     });
+  }
+
+  private getCurrentQuestionUrl(): string {
+    if (isPlatformBrowser(this.platformId)) {
+      return window.location.href;
+    }
+
+    if (!this.question) {
+      return `${this.siteUrl}/questions`;
+    }
+
+    return `${this.siteUrl}/questions/${this.question.categorySlug}/${this.question.slug}`;
   }
 }

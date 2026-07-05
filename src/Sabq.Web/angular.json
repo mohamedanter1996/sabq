@@ -26,6 +26,16 @@
                 "glob": "robots.txt",
                 "input": "src/assets",
                 "output": "/"
+              },
+              {
+                "glob": "sitemap.xml",
+                "input": "src/assets",
+                "output": "/"
+              },
+              {
+                "glob": "ads.txt",
+                "input": "src/assets",
+                "output": "/"
               }
             ],
             "styles": ["node_modules/ngx-toastr/toastr.css", "src/styles.css"],
@@ -61,7 +71,10 @@
               ],
               "outputHashing": "all",
               "ssr": false,
-              "prerender": false,
+              "prerender": {
+                "discoverRoutes": false,
+                "routesFile": "routes.txt"
+              },
               "optimization": {
                 "scripts": true,
                 "styles": {
