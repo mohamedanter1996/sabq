@@ -320,13 +320,13 @@ public class GameService
                 snapshot.LastActivityAtUtc = nowUtc;
                 await _roomStore.SaveRoomAsync(snapshot);
 
-                var room = await _context.GameRooms.FirstAsync(r => r.Code == roomCode);
-                room.Status = RoomStatus.Finished;
-                room.FinishedAtUtc = nowUtc;
-                room.LastActivityAtUtc = nowUtc;
-                room.CurrentQuestionIndex = snapshot.CurrentQuestionIndex;
-                room.CurrentQuestionId = null;
-                room.QuestionStartedAtUtc = null;
+                var finishedRoom = await _context.GameRooms.FirstAsync(r => r.Code == roomCode);
+                finishedRoom.Status = RoomStatus.Finished;
+                finishedRoom.FinishedAtUtc = nowUtc;
+                finishedRoom.LastActivityAtUtc = nowUtc;
+                finishedRoom.CurrentQuestionIndex = snapshot.CurrentQuestionIndex;
+                finishedRoom.CurrentQuestionId = null;
+                finishedRoom.QuestionStartedAtUtc = null;
                 await _context.SaveChangesAsync();
 
                 return null;
@@ -341,12 +341,12 @@ public class GameService
 
             await _roomStore.SaveRoomAsync(snapshot);
 
-            var room = await _context.GameRooms.FirstAsync(r => r.Code == roomCode);
-            room.Status = RoomStatus.Running;
-            room.LastActivityAtUtc = nowUtc;
-            room.CurrentQuestionIndex = snapshot.CurrentQuestionIndex;
-            room.CurrentQuestionId = questionId;
-            room.QuestionStartedAtUtc = nowUtc;
+            var currentRoom = await _context.GameRooms.FirstAsync(r => r.Code == roomCode);
+            currentRoom.Status = RoomStatus.Running;
+            currentRoom.LastActivityAtUtc = nowUtc;
+            currentRoom.CurrentQuestionIndex = snapshot.CurrentQuestionIndex;
+            currentRoom.CurrentQuestionId = questionId;
+            currentRoom.QuestionStartedAtUtc = nowUtc;
             await _context.SaveChangesAsync();
 
             var question = await _context.Questions
