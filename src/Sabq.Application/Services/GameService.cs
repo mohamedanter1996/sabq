@@ -5,6 +5,7 @@ using Sabq.Domain.Enums;
 using Sabq.Infrastructure.Data;
 using Sabq.Infrastructure.RoomState;
 using Sabq.Shared.DTOs;
+using System.Collections.Concurrent;
 using System.Text.Json;
 
 namespace Sabq.Application.Services;
@@ -38,8 +39,7 @@ public class GameService
     private readonly SabqDbContext _context;
     private readonly IRoomStore _roomStore;
     private readonly int _repeatCooldownDays;
-    private readonly Dictionary<string, SemaphoreSlim> _roomLocks = new();
-    private readonly SemaphoreSlim _lockCreationLock = new(1, 1);
+    private static readonly ConcurrentDictionary<string, SemaphoreSlim> RoomLocks = new();
 
     public GameService(SabqDbContext context, IRoomStore roomStore, IConfiguration? configuration = null)
     {
@@ -54,6 +54,7 @@ public class GameService
 
     public async Task<List<QuestionDto>> StartGameAsync(string roomCode, Guid hostPlayerId)
     {
+        var nowUtc = DateTime.UtcNow;
         var snapshot = await _roomStore.GetRoomAsync(roomCode);
         if (snapshot == null)
             throw new InvalidOperationException("Room not found");
@@ -108,12 +109,20 @@ public class GameService
 
         // Update room status
         room.Status = RoomStatus.Running;
+        room.StartedAtUtc = nowUtc;
+        room.LastActivityAtUtc = nowUtc;
+        room.CurrentQuestionIndex = -1;
+        room.CurrentQuestionId = null;
+        room.QuestionStartedAtUtc = null;
         await _context.SaveChangesAsync();
 
         // Update room state
         snapshot.Status = RoomStatus.Running;
         snapshot.QuestionIds = questions.Select(q => q.Id).ToList();
         snapshot.CurrentQuestionIndex = -1; // Will be incremented to 0 when next question is sent
+        snapshot.CurrentQuestionId = null;
+        snapshot.QuestionStartedAt = null;
+        snapshot.LastActivityAtUtc = nowUtc;
 
         await _roomStore.SaveRoomAsync(snapshot);
 
@@ -288,49 +297,80 @@ public class GameService
 
     public async Task<QuestionDto?> GetNextQuestionAsync(string roomCode)
     {
-        var snapshot = await _roomStore.GetRoomAsync(roomCode);
-        if (snapshot == null)
-            return null;
+        var lockObj = GetRoomLock(roomCode);
+        await lockObj.WaitAsync();
 
-        snapshot.CurrentQuestionIndex++;
-        if (snapshot.CurrentQuestionIndex >= snapshot.QuestionIds.Count)
+        try
         {
-            // Game finished
-            snapshot.Status = RoomStatus.Finished;
+            var nowUtc = DateTime.UtcNow;
+            var snapshot = await _roomStore.GetRoomAsync(roomCode);
+            if (snapshot == null)
+                return null;
+
+            if (snapshot.Status != RoomStatus.Running)
+                return null;
+
+            snapshot.CurrentQuestionIndex++;
+            if (snapshot.CurrentQuestionIndex >= snapshot.QuestionIds.Count)
+            {
+                // Game finished
+                snapshot.Status = RoomStatus.Finished;
+                snapshot.CurrentQuestionId = null;
+                snapshot.QuestionStartedAt = null;
+                snapshot.LastActivityAtUtc = nowUtc;
+                await _roomStore.SaveRoomAsync(snapshot);
+
+                var room = await _context.GameRooms.FirstAsync(r => r.Code == roomCode);
+                room.Status = RoomStatus.Finished;
+                room.FinishedAtUtc = nowUtc;
+                room.LastActivityAtUtc = nowUtc;
+                room.CurrentQuestionIndex = snapshot.CurrentQuestionIndex;
+                room.CurrentQuestionId = null;
+                room.QuestionStartedAtUtc = null;
+                await _context.SaveChangesAsync();
+
+                return null;
+            }
+
+            var questionId = snapshot.QuestionIds[snapshot.CurrentQuestionIndex];
+            snapshot.CurrentQuestionId = questionId;
+            snapshot.PlayersAnsweredCurrentQuestion.Clear();
+            snapshot.PlayerSelectedOptions.Clear();
+            snapshot.QuestionStartedAt = nowUtc;
+            snapshot.LastActivityAtUtc = nowUtc;
+
             await _roomStore.SaveRoomAsync(snapshot);
 
             var room = await _context.GameRooms.FirstAsync(r => r.Code == roomCode);
-            room.Status = RoomStatus.Finished;
+            room.Status = RoomStatus.Running;
+            room.LastActivityAtUtc = nowUtc;
+            room.CurrentQuestionIndex = snapshot.CurrentQuestionIndex;
+            room.CurrentQuestionId = questionId;
+            room.QuestionStartedAtUtc = nowUtc;
             await _context.SaveChangesAsync();
 
-            return null;
-        }
+            var question = await _context.Questions
+                .Include(q => q.Options)
+                .FirstAsync(q => q.Id == questionId);
 
-        var questionId = snapshot.QuestionIds[snapshot.CurrentQuestionIndex];
-        snapshot.CurrentQuestionId = questionId;
-        snapshot.PlayersAnsweredCurrentQuestion.Clear();
-        snapshot.PlayerSelectedOptions.Clear();
-        snapshot.QuestionStartedAt = DateTime.UtcNow;
-
-        await _roomStore.SaveRoomAsync(snapshot);
-
-        var question = await _context.Questions
-            .Include(q => q.Options)
-            .FirstAsync(q => q.Id == questionId);
-
-        return new QuestionDto
-        {
-            Id = question.Id,
-            TextAr = question.TextAr,
-            Difficulty = question.Difficulty,
-            TimeLimitSec = question.TimeLimitSec,
-            Options = question.Options.Select(o => new OptionDto
+            return new QuestionDto
             {
-                Id = o.Id,
-                TextAr = o.TextAr,
-                IsCorrect = null
-            }).ToList()
-        };
+                Id = question.Id,
+                TextAr = question.TextAr,
+                Difficulty = question.Difficulty,
+                TimeLimitSec = question.TimeLimitSec,
+                Options = question.Options.Select(o => new OptionDto
+                {
+                    Id = o.Id,
+                    TextAr = o.TextAr,
+                    IsCorrect = null
+                }).ToList()
+            };
+        }
+        finally
+        {
+            lockObj.Release();
+        }
     }
 
     public async Task<QuestionDto?> GetCurrentQuestionAsync(Guid questionId)
@@ -360,11 +400,12 @@ public class GameService
     public async Task<(bool IsCorrect, int DeltaScore, int UpdatedScore, bool IsFirstCorrect, bool AllPlayersAnsweredWrong)> SubmitAnswerAsync(
         string roomCode, Guid questionId, Guid playerId, Guid optionId)
     {
-        var lockObj = await GetRoomLockAsync(roomCode);
+        var lockObj = GetRoomLock(roomCode);
         await lockObj.WaitAsync();
 
         try
         {
+            var nowUtc = DateTime.UtcNow;
             var snapshot = await _roomStore.GetRoomAsync(roomCode);
             if (snapshot == null)
                 throw new InvalidOperationException("Room not found");
@@ -435,7 +476,7 @@ public class GameService
                 PlayerId = playerId,
                 OptionId = optionId,
                 IsCorrect = isCorrect,
-                AnsweredAtUtc = DateTime.UtcNow
+                AnsweredAtUtc = nowUtc
             });
 
             // Update database score
@@ -443,10 +484,52 @@ public class GameService
                 .FirstAsync(rp => rp.RoomId == snapshot.RoomId && rp.PlayerId == playerId);
             roomPlayer.Score = player.Score;
 
+            var room = await _context.GameRooms.FirstAsync(r => r.Id == snapshot.RoomId);
+            room.LastActivityAtUtc = nowUtc;
+            snapshot.LastActivityAtUtc = nowUtc;
+
             await _context.SaveChangesAsync();
             await _roomStore.SaveRoomAsync(snapshot);
 
             return (isCorrect, deltaScore, player.Score, isFirstCorrect, allPlayersAnsweredWrong);
+        }
+        finally
+        {
+            lockObj.Release();
+        }
+    }
+
+    public async Task<bool> EndCurrentQuestionAsync(string roomCode, Guid questionId)
+    {
+        var lockObj = GetRoomLock(roomCode);
+        await lockObj.WaitAsync();
+
+        try
+        {
+            var nowUtc = DateTime.UtcNow;
+            var snapshot = await _roomStore.GetRoomAsync(roomCode);
+            if (snapshot == null ||
+                snapshot.Status != RoomStatus.Running ||
+                snapshot.CurrentQuestionId != questionId)
+            {
+                return false;
+            }
+
+            snapshot.CurrentQuestionId = null;
+            snapshot.QuestionStartedAt = null;
+            snapshot.LastActivityAtUtc = nowUtc;
+            await _roomStore.SaveRoomAsync(snapshot);
+
+            var room = await _context.GameRooms.FirstOrDefaultAsync(r => r.Code == roomCode);
+            if (room != null)
+            {
+                room.CurrentQuestionId = null;
+                room.QuestionStartedAtUtc = null;
+                room.LastActivityAtUtc = nowUtc;
+                await _context.SaveChangesAsync();
+            }
+
+            return true;
         }
         finally
         {
@@ -486,20 +569,8 @@ public class GameService
         return correctOption.Id;
     }
 
-    private async Task<SemaphoreSlim> GetRoomLockAsync(string roomCode)
+    private static SemaphoreSlim GetRoomLock(string roomCode)
     {
-        await _lockCreationLock.WaitAsync();
-        try
-        {
-            if (!_roomLocks.ContainsKey(roomCode))
-            {
-                _roomLocks[roomCode] = new SemaphoreSlim(1, 1);
-            }
-            return _roomLocks[roomCode];
-        }
-        finally
-        {
-            _lockCreationLock.Release();
-        }
+        return RoomLocks.GetOrAdd(roomCode, _ => new SemaphoreSlim(1, 1));
     }
 }

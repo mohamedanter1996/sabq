@@ -84,6 +84,8 @@ public class SabqDbContext : DbContext
             entity.Property(e => e.Code).IsRequired().HasMaxLength(10);
             entity.HasIndex(e => e.Code).IsUnique();
             entity.HasIndex(e => e.Status);
+            entity.HasIndex(e => e.LastActivityAtUtc);
+            entity.HasIndex(e => e.CurrentQuestionId);
         });
 
         // GameRoomPlayer (composite key)

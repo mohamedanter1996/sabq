@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
+using Sabq.Api.Services;
 using Sabq.Application.Services;
 using Sabq.Shared.SignalR;
 using System.Security.Claims;
@@ -11,11 +12,13 @@ public class SabqHub : Hub
 {
     private readonly RoomService _roomService;
     private readonly GameService _gameService;
+    private readonly RoomQuestionFlow _questionFlow;
 
-    public SabqHub(RoomService roomService, GameService gameService)
+    public SabqHub(RoomService roomService, GameService gameService, RoomQuestionFlow questionFlow)
     {
         _roomService = roomService;
         _gameService = gameService;
+        _questionFlow = questionFlow;
     }
 
     public async Task JoinRoom(string roomCode)
@@ -117,7 +120,7 @@ public class SabqHub : Hub
             await Clients.Group(roomCode).SendAsync("GameStarted", new GameStartedEvent(questions.Count));
 
             // Start sending questions
-            await SendNextQuestion(roomCode);
+            await _questionFlow.SendNextQuestionAsync(roomCode);
         }
         catch
         {
@@ -154,12 +157,12 @@ public class SabqHub : Hub
                 await Clients.Group(roomCode).SendAsync("QuestionLocked", 
                     new QuestionLockedEvent(playerId.Value, playerName));
                 await Task.Delay(2000); // Show who answered correctly
-                await EndCurrentQuestion(roomCode, questionId);
+                await _questionFlow.EndQuestionAsync(roomCode, questionId);
             }
             else if (allPlayersAnsweredWrong)
             {
                 await Task.Delay(1000);
-                await EndCurrentQuestion(roomCode, questionId);
+                await _questionFlow.EndQuestionAsync(roomCode, questionId);
             }
         }
         catch (InvalidOperationException ex)
@@ -180,53 +183,7 @@ public class SabqHub : Hub
         if (snapshot == null || snapshot.HostPlayerId != playerId.Value)
             return;
 
-        await EndCurrentQuestion(roomCode, questionId);
-    }
-
-    private async Task EndCurrentQuestion(string roomCode, Guid questionId)
-    {
-        var correctOptionId = await _gameService.GetCorrectOptionIdAsync(questionId);
-        var leaderboard = await _gameService.GetLeaderboardAsync(roomCode);
-
-        await Clients.Group(roomCode).SendAsync("QuestionEnded",
-            new QuestionEndedEvent(correctOptionId, leaderboard));
-
-        // Wait a bit before sending next question or ending game
-        await Task.Delay(3000);
-        await SendNextQuestion(roomCode);
-    }
-
-    private async Task SendNextQuestion(string roomCode)
-    {
-        var question = await _gameService.GetNextQuestionAsync(roomCode);
-
-        if (question == null)
-        {
-            // Game ended
-            var leaderboard = await _gameService.GetLeaderboardAsync(roomCode);
-            await Clients.Group(roomCode).SendAsync("GameEnded", new GameEndedEvent(leaderboard));
-            return;
-        }
-
-        var snapshot = await _roomService.GetRoomStateAsync(roomCode);
-        if (snapshot == null)
-            return;
-
-        await Clients.Group(roomCode).SendAsync("NewQuestion",
-            new NewQuestionEvent(question, snapshot.CurrentQuestionIndex + 1, snapshot.QuestionIds.Count));
-
-        // Auto-end question after time limit + buffer
-        _ = Task.Run(async () =>
-        {
-            await Task.Delay((question.TimeLimitSec + 2) * 1000);
-
-            // Check if question is still current
-            var currentSnapshot = await _roomService.GetRoomStateAsync(roomCode);
-            if (currentSnapshot?.CurrentQuestionId == question.Id)
-            {
-                await EndCurrentQuestion(roomCode, question.Id);
-            }
-        });
+        await _questionFlow.EndQuestionAsync(roomCode, questionId);
     }
 
     public async Task SendEmotion(string roomCode, Guid toPlayerId, string emotion)

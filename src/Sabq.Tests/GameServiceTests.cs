@@ -161,6 +161,56 @@ public class GameServiceTests
         Assert.NotEqual(comparisonVariant.Id, selectedQuestions[0].Id);
     }
 
+    [Fact]
+    public async Task GameLifecycle_UpdatesRoomProgressAndTimestamps()
+    {
+        var options = CreateInMemoryOptions();
+        await using var context = new SabqDbContext(options);
+
+        var category = AddCategory(context);
+        AddQuestions(context, category.Id, 1);
+        var hostPlayerId = Guid.NewGuid();
+        AddPlayer(context, hostPlayerId);
+
+        const string roomCode = "LIFE01";
+        var roomId = AddCurrentRoom(context, roomCode, hostPlayerId, category.Id, questionCount: 1);
+        await context.SaveChangesAsync();
+
+        var roomStore = await CreateRoomStoreAsync(roomCode, roomId, hostPlayerId);
+        var service = new GameService(context, roomStore);
+
+        await service.StartGameAsync(roomCode, hostPlayerId);
+
+        var room = await context.GameRooms.FirstAsync(r => r.Id == roomId);
+        Assert.Equal(RoomStatus.Running, room.Status);
+        Assert.NotNull(room.StartedAtUtc);
+        Assert.NotNull(room.LastActivityAtUtc);
+        Assert.Equal(-1, room.CurrentQuestionIndex.GetValueOrDefault());
+
+        var question = await service.GetNextQuestionAsync(roomCode);
+
+        Assert.NotNull(question);
+        await context.Entry(room).ReloadAsync();
+        Assert.Equal(0, room.CurrentQuestionIndex.GetValueOrDefault());
+        Assert.Equal(question.Id, room.CurrentQuestionId.GetValueOrDefault());
+        Assert.NotNull(room.QuestionStartedAtUtc);
+
+        var ended = await service.EndCurrentQuestionAsync(roomCode, question.Id);
+
+        Assert.True(ended);
+        await context.Entry(room).ReloadAsync();
+        Assert.Null(room.CurrentQuestionId);
+        Assert.Null(room.QuestionStartedAtUtc);
+
+        var nextQuestion = await service.GetNextQuestionAsync(roomCode);
+
+        Assert.Null(nextQuestion);
+        await context.Entry(room).ReloadAsync();
+        Assert.Equal(RoomStatus.Finished, room.Status);
+        Assert.NotNull(room.FinishedAtUtc);
+        Assert.Null(room.CurrentQuestionId);
+    }
+
     private static Category AddCategory(SabqDbContext context)
     {
         var category = new Category

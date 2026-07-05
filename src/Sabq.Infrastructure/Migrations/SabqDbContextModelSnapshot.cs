@@ -262,11 +262,29 @@ namespace Sabq.Infrastructure.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<Guid?>("CurrentQuestionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int?>("CurrentQuestionIndex")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("FinishedAtUtc")
+                        .HasColumnType("datetime2");
+
                     b.Property<Guid>("HostPlayerId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<DateTime?>("LastActivityAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("QuestionStartedAtUtc")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("SettingsJson")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("StartedAtUtc")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
@@ -275,6 +293,10 @@ namespace Sabq.Infrastructure.Migrations
 
                     b.HasIndex("Code")
                         .IsUnique();
+
+                    b.HasIndex("CurrentQuestionId");
+
+                    b.HasIndex("LastActivityAtUtc");
 
                     b.HasIndex("Status");
 

@@ -119,6 +119,8 @@ builder.Services.AddScoped<ArchiveService>();
 builder.Services.AddScoped<GameHistoryService>();
 builder.Services.AddScoped<ContactService>();
 builder.Services.AddScoped<QuestionSeoService>();
+builder.Services.AddScoped<RoomLifecycleService>();
+builder.Services.AddSingleton<RoomQuestionFlow>();
 builder.Services.AddScoped<SitemapService>(sp =>
 {
     var context = sp.GetRequiredService<SabqDbContext>();
@@ -170,9 +172,12 @@ builder.Services.AddAuthorization(options =>
 });
 
 // Background services
+builder.Services.Configure<Sabq.Api.BackgroundServices.RoomLifecycleOptions>(
+    builder.Configuration.GetSection("RoomLifecycle"));
 builder.Services.Configure<Sabq.Api.BackgroundServices.QuestionBankRefreshOptions>(
     builder.Configuration.GetSection("QuestionBankRefresh"));
 builder.Services.AddHostedService<Sabq.Api.BackgroundServices.ArchiveJobScheduler>();
+builder.Services.AddHostedService<Sabq.Api.BackgroundServices.RoomLifecycleCleanupScheduler>();
 builder.Services.AddHostedService<Sabq.Api.BackgroundServices.QuestionBankRefreshScheduler>();
 
 // SignalR

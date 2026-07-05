@@ -4,5 +4,6 @@ public enum RoomStatus
 {
     Lobby = 1,
     Running = 2,
-    Finished = 3
+    Finished = 3,
+    Abandoned = 4
 }

@@ -10,6 +10,12 @@ public class GameRoom
     public RoomStatus Status { get; set; } = RoomStatus.Lobby;
     public string? SettingsJson { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime? StartedAtUtc { get; set; }
+    public DateTime? FinishedAtUtc { get; set; }
+    public DateTime? LastActivityAtUtc { get; set; }
+    public int? CurrentQuestionIndex { get; set; }
+    public Guid? CurrentQuestionId { get; set; }
+    public DateTime? QuestionStartedAtUtc { get; set; }
 
     // Navigation
     public ICollection<GameRoomPlayer> Players { get; set; } = new List<GameRoomPlayer>();

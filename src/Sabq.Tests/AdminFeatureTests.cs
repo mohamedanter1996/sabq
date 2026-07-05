@@ -98,6 +98,8 @@ public class AdminFeatureTests
         var lobbyRoomId = Guid.NewGuid();
         var runningRoomId = Guid.NewGuid();
         var finishedRoomId = Guid.NewGuid();
+        var abandonedRoomId = Guid.NewGuid();
+        var staleRoomId = Guid.NewGuid();
 
         context.Categories.Add(new Category
         {
@@ -139,7 +141,8 @@ public class AdminFeatureTests
                 Code = "LOBBY",
                 HostPlayerId = playerId,
                 Status = RoomStatus.Lobby,
-                CreatedAt = now.AddDays(-1)
+                CreatedAt = now.AddDays(-1),
+                LastActivityAtUtc = now.AddMinutes(-5)
             },
             new GameRoom
             {
@@ -147,7 +150,8 @@ public class AdminFeatureTests
                 Code = "RUNNG",
                 HostPlayerId = playerId,
                 Status = RoomStatus.Running,
-                CreatedAt = now.AddDays(-10)
+                CreatedAt = now.AddDays(-10),
+                LastActivityAtUtc = now.AddMinutes(-10)
             },
             new GameRoom
             {
@@ -155,7 +159,28 @@ public class AdminFeatureTests
                 Code = "FINSH",
                 HostPlayerId = oldPlayerId,
                 Status = RoomStatus.Finished,
-                CreatedAt = now.AddDays(-40)
+                CreatedAt = now.AddDays(-40),
+                LastActivityAtUtc = now.AddDays(-40),
+                FinishedAtUtc = now.AddDays(-40)
+            },
+            new GameRoom
+            {
+                Id = abandonedRoomId,
+                Code = "ABNDN",
+                HostPlayerId = oldPlayerId,
+                Status = RoomStatus.Abandoned,
+                CreatedAt = now.AddDays(-40),
+                LastActivityAtUtc = now.AddDays(-40),
+                FinishedAtUtc = now.AddDays(-40)
+            },
+            new GameRoom
+            {
+                Id = staleRoomId,
+                Code = "STALE",
+                HostPlayerId = playerId,
+                Status = RoomStatus.Running,
+                CreatedAt = now.AddDays(-1),
+                LastActivityAtUtc = now.AddHours(-2)
             });
 
         context.GameAnswers.AddRange(
@@ -215,9 +240,13 @@ public class AdminFeatureTests
         var summary = await service.GetSummaryAsync();
 
         Assert.Equal(2, summary.TotalPlayers);
-        Assert.Equal(3, summary.TotalRooms);
+        Assert.Equal(5, summary.TotalRooms);
         Assert.Equal(2, summary.ActiveRooms);
+        Assert.Equal(1, summary.LobbyRooms);
+        Assert.Equal(2, summary.RunningRooms);
         Assert.Equal(1, summary.FinishedRooms);
+        Assert.Equal(1, summary.AbandonedRooms);
+        Assert.Equal(1, summary.StaleRooms);
         Assert.Equal(3, summary.TotalAnswers);
         Assert.Equal(2, summary.CorrectAnswers);
         Assert.Equal(66.67, summary.CorrectAnswerRate);
@@ -227,11 +256,12 @@ public class AdminFeatureTests
         Assert.Equal(2, summary.ContactMessages);
         Assert.Equal(1, summary.UnreadContactMessages);
         Assert.Equal(1, summary.Last7Days.NewPlayers);
-        Assert.Equal(1, summary.Last7Days.NewRooms);
+        Assert.Equal(2, summary.Last7Days.NewRooms);
         Assert.Equal(1, summary.Last7Days.NewAnswers);
         Assert.Equal(1, summary.Last30Days.NewPlayers);
-        Assert.Equal(2, summary.Last30Days.NewRooms);
+        Assert.Equal(3, summary.Last30Days.NewRooms);
         Assert.Equal(2, summary.Last30Days.NewAnswers);
+        Assert.True(summary.LastUpdatedAtUtc <= DateTime.UtcNow);
         Assert.Single(summary.TopCategories);
         Assert.Equal("sports", summary.TopCategories[0].CategorySlug);
         Assert.Equal(3, summary.TopCategories[0].AnswerCount);

@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Sabq.Domain.Enums;
 using Sabq.Infrastructure.Data;
 using Sabq.Shared.DTOs;
@@ -8,10 +9,14 @@ namespace Sabq.Application.Services;
 public class AdminStatsService
 {
     private readonly SabqDbContext _context;
+    private readonly int _lobbyTimeoutMinutes;
+    private readonly int _runningStaleMinutes;
 
-    public AdminStatsService(SabqDbContext context)
+    public AdminStatsService(SabqDbContext context, IConfiguration? configuration = null)
     {
         _context = context;
+        _lobbyTimeoutMinutes = ReadPositiveInt(configuration, "RoomLifecycle:LobbyTimeoutMinutes", 60);
+        _runningStaleMinutes = ReadPositiveInt(configuration, "RoomLifecycle:RunningStaleMinutes", 30);
     }
 
     public async Task<AdminStatsSummaryDto> GetSummaryAsync(CancellationToken cancellationToken = default)
@@ -19,10 +24,13 @@ public class AdminStatsService
         var nowUtc = DateTime.UtcNow;
         var sevenDaysAgo = nowUtc.AddDays(-7);
         var thirtyDaysAgo = nowUtc.AddDays(-30);
+        var lobbyCutoffUtc = nowUtc.AddMinutes(-_lobbyTimeoutMinutes);
+        var runningCutoffUtc = nowUtc.AddMinutes(-_runningStaleMinutes);
 
         var totalAnswers = await _context.GameAnswers.AsNoTracking().LongCountAsync(cancellationToken);
         var correctAnswers = await _context.GameAnswers.AsNoTracking()
             .LongCountAsync(answer => answer.IsCorrect, cancellationToken);
+        var rooms = _context.GameRooms.AsNoTracking();
 
         var topCategories = await (
             from answer in _context.GameAnswers.AsNoTracking()
@@ -46,11 +54,20 @@ public class AdminStatsService
 
         return new AdminStatsSummaryDto(
             TotalPlayers: await _context.Players.AsNoTracking().LongCountAsync(cancellationToken),
-            TotalRooms: await _context.GameRooms.AsNoTracking().LongCountAsync(cancellationToken),
-            ActiveRooms: await _context.GameRooms.AsNoTracking()
-                .LongCountAsync(room => room.Status == RoomStatus.Lobby || room.Status == RoomStatus.Running, cancellationToken),
-            FinishedRooms: await _context.GameRooms.AsNoTracking()
+            TotalRooms: await rooms.LongCountAsync(cancellationToken),
+            ActiveRooms: await rooms.LongCountAsync(room =>
+                (room.Status == RoomStatus.Lobby && (room.LastActivityAtUtc ?? room.CreatedAt) > lobbyCutoffUtc) ||
+                (room.Status == RoomStatus.Running && (room.LastActivityAtUtc ?? room.CreatedAt) > runningCutoffUtc),
+                cancellationToken),
+            LobbyRooms: await rooms.LongCountAsync(room => room.Status == RoomStatus.Lobby, cancellationToken),
+            RunningRooms: await rooms.LongCountAsync(room => room.Status == RoomStatus.Running, cancellationToken),
+            FinishedRooms: await rooms
                 .LongCountAsync(room => room.Status == RoomStatus.Finished, cancellationToken),
+            AbandonedRooms: await rooms.LongCountAsync(room => room.Status == RoomStatus.Abandoned, cancellationToken),
+            StaleRooms: await rooms.LongCountAsync(room =>
+                (room.Status == RoomStatus.Lobby && (room.LastActivityAtUtc ?? room.CreatedAt) <= lobbyCutoffUtc) ||
+                (room.Status == RoomStatus.Running && (room.LastActivityAtUtc ?? room.CreatedAt) <= runningCutoffUtc),
+                cancellationToken),
             TotalAnswers: totalAnswers,
             CorrectAnswers: correctAnswers,
             CorrectAnswerRate: totalAnswers == 0 ? 0 : Math.Round((double)correctAnswers / totalAnswers * 100, 2),
@@ -61,6 +78,7 @@ public class AdminStatsService
             ContactMessages: await _context.ContactMessages.AsNoTracking().LongCountAsync(cancellationToken),
             UnreadContactMessages: await _context.ContactMessages.AsNoTracking()
                 .LongCountAsync(message => !message.IsRead, cancellationToken),
+            LastUpdatedAtUtc: nowUtc,
             Last7Days: await GetActivityAsync(sevenDaysAgo, cancellationToken),
             Last30Days: await GetActivityAsync(thirtyDaysAgo, cancellationToken),
             TopCategories: topCategories);
@@ -75,5 +93,13 @@ public class AdminStatsService
                 .LongCountAsync(room => room.CreatedAt >= sinceUtc, cancellationToken),
             NewAnswers: await _context.GameAnswers.AsNoTracking()
                 .LongCountAsync(answer => answer.AnsweredAtUtc >= sinceUtc, cancellationToken));
+    }
+
+    private static int ReadPositiveInt(IConfiguration? configuration, string key, int fallback)
+    {
+        if (!int.TryParse(configuration?[key], out var value) || value <= 0)
+            return fallback;
+
+        return value;
     }
 }

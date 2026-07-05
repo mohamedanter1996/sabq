@@ -1,8 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Meta, Title } from '@angular/platform-browser';
+import { environment } from '../../../environments/environment';
 import { AdminApiService, AdminStatsSummary } from '../../services/admin-api.service';
 import { AdminAuthService } from '../../services/admin-auth.service';
 
@@ -16,16 +17,23 @@ import { AdminAuthService } from '../../services/admin-auth.service';
         <div>
           <p class="eyebrow">لوحة الإدارة</p>
           <h1>إحصائيات سابق</h1>
-          <p class="subtitle">متابعة سريعة لنشاط اللاعبين والأسئلة والغرف.</p>
+          <p class="subtitle">
+            متابعة نشاط اللاعبين والأسئلة والغرف، مع تنظيف تلقائي للغرف المتروكة.
+          </p>
+          @if (summary) {
+            <p class="refresh-note">آخر تحديث: {{ lastUpdatedLabel }}</p>
+          }
         </div>
         <div class="header-actions">
           <span>{{ adminAuthService.username }}</span>
-          <button type="button" class="secondary-button" (click)="loadSummary()" [disabled]="loading">تحديث</button>
+          <button type="button" class="secondary-button" (click)="loadSummary()" [disabled]="loading">
+            تحديث
+          </button>
           <button type="button" class="danger-button" (click)="logout()">خروج</button>
         </div>
       </header>
 
-      @if (loading) {
+      @if (loading && !summary) {
         <div class="state-box">جاري تحميل الإحصائيات...</div>
       } @else if (errorMessage) {
         <div class="state-box error">
@@ -35,9 +43,13 @@ import { AdminAuthService } from '../../services/admin-auth.service';
       } @else if (summary) {
         <div class="metrics-grid">
           <article class="metric-card"><span>اللاعبون</span><strong>{{ summary.totalPlayers | number }}</strong></article>
-          <article class="metric-card"><span>الغرف</span><strong>{{ summary.totalRooms | number }}</strong></article>
-          <article class="metric-card"><span>الغرف النشطة</span><strong>{{ summary.activeRooms | number }}</strong></article>
-          <article class="metric-card"><span>الغرف المنتهية</span><strong>{{ summary.finishedRooms | number }}</strong></article>
+          <article class="metric-card"><span>كل الغرف</span><strong>{{ summary.totalRooms | number }}</strong></article>
+          <article class="metric-card success"><span>غرف نشطة فعلا</span><strong>{{ summary.activeRooms | number }}</strong></article>
+          <article class="metric-card"><span>غرف جارية</span><strong>{{ summary.runningRooms | number }}</strong></article>
+          <article class="metric-card"><span>غرف في الانتظار</span><strong>{{ summary.lobbyRooms | number }}</strong></article>
+          <article class="metric-card"><span>غرف منتهية</span><strong>{{ summary.finishedRooms | number }}</strong></article>
+          <article class="metric-card danger"><span>غرف متروكة</span><strong>{{ summary.abandonedRooms | number }}</strong></article>
+          <article class="metric-card warn"><span>غرف متأخرة عن المهلة</span><strong>{{ summary.staleRooms | number }}</strong></article>
           <article class="metric-card"><span>الإجابات</span><strong>{{ summary.totalAnswers | number }}</strong></article>
           <article class="metric-card"><span>الإجابات الصحيحة</span><strong>{{ summary.correctAnswers | number }}</strong></article>
           <article class="metric-card"><span>نسبة الصح</span><strong>{{ summary.correctAnswerRate | number:'1.0-2' }}%</strong></article>
@@ -69,7 +81,7 @@ import { AdminAuthService } from '../../services/admin-auth.service';
         </div>
 
         <article class="panel">
-          <h2>أكثر التصنيفات استخدامًا</h2>
+          <h2>أكثر التصنيفات استخداما</h2>
           @if (summary.topCategories.length === 0) {
             <p class="empty-text">لا توجد إجابات كافية لعرض التصنيفات بعد.</p>
           } @else {
@@ -135,9 +147,15 @@ import { AdminAuthService } from '../../services/admin-auth.service';
       font-weight: 800;
     }
 
-    .subtitle {
+    .subtitle,
+    .refresh-note {
       margin-top: 0.55rem;
       color: #64748b;
+    }
+
+    .refresh-note {
+      font-size: 0.9rem;
+      font-weight: 700;
     }
 
     .header-actions {
@@ -206,8 +224,16 @@ import { AdminAuthService } from '../../services/admin-auth.service';
       border-top: 4px solid #2563eb;
     }
 
+    .metric-card.success {
+      border-top-color: #16a34a;
+    }
+
     .metric-card.warn {
       border-top-color: #f59e0b;
+    }
+
+    .metric-card.danger {
+      border-top-color: #dc2626;
     }
 
     .metric-card span {
@@ -322,10 +348,13 @@ import { AdminAuthService } from '../../services/admin-auth.service';
     }
   `]
 })
-export class AdminDashboardComponent implements OnInit {
+export class AdminDashboardComponent implements OnInit, OnDestroy {
   summary: AdminStatsSummary | null = null;
   loading = true;
   errorMessage = '';
+
+  private refreshTimer: ReturnType<typeof setInterval> | null = null;
+  private readonly refreshSeconds = Math.max(5, environment.adminDashboard?.refreshSeconds ?? 15);
 
   constructor(
     private adminApiService: AdminApiService,
@@ -339,10 +368,32 @@ export class AdminDashboardComponent implements OnInit {
     this.title.setTitle('لوحة الإدارة | سابق');
     this.meta.updateTag({ name: 'robots', content: 'noindex, nofollow' });
     this.loadSummary();
+    this.startAutoRefresh();
   }
 
-  loadSummary(): void {
-    this.loading = true;
+  ngOnDestroy(): void {
+    if (this.refreshTimer) {
+      clearInterval(this.refreshTimer);
+      this.refreshTimer = null;
+    }
+  }
+
+  get lastUpdatedLabel(): string {
+    if (!this.summary?.lastUpdatedAtUtc) {
+      return '';
+    }
+
+    return new Date(this.summary.lastUpdatedAtUtc).toLocaleString('ar-EG', {
+      dateStyle: 'medium',
+      timeStyle: 'medium'
+    });
+  }
+
+  loadSummary(silent = false): void {
+    if (!silent) {
+      this.loading = true;
+    }
+
     this.errorMessage = '';
 
     this.adminApiService.getSummary().subscribe({
@@ -366,5 +417,11 @@ export class AdminDashboardComponent implements OnInit {
   logout(): void {
     this.adminAuthService.clearAdminAuth();
     this.router.navigate(['/admin/login']);
+  }
+
+  private startAutoRefresh(): void {
+    this.refreshTimer = setInterval(() => {
+      this.loadSummary(true);
+    }, this.refreshSeconds * 1000);
   }
 }

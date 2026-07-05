@@ -27,7 +27,11 @@ export interface AdminStatsSummary {
   totalPlayers: number;
   totalRooms: number;
   activeRooms: number;
+  lobbyRooms: number;
+  runningRooms: number;
   finishedRooms: number;
+  abandonedRooms: number;
+  staleRooms: number;
   totalAnswers: number;
   correctAnswers: number;
   correctAnswerRate: number;
@@ -36,6 +40,7 @@ export interface AdminStatsSummary {
   totalCategories: number;
   contactMessages: number;
   unreadContactMessages: number;
+  lastUpdatedAtUtc: string;
   last7Days: AdminActivityStats;
   last30Days: AdminActivityStats;
   topCategories: AdminCategoryUsage[];

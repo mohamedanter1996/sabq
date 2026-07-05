@@ -17,4 +17,5 @@ public class RoomStateSnapshot
     public HashSet<Guid> PlayersAnsweredCurrentQuestion { get; set; } = new();
     public Dictionary<Guid, Guid> PlayerSelectedOptions { get; set; } = new(); // PlayerId -> OptionId
     public DateTime? QuestionStartedAt { get; set; }
+    public DateTime? LastActivityAtUtc { get; set; }
 }

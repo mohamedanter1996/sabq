@@ -23,6 +23,8 @@ public class RoomService
 
     public async Task<CreateRoomResponse> CreateRoomAsync(CreateRoomRequest request, Guid hostPlayerId)
     {
+        var nowUtc = DateTime.UtcNow;
+
         // Generate unique room code
         string roomCode;
         do
@@ -38,7 +40,8 @@ public class RoomService
             HostPlayerId = hostPlayerId,
             Status = RoomStatus.Lobby,
             SettingsJson = JsonSerializer.Serialize(request),
-            CreatedAt = DateTime.UtcNow
+            CreatedAt = nowUtc,
+            LastActivityAtUtc = nowUtc
         };
 
         _context.GameRooms.Add(room);
@@ -55,7 +58,7 @@ public class RoomService
                 RoomId = room.Id,
                 PlayerId = hostPlayerId,
                 Score = 0,
-                JoinedAt = DateTime.UtcNow
+                JoinedAt = nowUtc
             };
             _context.GameRoomPlayers.Add(roomPlayer);
         }
@@ -70,6 +73,7 @@ public class RoomService
             HostPlayerId = hostPlayerId,
             HostParticipates = request.HostParticipates,
             Status = RoomStatus.Lobby,
+            LastActivityAtUtc = nowUtc,
             Players = request.HostParticipates 
                 ? new Dictionary<Guid, PlayerDto>
                 {
@@ -90,6 +94,7 @@ public class RoomService
 
     public async Task<RoomSnapshot?> JoinRoomAsync(string roomCode, Guid playerId)
     {
+        var nowUtc = DateTime.UtcNow;
         var snapshot = await _roomStore.GetRoomAsync(roomCode);
         if (snapshot == null)
             return null;
@@ -98,7 +103,12 @@ public class RoomService
             throw new InvalidOperationException("Room is not in lobby state");
 
         if (snapshot.Players.ContainsKey(playerId))
+        {
+            await TouchRoomAsync(snapshot.RoomId, nowUtc);
+            snapshot.LastActivityAtUtc = nowUtc;
+            await _roomStore.SaveRoomAsync(snapshot);
             return ToRoomSnapshot(snapshot);
+        }
 
         // Add player to database
         var roomPlayer = new GameRoomPlayer
@@ -106,9 +116,10 @@ public class RoomService
             RoomId = snapshot.RoomId,
             PlayerId = playerId,
             Score = 0,
-            JoinedAt = DateTime.UtcNow
+            JoinedAt = nowUtc
         };
         _context.GameRoomPlayers.Add(roomPlayer);
+        await TouchRoomAsync(snapshot.RoomId, nowUtc, saveChanges: false);
         await _context.SaveChangesAsync();
 
         // Add player to room state
@@ -123,6 +134,7 @@ public class RoomService
             Score = 0
         };
 
+        snapshot.LastActivityAtUtc = nowUtc;
         await _roomStore.SaveRoomAsync(snapshot);
 
         return ToRoomSnapshot(snapshot);
@@ -152,5 +164,17 @@ public class RoomService
             TotalQuestions = state.QuestionIds.Count,
             CurrentQuestionIndex = state.CurrentQuestionIndex
         };
+    }
+
+    private async Task TouchRoomAsync(Guid roomId, DateTime nowUtc, bool saveChanges = true)
+    {
+        var room = await _context.GameRooms.FirstOrDefaultAsync(r => r.Id == roomId);
+        if (room == null)
+            return;
+
+        room.LastActivityAtUtc = nowUtc;
+
+        if (saveChanges)
+            await _context.SaveChangesAsync();
     }
 }
