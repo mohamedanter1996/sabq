@@ -47,6 +47,37 @@ export const routes: Routes = [
     title: 'تواصل معنا | سابق'
   },
   
+  // Curated learning content
+  {
+    path: 'learn',
+    loadComponent: () => import('./components/learn/learn-index.component').then(m => m.LearnIndexComponent),
+    title: 'تحديات تعلّم ومراجعة معرفية | سابق'
+  },
+  {
+    path: 'learn/:slug',
+    loadComponent: () => import('./components/learn/learn-detail.component').then(m => m.LearnDetailComponent)
+  },
+
+  // Editorial trust pages
+  {
+    path: 'editorial-policy',
+    loadComponent: () => import('./components/trust/trust-content.component').then(m => m.TrustContentComponent),
+    data: { trustPage: 'editorial-policy' },
+    title: 'المنهجية التحريرية والمصادر | سابق'
+  },
+  {
+    path: 'corrections',
+    loadComponent: () => import('./components/trust/trust-content.component').then(m => m.TrustContentComponent),
+    data: { trustPage: 'corrections' },
+    title: 'التصحيحات | سابق'
+  },
+  {
+    path: 'team',
+    loadComponent: () => import('./components/trust/trust-content.component').then(m => m.TrustContentComponent),
+    data: { trustPage: 'team' },
+    title: 'فريق المحتوى | سابق'
+  },
+
   // Questions Pages (SEO)
   {
     path: 'questions',

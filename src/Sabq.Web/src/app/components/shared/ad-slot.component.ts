@@ -56,6 +56,11 @@ import { environment } from '../../../environments/environment';
       min-height: 250px;
     }
 
+    .ad-slot.in-article {
+      min-height: 250px;
+      margin: 32px 0;
+    }
+
     .adsbygoogle {
       display: block;
       width: 100%;
@@ -93,10 +98,15 @@ import { environment } from '../../../environments/environment';
 })
 export class AdSlotComponent implements AfterViewInit {
   @Input() slotKey = '';
-  @Input() placement: 'banner' | 'in-feed' | 'rectangle' = 'banner';
+  @Input() placement: 'banner' | 'in-feed' | 'rectangle' | 'in-article' = 'banner';
   @Input() format = 'auto';
   @Input() responsive = 'true';
   @Input() wide = false;
+  /**
+   * Ads are allowed only in reviewed, curated editorial content. Existing game
+   * and question surfaces stay ad-free even if ads are enabled later.
+   */
+  @Input() editorial = false;
 
   @HostBinding('class.ad-wide')
   get isWide(): boolean {
@@ -118,14 +128,15 @@ export class AdSlotComponent implements AfterViewInit {
   }
 
   get adsEnabled(): boolean {
-    return environment.ads.enabled &&
+    return this.editorial &&
+      environment.ads.enabled &&
       !!this.client &&
       !!this.slotId &&
       isPlatformBrowser(this.platformId);
   }
 
   get shouldRender(): boolean {
-    return this.adsEnabled || environment.ads.showPlaceholders;
+    return this.editorial && (this.adsEnabled || environment.ads.showPlaceholders);
   }
 
   ngAfterViewInit(): void {
@@ -143,7 +154,7 @@ export class AdSlotComponent implements AfterViewInit {
   }
 
   private ensureAdSenseScript(): void {
-    if (this.document.querySelector('script[data-sabq-adsense="true"]')) {
+    if (this.document.querySelector('script[data-sabq-adsense="true"], script[src*="pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"]')) {
       return;
     }
 

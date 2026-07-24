@@ -1,5 +1,6 @@
 import { Injectable, Inject } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
+import { SITE_IDENTITY } from '../data/site-identity';
 
 export interface Question {
   id: string;
@@ -30,7 +31,7 @@ export interface BreadcrumbItem {
   providedIn: 'root'
 })
 export class JsonLdService {
-  private readonly siteUrl = 'https://sabiqgame.com';
+  private readonly siteUrl = SITE_IDENTITY.siteUrl;
 
   constructor(
     @Inject(DOCUMENT) private document: Document
@@ -143,7 +144,7 @@ export class JsonLdService {
       'contactPoint': {
         '@type': 'ContactPoint',
         'contactType': 'customer service',
-        'email': 'info@sabq.app',
+        'email': SITE_IDENTITY.contacts.support,
         'availableLanguage': ['Arabic', 'English']
       }
     };
@@ -162,14 +163,6 @@ export class JsonLdService {
       'inLanguage': ['ar', 'en'],
       'publisher': {
         '@id': `${this.siteUrl}/#organization`
-      },
-      'potentialAction': {
-        '@type': 'SearchAction',
-        'target': {
-          '@type': 'EntryPoint',
-          'urlTemplate': `${this.siteUrl}/questions?search={search_term_string}`
-        },
-        'query-input': 'required name=search_term_string'
       }
     };
 

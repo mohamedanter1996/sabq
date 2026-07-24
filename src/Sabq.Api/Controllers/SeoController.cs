@@ -45,7 +45,7 @@ public class SeoController : ControllerBase
     [Produces("application/xml")]
     public async Task<IActionResult> GetSitemapPart(int part)
     {
-        if (part < 1) return BadRequest();
+        if (part != 1) return NotFound();
         var sitemap = await _sitemapService.GenerateSitemapPartAsync(part);
         return Content(sitemap, "application/xml");
     }
@@ -65,7 +65,6 @@ public class SeoController : ControllerBase
 User-agent: *
 Allow: /
 Allow: /assets/
-Allow: /questions/
 Allow: /about
 Allow: /contact
 Allow: /privacy-policy

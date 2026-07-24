@@ -5,9 +5,9 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { Subject, takeUntil, debounceTime, distinctUntilChanged } from 'rxjs';
 import { SeoService } from '../../services/seo.service';
-import { JsonLdService, Question } from '../../services/json-ld.service';
+import { JsonLdService } from '../../services/json-ld.service';
+import type { Question } from '../../services/json-ld.service';
 import { environment } from '../../../environments/environment';
-import { AdSlotComponent } from '../shared/ad-slot.component';
 import {
   QUESTION_PREVIEW_CATEGORIES,
   QUESTION_PREVIEW_QUESTIONS,
@@ -34,7 +34,7 @@ interface Category {
 @Component({
   selector: 'app-questions-list',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule, AdSlotComponent],
+  imports: [CommonModule, RouterLink, FormsModule],
   template: `
     <div class="questions-page">
       <div class="container">
@@ -53,8 +53,6 @@ interface Category {
         <p class="subtitle" *ngIf="!selectedCategory">
           استعرض مجموعة واسعة من الأسئلة في مختلف التصنيفات. اختبر معلوماتك وتعلم شيئاً جديداً!
         </p>
-
-        <app-ad-slot slotKey="questionsTop" placement="banner"></app-ad-slot>
 
         <div class="filters">
           <div class="search-box">
@@ -111,12 +109,6 @@ interface Category {
               </div>
             </a>
 
-            <app-ad-slot
-              *ngIf="i === 5"
-              slotKey="questionsInFeed"
-              placement="in-feed"
-              [wide]="true">
-            </app-ad-slot>
           </ng-container>
         </div>
 
@@ -491,6 +483,7 @@ export class QuestionsListComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    this.jsonLdService.clearAllJsonLd();
     this.loadCategories();
     
     // Handle search debounce
@@ -575,11 +568,6 @@ export class QuestionsListComponent implements OnInit, OnDestroy {
           this.totalPages = response.totalPages;
           this.loading = false;
           this.updateSeo();
-          
-          // Add quiz schema for the questions
-          if (this.questions.length > 0) {
-            this.jsonLdService.setQuizSchema(this.questions, this.pageTitle);
-          }
         },
         error: (err) => {
           console.error('Error loading questions:', err);
@@ -617,10 +605,6 @@ export class QuestionsListComponent implements OnInit, OnDestroy {
       : Math.max(1, Math.ceil(QUESTION_PREVIEW_TOTAL_COUNT / this.pageSize));
     this.loading = false;
     this.updateSeo();
-
-    if (this.questions.length > 0) {
-      this.jsonLdService.setQuizSchema(this.questions, this.pageTitle);
-    }
   }
 
   onSearchChange(value: string): void {
@@ -712,17 +696,9 @@ export class QuestionsListComponent implements OnInit, OnDestroy {
       title,
       description,
       keywords: `أسئلة, كويز, اختبارات, ${this.selectedCategoryLabel || 'ثقافة عامة'}, سابق`,
-      type: 'website'
+      type: 'website',
+      robots: 'noindex,follow'
     });
 
-    const breadcrumbs = [{ name: 'الرئيسية', url: '/' }];
-    if (this.selectedCategory) {
-      breadcrumbs.push({ name: 'الأسئلة', url: '/questions' });
-      breadcrumbs.push({ name: this.selectedCategoryLabel, url: `/questions/${this.selectedCategory}` });
-    } else {
-      breadcrumbs.push({ name: 'الأسئلة', url: '/questions' });
-    }
-    
-    this.jsonLdService.setBreadcrumbSchema(breadcrumbs);
   }
 }

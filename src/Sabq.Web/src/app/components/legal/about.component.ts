@@ -42,7 +42,7 @@ import { JsonLdService } from '../../services/json-ld.service';
             <div class="feature-card">
               <div class="feature-icon">🎮</div>
               <h3>لعب جماعي</h3>
-              <p>تنافس مع أصدقائك أو لاعبين من حول العالم في الوقت الفعلي</p>
+              <p>أنشئ غرفة وشارك رمزها مع أصدقائك للتنافس في وقت واحد</p>
             </div>
             <div class="feature-card">
               <div class="feature-icon">📚</div>
@@ -67,7 +67,7 @@ import { JsonLdService } from '../../services/json-ld.service';
             <div class="feature-card">
               <div class="feature-icon">📱</div>
               <h3>متاح للجميع</h3>
-              <p>العب من المتصفح أو التطبيق على أي جهاز</p>
+              <p>استخدم المنصة من متصفح حديث على الهاتف أو الكمبيوتر</p>
             </div>
           </div>
         </section>
@@ -81,33 +81,21 @@ import { JsonLdService } from '../../services/json-ld.service';
         </section>
 
         <section class="sources">
-          <h2>مصادر الأسئلة</h2>
+          <h2>تحرير الأسئلة ومصادرها</h2>
           <p>
-            يعتمد بنك الأسئلة على بنك محلي مصري أولا، مع مراجعة الحقائق وبنية كل سؤال لضمان وجود أربع اختيارات
-            وإجابة صحيحة واحدة. عند استخدام مصادر مفتوحة أو بيانات قابلة للإسناد مثل Wikidata وOpen Trivia DB،
-            يتم الحفاظ على الإسناد وتجنّب أي أسئلة مولدة كحشو.
+            نوضح معايير اختيار الأسئلة ومراجعة الإجابات والمصادر في سياسة التحرير. نرحب بالبلاغات التي تساعدنا على تصحيح خطأ أو تحديث معلومة.
           </p>
+          <a routerLink="/editorial-policy" class="text-link">اطّلع على سياسة التحرير والمصادر</a>
         </section>
 
-        <section class="stats">
-          <h2>إحصائيات</h2>
-          <div class="stats-grid">
-            <div class="stat-card">
-              <div class="stat-number">700+</div>
-              <div class="stat-label">سؤال</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-number">50,000+</div>
-              <div class="stat-label">مستخدم</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-number">100,000+</div>
-              <div class="stat-label">مسابقة</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-number">15</div>
-              <div class="stat-label">تصنيف</div>
-            </div>
+        <section class="content-standards">
+          <h2>الشفافية والتصحيحات</h2>
+          <p>
+            لا ننشر أرقامًا تسويقية غير موثقة عن عدد المستخدمين أو المسابقات. نركز بدلًا من ذلك على وضوح تجربة اللعب، ومراجعة المحتوى، وإتاحة طريق واضح للإبلاغ عن الأخطاء.
+          </p>
+          <div class="standards-links">
+            <a routerLink="/corrections" class="text-link">سياسة التصحيحات</a>
+            <a routerLink="/team" class="text-link">من يقف وراء المنصة</a>
           </div>
         </section>
 
@@ -263,6 +251,19 @@ import { JsonLdService } from '../../services/json-ld.service';
     .feature-card p {
       font-size: 0.95rem;
       margin-bottom: 0;
+    }
+
+    .text-link {
+      color: var(--primary);
+      font-weight: 700;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    .standards-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
     }
 
     .stats-grid {

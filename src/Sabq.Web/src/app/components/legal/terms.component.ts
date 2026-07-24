@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { SeoService } from '../../services/seo.service';
 import { JsonLdService } from '../../services/json-ld.service';
+import { SITE_IDENTITY } from '../../data/site-identity';
 
 @Component({
   selector: 'app-terms',
@@ -18,7 +19,7 @@ import { JsonLdService } from '../../services/json-ld.service';
         </nav>
 
         <h1>الشروط والأحكام</h1>
-        <p class="last-updated">آخر تحديث: 15 فبراير 2026</p>
+        <p class="last-updated">آخر تحديث: 25 يوليو 2026</p>
 
         <section>
           <h2>1. قبول الشروط</h2>
@@ -33,7 +34,14 @@ import { JsonLdService } from '../../services/json-ld.service';
         </section>
 
         <section>
-          <h2>2. وصف الخدمة</h2>
+          <h2>2. العمر وطبيعة المنصة</h2>
+          <p>
+            سابق منصة عائلية عامة وليست موجهة للأطفال دون سن 13 عامًا. باستخدامك للمنصة تؤكد أن عمرك 13 عامًا على الأقل، أو أنك بلغت الحد الأدنى الأعلى الذي يفرضه قانون بلدك. لا يجوز لمن هو دون 13 عامًا استخدام المنصة أو تقديم بيانات شخصية من خلالها.
+          </p>
+        </section>
+
+        <section>
+          <h2>3. وصف الخدمة</h2>
           <p>
             سابق هي منصة مسابقات تفاعلية متعددة اللاعبين تتيح للمستخدمين:
           </p>
@@ -46,7 +54,7 @@ import { JsonLdService } from '../../services/json-ld.service';
         </section>
 
         <section>
-          <h2>3. التسجيل والحساب</h2>
+          <h2>4. التسجيل والحساب</h2>
           <ul>
             <li>يمكنك استخدام المنصة كضيف باسم عرض</li>
             <li>أنت مسؤول عن الحفاظ على سرية معلومات حسابك</li>
@@ -56,7 +64,17 @@ import { JsonLdService } from '../../services/json-ld.service';
         </section>
 
         <section>
-          <h2>4. قواعد السلوك</h2>
+          <h2>5. الإعلانات وملفات تعريف الارتباط</h2>
+          <p>
+            لا تعرض المنصة إعلانات حاليًا. عند تفعيل الإعلانات بعد استيفاء متطلبات الناشر، قد تُعرض إعلانات مقدمة من Google أو مورّدين آخرين وفقًا لسياسة الخصوصية. لا يجوز النقر على الإعلانات بصورة غير طبيعية، أو تشجيع الآخرين على النقر عليها، أو استخدام أي وسيلة لخلق زيارات أو انطباعات غير صالحة.
+          </p>
+          <p>
+            راجع <a routerLink="/privacy-policy">سياسة الخصوصية</a> لمعرفة كيفية تعامل Google ومورّدي الإعلانات مع ملفات تعريف الارتباط والخيارات المتاحة لك عند تفعيل الإعلانات.
+          </p>
+        </section>
+
+        <section>
+          <h2>6. قواعد السلوك</h2>
           <p>عند استخدام المنصة، يُحظر عليك:</p>
           <ul>
             <li>استخدام لغة مسيئة أو غير لائقة</li>
@@ -69,7 +87,7 @@ import { JsonLdService } from '../../services/json-ld.service';
         </section>
 
         <section>
-          <h2>5. الملكية الفكرية</h2>
+          <h2>7. الملكية الفكرية</h2>
           <p>
             جميع المحتويات على المنصة، بما في ذلك النصوص والأسئلة والرسومات والشعارات، هي ملك لسابق
             أو مرخصة لها. لا يجوز نسخ أو توزيع أي محتوى دون إذن كتابي مسبق.
@@ -77,7 +95,7 @@ import { JsonLdService } from '../../services/json-ld.service';
         </section>
 
         <section>
-          <h2>6. إخلاء المسؤولية</h2>
+          <h2>8. إخلاء المسؤولية</h2>
           <p>
             تُقدم المنصة "كما هي" دون أي ضمانات صريحة أو ضمنية. لا نضمن أن المنصة ستكون متاحة
             دائماً أو خالية من الأخطاء.
@@ -85,7 +103,7 @@ import { JsonLdService } from '../../services/json-ld.service';
         </section>
 
         <section>
-          <h2>7. تحديد المسؤولية</h2>
+          <h2>9. تحديد المسؤولية</h2>
           <p>
             لن تكون سابق مسؤولة عن أي أضرار مباشرة أو غير مباشرة أو عرضية أو تبعية ناتجة عن
             استخدام المنصة أو عدم القدرة على استخدامها.
@@ -93,7 +111,7 @@ import { JsonLdService } from '../../services/json-ld.service';
         </section>
 
         <section>
-          <h2>8. التعديلات</h2>
+          <h2>10. التعديلات</h2>
           <p>
             نحتفظ بالحق في تعديل هذه الشروط والأحكام في أي وقت. سيتم نشر التغييرات على هذه الصفحة
             مع تحديث تاريخ "آخر تحديث". استمرارك في استخدام المنصة بعد التعديلات يعني موافقتك عليها.
@@ -101,19 +119,19 @@ import { JsonLdService } from '../../services/json-ld.service';
         </section>
 
         <section>
-          <h2>9. القانون الحاكم</h2>
+          <h2>11. القانون الحاكم</h2>
           <p>
-            تخضع هذه الشروط والأحكام لقوانين المملكة العربية السعودية وتُفسر وفقاً لها.
+            تخضع هذه الشروط للقانون واجب التطبيق على الجهة المشغلة، مع مراعاة الحقوق الإلزامية التي يمنحها قانون بلد المستخدم حيث تنطبق.
           </p>
         </section>
 
         <section>
-          <h2>10. اتصل بنا</h2>
+          <h2>12. اتصل بنا</h2>
           <p>
             لأي استفسارات حول هذه الشروط والأحكام:
           </p>
           <ul>
-            <li>البريد الإلكتروني: <a href="mailto:legal&#64;sabq.com">legal&#64;sabq.com</a></li>
+            <li>البريد الإلكتروني: <a [href]="'mailto:' + identity.contacts.legal">{{ identity.contacts.legal }}</a></li>
             <li><a routerLink="/contact">صفحة التواصل</a></li>
           </ul>
         </section>
@@ -229,6 +247,8 @@ import { JsonLdService } from '../../services/json-ld.service';
   `]
 })
 export class TermsComponent implements OnInit {
+  readonly identity = SITE_IDENTITY;
+
   constructor(
     private seoService: SeoService,
     private jsonLdService: JsonLdService

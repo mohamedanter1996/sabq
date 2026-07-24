@@ -18,6 +18,12 @@ export interface SeoConfig {
   section?: string;
   locale?: string;
   alternateLocale?: string;
+  /**
+   * Lets pages that are useful inside the application, but should not become
+   * search landing pages, opt out of indexing without bypassing the shared SEO
+   * service.
+   */
+  robots?: string;
 }
 
 @Injectable({
@@ -38,7 +44,7 @@ export class SeoService {
 
   updateSeo(config: SeoConfig): void {
     const fullTitle = config.title ? `${config.title} | ${this.siteName}` : this.siteName;
-    const url = config.url || `${this.siteUrl}${this.router.url}`;
+    const url = this.normalizeCanonicalUrl(config.url || `${this.siteUrl}${this.router.url}`);
     const image = config.image || this.defaultImage;
     
     // Set title
@@ -46,7 +52,7 @@ export class SeoService {
 
     // Basic meta tags
     this.updateMetaTag('description', config.description);
-    this.updateMetaTag('robots', 'index, follow');
+    this.updateMetaTag('robots', config.robots || 'index, follow');
     this.updateMetaTag('application-name', this.siteName);
     this.updateMetaTag('apple-mobile-web-app-title', this.siteName);
     if (config.keywords) {
@@ -100,6 +106,17 @@ export class SeoService {
       this.document.head.appendChild(link);
     }
     link.setAttribute('href', url);
+  }
+
+  /**
+   * The public URL policy uses no trailing slash except for the site root.
+   * Query strings and fragments describe a view of a page, not a separate
+   * canonical document, so they are intentionally omitted.
+   */
+  private normalizeCanonicalUrl(url: string): string {
+    const parsed = new URL(url, `${this.siteUrl}/`);
+    const pathname = parsed.pathname.replace(/\/+$/, '') || '/';
+    return `${parsed.origin}${pathname}`;
   }
 
   setAlternateLanguages(arabicUrl: string, englishUrl: string): void {

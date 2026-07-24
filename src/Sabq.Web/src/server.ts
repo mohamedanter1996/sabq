@@ -5,6 +5,15 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import bootstrap from './main.server';
 
+const legacyQuestionDetailPath = /^\/questions\/[^/]+\/[^/]+\/?$/;
+const legacyQuestionListingPath = /^\/questions(?:\/[^/]+)?\/?$/;
+const prerenderedPublicPath = /^\/(?:about|contact|privacy-policy|terms-and-conditions|editorial-policy|corrections|team|learn(?:\/(?:arabic-language-basics|math-and-logic|science-around-us|life-science|earth-and-space|climate-and-water|digital-citizenship|world-geography|egyptian-heritage|arab-scientific-heritage|historical-thinking|reading-and-research))?)\/?$/;
+const dynamicApplicationPath = /^\/(?:home|login|admin(?:\/login)?|questions(?:\/[^/]+)?|lobby\/[^/]+|game\/[^/]+|results\/[^/]+)\/?$/;
+
+function isKnownApplicationPath(pathname: string): boolean {
+  return pathname === '/' || prerenderedPublicPath.test(pathname) || dynamicApplicationPath.test(pathname);
+}
+
 export function app(): Express {
   const server = express();
   const serverDistFolder = dirname(fileURLToPath(import.meta.url));
@@ -22,8 +31,7 @@ export function app(): Express {
     index: false,
   }));
 
-  // All regular routes use the Angular engine
-  server.get('*', (req: Request, res: Response, next: NextFunction) => {
+  const renderAngular = (req: Request, res: Response, next: NextFunction) => {
     const { protocol, originalUrl, baseUrl, headers } = req;
 
     commonEngine
@@ -36,6 +44,31 @@ export function app(): Express {
       })
       .then((html: string) => res.send(html))
       .catch((err: Error) => next(err));
+  };
+
+  // Keep removed question-detail URLs out of the SPA so crawlers receive 410.
+  server.get('*', (req: Request, res: Response, next: NextFunction) => {
+    const pathname = req.path;
+
+    if (legacyQuestionDetailPath.test(pathname)) {
+      return res.status(410).type('text/plain').send('This legacy question page has been retired.');
+    }
+
+    if (pathname !== '/' && pathname.endsWith('/') && isKnownApplicationPath(pathname)) {
+      const queryStart = req.originalUrl.indexOf('?');
+      const query = queryStart >= 0 ? req.originalUrl.slice(queryStart) : '';
+      return res.redirect(301, `${pathname.replace(/\/+$/, '')}${query}`);
+    }
+
+    if (!isKnownApplicationPath(pathname)) {
+      return res.status(404).type('text/plain').send('Not Found');
+    }
+
+    if (legacyQuestionListingPath.test(pathname)) {
+      res.set('X-Robots-Tag', 'noindex, follow');
+    }
+
+    return renderAngular(req, res, next);
   });
 
   return server;

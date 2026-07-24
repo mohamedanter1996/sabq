@@ -32,7 +32,7 @@ interface GuestLoginResponse { token: string; playerId: string; displayName: str
         </div>
 
         <div class="quick-links" aria-label="روابط مهمة">
-          <a routerLink="/questions">استكشف الأسئلة</a>
+          <a routerLink="/learn">استكشف تحديات التعلّم</a>
           <a routerLink="/about">عن سابق</a>
         </div>
       </div>

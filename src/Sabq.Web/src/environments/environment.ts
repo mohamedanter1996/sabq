@@ -15,7 +15,8 @@ export const environment = {
       questionsTop: '',
       questionsInFeed: '',
       questionDetail: '',
-      resultsBottom: ''
+      resultsBottom: '',
+      editorialArticle: ''
     }
   }
 };

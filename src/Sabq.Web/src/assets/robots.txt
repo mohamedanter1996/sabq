@@ -4,7 +4,6 @@
 User-agent: *
 Allow: /
 Allow: /assets/
-Allow: /questions/
 Allow: /about
 Allow: /contact
 Allow: /privacy-policy

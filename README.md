@@ -172,8 +172,8 @@ The Angular app uses environment-based configuration:
 ```typescript
 {
   production: true,
-  apiUrl: 'https://api.sabq.app/api',
-  hubUrl: 'https://api.sabq.app/hubs/sabq'
+  apiUrl: 'https://sabiqgameapi.runasp.net/api',
+  hubUrl: 'https://sabiqgameapi.runasp.net/hubs/sabq'
 }
 ```
 

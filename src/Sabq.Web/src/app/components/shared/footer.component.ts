@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { SITE_IDENTITY } from '../../data/site-identity';
 
 @Component({
   selector: 'app-footer',
@@ -32,10 +33,11 @@ import { RouterLink } from '@angular/router';
               <p class="brand-tagline">جاوب الأول... واكسب!</p>
             </div>
           </div>
-          <p class="brand-description">منصة عربية رائدة لألعاب الأسئلة والمسابقات التفاعلية. انضم إلى مجتمعنا وتحدى أصدقاءك!</p>
+          <p class="brand-description">منصة عربية للعب المسابقات والأسئلة التفاعلية مع الأصدقاء.</p>
 
           <p class="source-note">
-            بنك الأسئلة مصري أولا، مع إسناد للمصادر المفتوحة والبيانات القابلة للتحقق مثل Wikidata وOpen Trivia DB عند استخدامها.
+            نوضح معايير تحرير المحتوى ومراجعة البلاغات في
+            <a routerLink="/editorial-policy" class="source-link">سياسة التحرير والمصادر</a>.
           </p>
 
           <!-- Social Links -->
@@ -75,7 +77,8 @@ import { RouterLink } from '@angular/router';
             </h4>
             <ul>
               <li><a routerLink="/"><span class="link-arrow">←</span> الرئيسية</a></li>
-              <li><a routerLink="/questions"><span class="link-arrow">←</span> الأسئلة</a></li>
+              <li><a routerLink="/editorial-policy"><span class="link-arrow">←</span> المصادر والمنهجية</a></li>
+              <li><a routerLink="/learn"><span class="link-arrow">←</span> تعلّم</a></li>
               <li><a routerLink="/about"><span class="link-arrow">←</span> من نحن</a></li>
               <li><a routerLink="/contact"><span class="link-arrow">←</span> تواصل معنا</a></li>
             </ul>
@@ -94,6 +97,9 @@ import { RouterLink } from '@angular/router';
             <ul>
               <li><a routerLink="/privacy-policy"><span class="link-arrow">←</span> سياسة الخصوصية</a></li>
               <li><a routerLink="/terms-and-conditions"><span class="link-arrow">←</span> الشروط والأحكام</a></li>
+              <li><a routerLink="/editorial-policy"><span class="link-arrow">←</span> سياسة التحرير والمصادر</a></li>
+              <li><a routerLink="/corrections"><span class="link-arrow">←</span> التصحيحات</a></li>
+              <li><a routerLink="/team"><span class="link-arrow">←</span> فريق المنصة</a></li>
             </ul>
           </div>
           
@@ -111,7 +117,7 @@ import { RouterLink } from '@angular/router';
                   <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
                   <polyline points="22,6 12,13 2,6"></polyline>
                 </svg>
-                info&#64;sabq.app
+                <a [href]="'mailto:' + identity.contacts.support">{{ identity.contacts.support }}</a>
               </li>
             </ul>
           </div>
@@ -221,6 +227,12 @@ import { RouterLink } from '@angular/router';
       line-height: 1.6;
       color: rgba(255, 255, 255, 0.55);
       margin: -0.25rem 0 0;
+    }
+
+    .source-link {
+      color: #BFDBFE;
+      text-decoration: underline;
+      text-underline-offset: 3px;
     }
     
     /* Social Links */
@@ -433,4 +445,5 @@ import { RouterLink } from '@angular/router';
 })
 export class FooterComponent {
   currentYear = new Date().getFullYear();
+  readonly identity = SITE_IDENTITY;
 }

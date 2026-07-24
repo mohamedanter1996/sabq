@@ -338,7 +338,7 @@ public sealed class QuestionBankRefreshScheduler : BackgroundService
             Uri.EscapeDataString(query.Sparql);
 
         using var request = new HttpRequestMessage(HttpMethod.Get, url);
-        request.Headers.UserAgent.ParseAdd("SabqQuestionBankRefresh/1.0 (https://sabq.app)");
+        request.Headers.UserAgent.ParseAdd("SabqQuestionBankRefresh/1.0 (https://sabiqgame.com)");
 
         using var response = await client.SendAsync(request, cancellationToken);
         response.EnsureSuccessStatusCode();

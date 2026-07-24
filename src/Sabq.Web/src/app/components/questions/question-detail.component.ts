@@ -4,15 +4,15 @@ import { RouterLink, ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { Subject, takeUntil } from 'rxjs';
 import { SeoService } from '../../services/seo.service';
-import { JsonLdService, Question, Option } from '../../services/json-ld.service';
+import { JsonLdService } from '../../services/json-ld.service';
+import type { Question } from '../../services/json-ld.service';
 import { environment } from '../../../environments/environment';
-import { AdSlotComponent } from '../shared/ad-slot.component';
 import { QUESTION_PREVIEW_QUESTIONS } from '../../data/question-preview.generated';
 
 @Component({
   selector: 'app-question-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink, AdSlotComponent],
+  imports: [CommonModule, RouterLink],
   template: `
     <div class="question-page">
       <div class="container">
@@ -79,8 +79,6 @@ import { QUESTION_PREVIEW_QUESTIONS } from '../../data/question-preview.generate
               <p class="correct-answer">{{ getCorrectAnswer() }}</p>
             </div>
           </div>
-
-          <app-ad-slot slotKey="questionDetail" placement="rectangle"></app-ad-slot>
 
           <div class="play-cta">
             <h3>هل تريد اختبار معلوماتك أكثر؟</h3>
@@ -466,6 +464,14 @@ export class QuestionDetailComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    this.jsonLdService.clearAllJsonLd();
+    this.seoService.updateSeo({
+      title: 'Question bank',
+      description: 'Legacy question-bank route.',
+      type: 'website',
+      robots: 'noindex,follow'
+    });
+
     this.route.paramMap.pipe(takeUntil(this.destroy$)).subscribe(params => {
       const categorySlug = params.get('category');
       const questionSlug = params.get('slug');
@@ -479,7 +485,6 @@ export class QuestionDetailComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
-    this.jsonLdService.clearAllJsonLd();
   }
 
   loadQuestion(categorySlug: string, questionSlug: string): void {
@@ -494,7 +499,6 @@ export class QuestionDetailComponent implements OnInit, OnDestroy {
         this.question = { ...question };
         this.loading = false;
         this.updateSeo();
-        this.setJsonLd();
       } else {
         this.loading = false;
         this.errorMessage = 'لم يتم العثور على السؤال المطلوب.';
@@ -509,7 +513,6 @@ export class QuestionDetailComponent implements OnInit, OnDestroy {
           this.question = question;
           this.loading = false;
           this.updateSeo();
-          this.setJsonLd();
         },
         error: (err) => {
           this.loading = false;
@@ -531,23 +534,9 @@ export class QuestionDetailComponent implements OnInit, OnDestroy {
       keywords: `سؤال, ${this.question.categoryNameAr}, كويز, سابق, مسابقات`,
       type: 'article',
       modifiedTime: this.question.lastModified,
-      section: this.question.categoryNameAr
+      section: this.question.categoryNameAr,
+      robots: 'noindex,follow'
     });
-  }
-
-  setJsonLd(): void {
-    if (!this.question) return;
-
-    // Set question schema
-    this.jsonLdService.setQuestionSchema(this.question);
-
-    // Set breadcrumb schema
-    this.jsonLdService.setBreadcrumbSchema([
-      { name: 'الرئيسية', url: '/' },
-      { name: 'الأسئلة', url: '/questions' },
-      { name: this.question.categoryNameAr, url: `/questions/${this.question.categorySlug}` },
-      { name: this.getTruncatedText(this.question.textAr, 50), url: `/questions/${this.question.categorySlug}/${this.question.slug}` }
-    ]);
   }
 
   getTruncatedText(text: string, maxLength: number): string {

@@ -21,7 +21,22 @@ const staticRoutes = [
   { path: '/contact', changefreq: 'monthly', priority: '0.7' },
   { path: '/privacy-policy', changefreq: 'yearly', priority: '0.5' },
   { path: '/terms-and-conditions', changefreq: 'yearly', priority: '0.5' },
-  { path: '/questions', changefreq: 'daily', priority: '0.9' }
+  { path: '/editorial-policy', changefreq: 'monthly', priority: '0.7' },
+  { path: '/corrections', changefreq: 'monthly', priority: '0.6' },
+  { path: '/team', changefreq: 'monthly', priority: '0.6' },
+  { path: '/learn', changefreq: 'weekly', priority: '0.9' },
+  { path: '/learn/arabic-language-basics', changefreq: 'monthly', priority: '0.8' },
+  { path: '/learn/math-and-logic', changefreq: 'monthly', priority: '0.8' },
+  { path: '/learn/science-around-us', changefreq: 'monthly', priority: '0.8' },
+  { path: '/learn/life-science', changefreq: 'monthly', priority: '0.8' },
+  { path: '/learn/earth-and-space', changefreq: 'monthly', priority: '0.8' },
+  { path: '/learn/climate-and-water', changefreq: 'monthly', priority: '0.8' },
+  { path: '/learn/digital-citizenship', changefreq: 'monthly', priority: '0.8' },
+  { path: '/learn/world-geography', changefreq: 'monthly', priority: '0.8' },
+  { path: '/learn/egyptian-heritage', changefreq: 'monthly', priority: '0.8' },
+  { path: '/learn/arab-scientific-heritage', changefreq: 'monthly', priority: '0.8' },
+  { path: '/learn/historical-thinking', changefreq: 'monthly', priority: '0.8' },
+  { path: '/learn/reading-and-research', changefreq: 'monthly', priority: '0.8' }
 ];
 
 const questionBank = JSON.parse(readFileSync(questionBankPath, 'utf8'));
@@ -30,7 +45,18 @@ const categories = Array.isArray(questionBank.categories) ? questionBank.categor
 const questions = Array.isArray(questionBank.questions) ? questionBank.questions : [];
 const categoryBySlug = new Map(categories.map((category) => [category.slug, category]));
 const previewQuestionsPerCategory = 20;
-const prerenderQuestionDetailsPerCategory = 5;
+
+// These routes remain part of the playable question bank, but are deliberately
+// excluded from the public sitemap. Pre-rendering them still gives crawlers a
+// document with the component's `noindex,follow` directive instead of the
+// generic root document. Individual question URLs are intentionally absent so
+// the host can retire them with 410 Gone.
+const noindexQuestionRoutes = [
+  { path: '/questions' },
+  ...categories
+    .filter((category) => category.slug)
+    .map((category) => ({ path: `/questions/${category.slug}` }))
+];
 
 function escapeXml(value) {
   return String(value)
@@ -76,25 +102,7 @@ function sitemapUrl({ path, lastmod, changefreq, priority }) {
   return lines.join('\n');
 }
 
-const sitemapEntries = [
-  ...staticRoutes,
-  ...categories
-    .filter((category) => category.slug)
-    .map((category) => ({
-      path: `/questions/${category.slug}`,
-      lastmod: generatedAt,
-      changefreq: 'weekly',
-      priority: '0.8'
-    })),
-  ...questions
-    .filter((question) => question.slug && question.categorySlug)
-    .map((question) => ({
-      path: `/questions/${question.categorySlug}/${question.slug}`,
-      lastmod: question.lastModified || generatedAt,
-      changefreq: 'monthly',
-      priority: '0.6'
-    }))
-];
+const sitemapEntries = [...staticRoutes];
 
 const seenUrls = new Set();
 const uniqueSitemapEntries = sitemapEntries.filter((entry) => {
@@ -115,16 +123,8 @@ const sitemap = [
   ''
 ].join('\n');
 
-const routes = [
-  ...staticRoutes.map((route) => normalizePath(route.path)),
-  ...categories
-    .filter((category) => category.slug)
-    .map((category) => normalizePath(`/questions/${category.slug}`)),
-  ...categories.flatMap((category) => questions
-    .filter((question) => question.categorySlug === category.slug && question.slug)
-    .slice(0, prerenderQuestionDetailsPerCategory)
-    .map((question) => normalizePath(`/questions/${question.categorySlug}/${question.slug}`)))
-];
+const routes = [...staticRoutes, ...noindexQuestionRoutes]
+  .map((route) => normalizePath(route.path));
 
 const previewQuestionMap = new Map();
 for (const question of questions.slice(0, previewQuestionsPerCategory)) {
@@ -213,5 +213,5 @@ writeFileSync(routesPath, `${Array.from(new Set(routes)).join('\n')}\n`, 'utf8')
 writeFileSync(previewDataPath, previewData, 'utf8');
 
 console.log(`Generated ${uniqueSitemapEntries.length} sitemap URLs at ${sitemapPath}`);
-console.log(`Generated ${routes.length} prerender routes at ${routesPath}`);
+console.log(`Generated ${routes.length} prerender routes at ${routesPath} (${noindexQuestionRoutes.length} noindex question routes)`);
 console.log(`Generated ${previewQuestionMap.size} preview questions at ${previewDataPath}`);

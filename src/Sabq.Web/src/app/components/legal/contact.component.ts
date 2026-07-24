@@ -6,6 +6,7 @@ import { HttpClient } from '@angular/common/http';
 import { SeoService } from '../../services/seo.service';
 import { JsonLdService } from '../../services/json-ld.service';
 import { environment } from '../../../environments/environment';
+import { SITE_IDENTITY } from '../../data/site-identity';
 
 interface ContactResponse {
   success: boolean;
@@ -114,7 +115,7 @@ interface ContactResponse {
               <div class="info-icon">📧</div>
               <div class="info-content">
                 <h3>البريد الإلكتروني</h3>
-                <a href="mailto:support&#64;sabq.com">support&#64;sabq.com</a>
+                <a [href]="'mailto:' + identity.contacts.support">{{ identity.contacts.support }}</a>
               </div>
             </div>
 
@@ -122,7 +123,7 @@ interface ContactResponse {
               <div class="info-icon">🌐</div>
               <div class="info-content">
                 <h3>الموقع الإلكتروني</h3>
-                <a href="https://sabq.com" target="_blank">sabq.com</a>
+                <a [href]="identity.siteUrl" target="_blank" rel="noopener">{{ identity.domain }}</a>
               </div>
             </div>
 
@@ -148,8 +149,8 @@ interface ContactResponse {
             </div>
 
             <div class="response-time">
-              <h3>وقت الرد المتوقع</h3>
-              <p>نسعى للرد على جميع الرسائل خلال 24-48 ساعة عمل.</p>
+              <h3>كيف نتابع الرسائل</h3>
+              <p>نراجع الرسائل الواردة عبر النموذج أو البريد الرسمي ونستخدمها فقط للرد والمتابعة المتعلقة بطلبك.</p>
             </div>
           </div>
         </div>
@@ -435,6 +436,7 @@ interface ContactResponse {
 })
 export class ContactComponent implements OnInit {
   private readonly apiUrl = environment.apiUrl;
+  readonly identity = SITE_IDENTITY;
 
   formData = {
     name: '',
